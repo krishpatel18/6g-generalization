@@ -21,7 +21,7 @@ class Refiner(nn.Module):
     Input/output: [batch, 2 (re/im), symbols, subcarriers] plus an SNR plane on input.
     """
 
-    def __init__(self, width: int = 48, depth: int = 6):
+    def __init__(self, width: int = 32, depth: int = 6):
         super().__init__()
         layers = [nn.Conv2d(3, width, 3, padding=1), nn.GELU()]
         for _ in range(depth - 2):
