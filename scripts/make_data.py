@@ -5,7 +5,7 @@ from sixg_gen import channels
 SETS = [("cdl", 12000, 1)] + [
     (f"rt:{city}", n, seed)
     for city in channels.RT_SCENES
-    for n, seed in ((4000, 1), (1000, 2), (2000, 3))
+    for n, seed in ((12000, 1), (1000, 2), (2000, 3))
 ]
 
 if __name__ == "__main__":

@@ -47,14 +47,12 @@ def ls_estimate(h: np.ndarray, snr_db: np.ndarray, rng: np.random.Generator) -> 
     noise = (rng.standard_normal(pilots.shape) + 1j * rng.standard_normal(pilots.shape)) * np.sqrt(noise_var / 2)
     pilots = pilots + noise
 
-    k = np.arange(NUM_SUBCARRIERS)
+    # Pilots sit on even subcarriers: odd ones take the mean of their neighbours,
+    # and the last (odd) subcarrier holds the final pilot.
     freq_interp = np.empty((n, len(sym), NUM_SUBCARRIERS), dtype=np.complex128)
-    for i in range(n):
-        for j in range(len(sym)):
-            freq_interp[i, j] = (
-                np.interp(k, PILOT_SUBCARRIERS, pilots[i, j].real)
-                + 1j * np.interp(k, PILOT_SUBCARRIERS, pilots[i, j].imag)
-            )
+    freq_interp[..., PILOT_SUBCARRIERS] = pilots
+    freq_interp[..., 1:-1:2] = (pilots[..., :-1] + pilots[..., 1:]) / 2
+    freq_interp[..., -1] = pilots[..., -1]
 
     t = np.arange(NUM_SYMBOLS)
     w = np.clip((t - sym[0]) / (sym[1] - sym[0]), 0.0, 1.0)[None, :, None]
