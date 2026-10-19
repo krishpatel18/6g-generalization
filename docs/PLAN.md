@@ -117,4 +117,50 @@ See the end of the session summary; recorded here once decided.
 
 ## Results
 
-_Pending — pilot run in progress._
+### Run 1 (2026-10-19): SISO, 3.84 MHz — the setting can't measure the question
+
+`runs/loco_seed0.csv`, seed 0. NMSE in dB at 10 dB SNR, lower is better:
+
+| method | N | Munich | Étoile | Florence | San Francisco |
+|---|---|---|---|---|---|
+| LS + interpolation | 0 | −12.2 | −12.2 | −12.2 | −12.2 |
+| CDL-pretrained, zero-shot | 0 | −18.7 | −18.5 | −18.7 | −19.2 |
+| 3-city RT, zero-shot | 0 | −19.1 | −18.3 | −19.3 | −20.1 |
+| 1-city RT, zero-shot | 0 | −19.1 | −18.5 | −19.4 | −20.0 |
+| CDL-pretrained, fine-tuned | 200 | −19.1 | −18.6 | −19.2 | −20.3 |
+| 3-city RT, fine-tuned | 200 | −19.1 | −18.6 | −19.3 | −20.4 |
+| from scratch | 200 | −19.1 | −18.5 | −19.3 | −20.3 |
+| LMMSE fitted on target | 50 | −19.9 | −19.6 | −22.4 | −22.9 |
+| LMMSE fitted on target | 200 | −21.7 | −20.4 | −22.7 | −23.9 |
+
+- Every learned arm lands within ~1 dB of every other, including training from
+  scratch on 50 samples. The CNN learns a generic denoiser; the prior doesn't matter.
+- A linear LMMSE fitted on 50 target samples beats all of them by 1–3 dB: the
+  CNN (13×13 receptive field, 13 of 128 subcarriers) doesn't reach the linear optimum.
+
+### Diagnosis with LMMSE as the linear twin of each arm
+
+Fit LMMSE on each pre-training source, test on each city, compare with LMMSE fitted
+on the city itself (12k). Extra error vs in-domain, dB at 10 dB SNR (Mu/Ét/Fl/SF):
+
+| setting | fit on CDL | fit on 3 other cities |
+|---|---|---|
+| SISO, 128 sc (run 1) | 0.8 / 0.3 / 1.5 / 2.8 | 0.1 / 1.9 / 0.3 / 1.4 |
+| SISO, pilots every 4–12 sc, 1 symbol | ≤1.3 | ≤0.4 |
+| SISO, 512 sc (15.4 MHz) | 0.6 / 0.6 / 1.3 / 3.1 | 0.2 / 2.9 / 0.4 / 2.2 |
+| **8 BS antennas**, 128 sc | 2.0 / 1.5 / 2.7 / 4.2 | 0.6 / 2.2 / 0.4 / 1.1 |
+| **16 BS antennas**, 128 sc | 2.2 / 1.7 / 3.2 / 4.8 | 0.7 / 2.1 / 0.2 / 0.8 |
+
+(Probes use 2k fit / 1k test channels; they reproduce the 12k numbers within ~0.2 dB.)
+
+- Single-antenna channels barely differ between sources; pilot density and
+  bandwidth don't change that. **Antennas do**: spatial structure is where a city's
+  geometry shows, and the CDL-vs-RT gap grows with array size.
+- With 16 antennas, other-city RT statistics are 1.5–4 dB closer to the target than
+  CDL statistics in Munich, Florence and San Francisco — consistent with the thesis.
+- **Étoile is the exception everywhere**: other-city RT transfers *worse* than CDL
+  (up to 5 dB at 20 dB SNR). Its open star-shaped plaza doesn't resemble the street
+  grids of the other three. A "broad RT prior" claim has to survive sites like this.
+
+Next: rerun with a multi-antenna base station and an estimator that at least
+matches in-domain LMMSE.
