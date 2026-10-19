@@ -18,15 +18,16 @@ TRAIN_SNR_DB = (-5.0, 25.0)
 class Refiner(nn.Module):
     """Residual CNN that cleans up the interpolated LS grid (ChannelNet-style).
 
-    Input/output: [batch, 2 (re/im), symbols, subcarriers] plus an SNR plane on input.
+    Input/output: [batch, 2 x antennas (re, im), symbols, subcarriers] plus an SNR plane on input.
     """
 
     def __init__(self, width: int = 32, depth: int = 6):
         super().__init__()
-        layers = [nn.Conv2d(3, width, 3, padding=1), nn.GELU()]
+        planes = 2 * grid.NUM_ANTENNAS
+        layers = [nn.Conv2d(planes + 1, width, 3, padding=1), nn.GELU()]
         for _ in range(depth - 2):
             layers += [nn.Conv2d(width, width, 3, padding=1), nn.GELU()]
-        layers += [nn.Conv2d(width, 2, 3, padding=1)]
+        layers += [nn.Conv2d(width, planes, 3, padding=1)]
         self.net = nn.Sequential(*layers)
 
     def forward(self, ls: torch.Tensor, snr_db: torch.Tensor) -> torch.Tensor:
@@ -35,12 +36,13 @@ class Refiner(nn.Module):
 
 
 def _to_planes(h: np.ndarray) -> torch.Tensor:
-    return torch.from_numpy(np.stack([h.real, h.imag], axis=1).astype(np.float32))
+    return torch.from_numpy(np.concatenate([h.real, h.imag], axis=1).astype(np.float32))
 
 
 def _from_planes(x: torch.Tensor) -> np.ndarray:
     x = x.detach().cpu().numpy()
-    return (x[:, 0] + 1j * x[:, 1]).astype(np.complex64)
+    a = x.shape[1] // 2
+    return (x[:, :a] + 1j * x[:, a:]).astype(np.complex64)
 
 
 def train(model: Refiner, h: np.ndarray, steps: int, lr: float, seed: int, batch: int = 128) -> Refiner:
@@ -88,13 +90,13 @@ class LMMSE:
 
     @staticmethod
     def _pilots(h: np.ndarray) -> np.ndarray:
-        return h[:, list(grid.PILOT_SYMBOLS)][:, :, grid.PILOT_SUBCARRIERS].reshape(len(h), -1)
+        return h[..., list(grid.PILOT_SYMBOLS), :][..., grid.PILOT_SUBCARRIERS].reshape(len(h), -1)
 
     def estimate(self, h: np.ndarray, snr_db: np.ndarray, rng: np.random.Generator) -> np.ndarray:
         p = self._pilots(h)
         noise_var = 10.0 ** (-np.asarray(snr_db) / 10.0)
         p = p + (rng.standard_normal(p.shape) + 1j * rng.standard_normal(p.shape)) * np.sqrt(noise_var / 2)[:, None]
-        out = np.empty((len(h), h.shape[1] * h.shape[2]), dtype=np.complex64)
+        out = np.empty((len(h), h[0].size), dtype=np.complex64)
         eye = np.eye(len(self.r_pp))
         for nv in np.unique(noise_var):
             rows = noise_var == nv
