@@ -1,6 +1,10 @@
-"""Generate and cache every channel set the leave-one-city-out experiment needs."""
+"""Generate and cache every channel set the leave-one-city-out experiment needs.
+
+usage: make_data.py [num_bs_antennas]   (default 1)
+"""
+import sys
 import time
-from sixg_gen import channels
+from sixg_gen import channels, grid
 
 SETS = [("cdl", 12000, 1)] + [
     (f"rt:{city}", n, seed)
@@ -9,6 +13,8 @@ SETS = [("cdl", 12000, 1)] + [
 ]
 
 if __name__ == "__main__":
+    grid.NUM_ANTENNAS = int(sys.argv[1]) if len(sys.argv) > 1 else 1
+    print(f"grid {grid.config_tag()}", flush=True)
     start = time.time()
     for i, (source, n, seed) in enumerate(SETS, 1):
         t = time.time()
