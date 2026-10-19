@@ -3,8 +3,8 @@
 `generate(source, n, seed)` returns `n` power-normalized channel grids shaped
 [n, NUM_ANTENNAS, NUM_SYMBOLS, NUM_SUBCARRIERS] (see `grid`). A source is either
 
-- ``"cdl"``: 3GPP TR 38.901 CDL-A..E, drawn uniformly, with random delay spread
-  and user speed (Sionna PHY), or
+- ``"cdl"``: 3GPP TR 38.901 CDL-A..E, drawn uniformly, with random delay spread,
+  user speed and base-station heading (Sionna PHY), or
 - ``"rt:<scene>"``: ray-traced paths in one of Sionna RT's built-in city scenes,
   with a rooftop base station and moving street-level users.
 
@@ -56,9 +56,13 @@ def _cdl(n: int, seed: int) -> np.ndarray:
         b = min(batch, n - start)
         model = "ABCDE"[rng.integers(5)]
         delay_spread = float(rng.uniform(30e-9, 300e-9))
+        # CDL clusters have fixed angles; a random base-station heading per sample
+        # spreads users around the array, as the ray-traced placement does.
+        heading = torch.zeros(b, 3)
+        heading[:, 0] = torch.from_numpy(rng.uniform(0, 2 * np.pi, b))
         cdl = CDL(model, delay_spread, grid.CARRIER_HZ, ut_array=AntennaArray(num_cols=1, **ant),
                   bs_array=AntennaArray(num_cols=grid.NUM_ANTENNAS, **ant), direction="uplink",
-                  min_speed=0.0, max_speed=MAX_SPEED_MPS, device="cpu")
+                  bs_orientation=heading, min_speed=0.0, max_speed=MAX_SPEED_MPS, device="cpu")
         a, tau = cdl(b, grid.NUM_SYMBOLS, 1.0 / grid.SYMBOL_PERIOD_S)
         h = cir_to_ofdm_channel(freqs, a, tau)  # [b, rx, rx_ant (BS), tx, tx_ant, sym, sc]
         out.append(h.reshape(b, grid.NUM_ANTENNAS, grid.NUM_SYMBOLS, grid.NUM_SUBCARRIERS).numpy())

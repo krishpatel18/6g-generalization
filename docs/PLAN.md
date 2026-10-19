@@ -192,7 +192,7 @@ Code: `scripts/loco.py` (run 1's version is in git at `ef199f4`).
     grid is the whole story.
 - **Not a deployable estimator:** dense 14336×1024 LMMSE plus a CNN is a
   measuring instrument, not something that meets the <0.5 ms slot budget.
-- **Side result to carry forward (pre-registered):** the LMMSE-from-source gap is itself a cheap
+- **Side result to carry forward:** the LMMSE-from-source gap is itself a cheap
   "which pre-training source resembles this site?" metric — an open question the
   notebook listed. If Étoile stays an outlier, the project's contribution may be
   "when does an RT prior transfer, and can you tell in advance" rather than
@@ -227,7 +227,12 @@ Code: `scripts/loco.py` (run 1's version is in git at `ef199f4`).
 - **RT realism: supported** — rt3 beats cdl at N=0 in 3/4 cities at 10 and 20 dB
   (Munich +1.8, Florence +2.4, SF +2.8, Étoile −0.3 dB at 10 dB) and 4/4 at 0 dB.
   With **zero** site data the 3-city RT prior beats LMMSE from 200 site samples in
-  all four cities, and roughly matches 1,000 in Munich and Florence.
+  Munich, Étoile and Florence (ties in SF), and roughly matches 1,000 in Munich
+  and Florence. Caveat: the own-N LMMSE baseline uses only light diagonal loading
+  for 1,024 pilot dimensions; a shrinkage-regularized baseline would be stronger.
+- **Caveats on this result:** simulation-to-simulation (test channels come from the
+  same ray tracer as the RT arms); seed 0 only; the CDL arm's angular diversity is
+  under re-check (see below).
 - **Breadth: no evidence** — rt3 vs rt1 averages +0.15 dB at 10 dB, +0.48 dB at
   20 dB, ≈0 with the CNN. One other city is as good a prior as three here.
 - **Beyond covariance: weak** — clears 0.5 dB only for Munich with the
@@ -239,3 +244,17 @@ Code: `scripts/loco.py` (run 1's version is in git at `ef199f4`).
 - **Blend rule weakness**: 2-fold CV on N samples is noisy (e.g. it chose pure
   target at SF N=200, worse than its own N=50 result). A better adaptation rule
   is a cheap improvement before seed 1.
+
+### Run 2 correction (2026-10-19): the CDL arm had fixed arrival angles
+
+Sionna's CDL defaults to a fixed base-station orientation, and CDL clusters have
+fixed angles, so at 8 antennas the 12k CDL channels spanned only five angular
+signatures: the top spatial eigenvalue held 48% of the energy vs ~24% for the RT
+cities. That made the CDL arm an unfairly narrow prior, which biases the "RT
+realism" comparison above in RT's favour. **The run-2 seed-0 numbers above are
+superseded** (kept in `runs/a8_sc128/loco_seed0_fixedcdl.csv`).
+
+Fix: a uniform random base-station heading per CDL sample (top eigenvalue now
+25%, matching Munich's 24%). Also changed before the rerun: the blend weight is
+chosen by 5-fold CV over a finer grid (0.85/0.9/0.95 added), since 2-fold CV
+picked pure-target weights at SF N=200. Gates and claims are unchanged.

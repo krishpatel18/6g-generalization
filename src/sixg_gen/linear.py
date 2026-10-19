@@ -3,7 +3,7 @@
 `Stats.fit(h)` summarizes channels by the two covariances LMMSE needs (full grid
 vs pilots, pilots vs pilots). `Stats.blend(source, target)` adapts a source's
 statistics to a few target channels by covariance shrinkage, choosing the blend
-weight by two-fold cross-validation on the target channels. `LMMSE(stats)`
+weight by k-fold cross-validation on the target channels. `LMMSE(stats)`
 estimates the full grid from noisy pilots at any per-sample SNR.
 
 This is the linear twin of "pre-train, then fine-tune": the source covariance is
@@ -16,7 +16,8 @@ import numpy as np
 
 from . import grid
 
-BLEND_WEIGHTS = (0.0, 0.1, 0.25, 0.5, 0.75, 0.9, 1.0)
+BLEND_WEIGHTS = (0.0, 0.1, 0.25, 0.5, 0.75, 0.85, 0.9, 0.95, 1.0)
+CV_FOLDS = 5
 CV_SNR_DB = (0.0, 10.0, 20.0)
 
 
@@ -53,19 +54,19 @@ class Stats:
 
     @classmethod
     def blend(cls, source: "Stats", target: np.ndarray, seed: int = 0) -> tuple["Stats", float]:
-        """Shrink `source` toward the sample statistics of `target`; weight by 2-fold CV."""
+        """Shrink `source` toward the sample statistics of `target`; weight by k-fold CV."""
         if len(target) == 0:
             return source, 0.0
-        if len(target) < 4:
+        if len(target) < 2 * CV_FOLDS:
             return source.mix(cls.fit(target), 1.0), 1.0
-        idx = np.random.default_rng(seed).permutation(len(target))
-        halves = (idx[: len(idx) // 2], idx[len(idx) // 2:])
-        fits = [cls.fit(target[h]) for h in halves]
+        folds = np.array_split(np.random.default_rng(seed).permutation(len(target)), CV_FOLDS)
+        fits = [cls.fit(target[np.concatenate([f for j, f in enumerate(folds) if j != k])])
+                for k in range(CV_FOLDS)]
         best_w, best_err = 0.0, np.inf
         for w in BLEND_WEIGHTS:
             err = 0.0
-            for k in range(2):
-                held = target[halves[1 - k]]
+            for k, held_idx in enumerate(folds):
+                held = target[held_idx]
                 est = LMMSE(source.mix(fits[k], w))
                 for snr in CV_SNR_DB:
                     rng = np.random.default_rng(1000 + k)
