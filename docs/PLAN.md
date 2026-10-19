@@ -284,3 +284,33 @@ Fix: a uniform random base-station heading per CDL sample (top eigenvalue now
 25%, matching Munich's 24%). Also changed before the rerun: the blend weight is
 chosen by 5-fold CV over a finer grid (0.85/0.9/0.95 added), since 2-fold CV
 picked pure-target weights at SF N=200. Gates and claims are unchanged.
+
+### Run 2b — results with the fair CDL arm (seed 0, 2026-10-19)
+
+`runs/a8_sc128/loco_seed0.csv`; `scripts/report.py`. NMSE dB at 10 dB SNR (`lin`; `lin+cnn` in brackets where it differs by ≥ 0.2 dB):
+
+| row | Munich | Étoile | Florence | San Francisco |
+|---|---|---|---|---|
+| LMMSE own N=50 / 200 / 1000 | −16.8 / −19.3 / −21.3 | −15.3 / −17.7 / −20.1 | −16.6 / −20.6 / −22.7 | −21.2 / −23.1 / −24.1 |
+| cdl, N=0 | −21.4 (−21.6) | **−20.6** (−20.8) | −21.5 (−21.7) | −21.6 (−22.1) |
+| rt3, N=0 | **−21.9** | −18.7 | **−22.7** (−23.0) | −23.2 |
+| rt1, N=0 | −21.9 (−22.5) | −18.6 | −22.2 (−22.4) | **−23.3** (−23.5) |
+| cdl, N=50 | **−21.9** (−22.1) | **−20.6** | −22.2 (−22.5) | −23.8 (−24.1) |
+| rt3, N=50 | −21.8 | −19.1 | **−22.7** (−22.9) | **−24.4** |
+| cdl, N=1000 | −22.1 (−22.3) | **−20.6** (−20.8) | −22.9 (−23.3) | −24.1 (−24.4) |
+| rt3, N=1000 | −22.0 | −20.2 | −22.8 (−23.1) | −24.1 |
+
+- **Gates:** a passes everywhere; b passes at 0 and 10 dB, misses by 0.02 dB at 20 dB.
+- **RT realism, zero-shot: supported but smaller than run 2 suggested** — rt3 beats
+  the fair CDL prior by +0.5 (Munich), +1.2 (Florence), +1.5 dB (SF), and loses by
+  1.8 dB on Étoile. Most of run 2's apparent advantage in Munich came from the
+  CDL flaw.
+- **The advantage fades with site data.** At N=50 rt3 leads only in Florence and
+  SF (~0.5 dB); by N=1000 all arms are within ~0.2 dB. An RT prior is worth most
+  when a new site has (almost) no measurements — which is the deployment case
+  that matters, but a narrower claim than "RT pre-training generalizes better".
+- **Breadth: no evidence** (rt3 vs rt1 +0.15 dB at 10 dB, +0.48 at 20 dB, ≈0 with CNN).
+- **Beyond covariance: small and fairly consistent on CDL** (+0.2–0.45 dB at
+  every N), up to +0.65 dB for Munich-rt1. Above 0.5 dB in only one cell at 10 dB.
+- **Étoile**: the fair CDL prior is best there at every N.
+- Seed 0 only; simulation-to-simulation.
