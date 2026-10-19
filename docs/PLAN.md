@@ -192,8 +192,50 @@ Code: `scripts/loco.py` (run 1's version is in git at `ef199f4`).
     grid is the whole story.
 - **Not a deployable estimator:** dense 14336×1024 LMMSE plus a CNN is a
   measuring instrument, not something that meets the <0.5 ms slot budget.
-- **Side result to carry forward:** the LMMSE-from-source gap is itself a cheap
+- **Side result to carry forward (pre-registered):** the LMMSE-from-source gap is itself a cheap
   "which pre-training source resembles this site?" metric — an open question the
   notebook listed. If Étoile stays an outlier, the project's contribution may be
   "when does an RT prior transfer, and can you tell in advance" rather than
   "RT beats CDL".
+
+### Run 2 — results (seed 0, 2026-10-19)
+
+`runs/a8_sc128/loco_seed0.csv`; checked with `scripts/report.py`. NMSE dB at 10 dB SNR:
+
+| row | Munich | Étoile | Florence | San Francisco |
+|---|---|---|---|---|
+| LMMSE in-domain 12k (ceiling) | −22.3 | −20.8 | −23.2 | −24.7 |
+| LMMSE own N=50 | −16.8 | −15.3 | −16.6 | −21.2 |
+| LMMSE own N=200 | −19.3 | −17.7 | −20.6 | −23.1 |
+| LMMSE own N=1000 | −21.3 | −20.1 | −22.7 | −24.1 |
+| cdl, N=0 | −20.2 | **−19.0** | −20.3 | −20.3 |
+| rt3, N=0 | **−21.9** | −18.7 | **−22.7** | −23.2 |
+| rt1, N=0 | −21.9 | −18.6 | −22.2 | **−23.3** |
+| cdl, N=50 | −21.6 | **−20.0** | −22.1 | −23.9 |
+| rt3, N=50 | −21.9 | −19.1 | **−22.7** | **−24.2** |
+| rt1, N=50 | **−22.0** | −19.1 | −22.2 | −24.2 |
+
+(`lin` rows; `lin+cnn` is within ±0.3 dB except Munich-rt1, see below.)
+
+- **Gate a: pass** (worst +0.03 dB at 10 dB, +0.05 dB at 0/20 dB).
+- **Gate b: fails by 0.01–0.03 dB in one cell** — San Francisco, cdl, N=200, where
+  the cross-validated blend chose weight 1.0 (pure target) and so tied
+  LMMSE-own; the CNN then added noise. The failure is the blend rule's weight
+  choice, not the prior: the same arm scored −23.9 dB at N=50 with weight 0.9.
+  Strictly per pre-registration the N ≥ 50 comparison is not clean; N=0
+  comparisons don't depend on gate b.
+- **RT realism: supported** — rt3 beats cdl at N=0 in 3/4 cities at 10 and 20 dB
+  (Munich +1.8, Florence +2.4, SF +2.8, Étoile −0.3 dB at 10 dB) and 4/4 at 0 dB.
+  With **zero** site data the 3-city RT prior beats LMMSE from 200 site samples in
+  all four cities, and roughly matches 1,000 in Munich and Florence.
+- **Breadth: no evidence** — rt3 vs rt1 averages +0.15 dB at 10 dB, +0.48 dB at
+  20 dB, ≈0 with the CNN. One other city is as good a prior as three here.
+- **Beyond covariance: weak** — clears 0.5 dB only for Munich with the
+  Étoile-only prior (+0.5 to +0.66 dB at every N); ≤ 0.3 dB everywhere else.
+  One arm × one city; treat as unconfirmed.
+- **Étoile again**: the CDL prior is the best prior for Étoile at every N ≥ 50;
+  RT priors are 0.3–1 dB worse. Note the asymmetry: Étoile-only is an excellent
+  prior *for Munich*, but other cities are poor priors *for Étoile*.
+- **Blend rule weakness**: 2-fold CV on N samples is noisy (e.g. it chose pure
+  target at SF N=200, worse than its own N=50 result). A better adaptation rule
+  is a cheap improvement before seed 1.
