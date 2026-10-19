@@ -24,10 +24,11 @@ MAX_SPEED_MPS = 30.0
 RT_SCENES = ("munich", "etoile", "florence", "san_francisco")
 
 
-def generate(source: str, n: int, seed: int) -> np.ndarray:
+def generate(source: str, n: int, seed: int, mmap: bool = False) -> np.ndarray:
+    """`mmap=True` leaves a cached set on disk and pages it in as it is sliced."""
     path = DATA_DIR / grid.config_tag() / f"{source.replace(':', '_')}_n{n}_s{seed}.npy"
     if path.exists():
-        return np.load(path)
+        return np.load(path, mmap_mode="r" if mmap else None)
     if source == "cdl":
         h = _cdl(n, seed)
     elif source.startswith("rt:"):

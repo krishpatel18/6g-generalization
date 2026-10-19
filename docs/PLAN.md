@@ -164,3 +164,36 @@ on the city itself (12k). Extra error vs in-domain, dB at 10 dB SNR (Mu/Ét/Fl/S
 
 Next: rerun with a multi-antenna base station and an estimator that at least
 matches in-domain LMMSE.
+
+### Run 2 — pre-registered before launch (2026-10-19)
+
+Code: `scripts/loco.py` (run 1's version is in git at `ef199f4`).
+
+- **Setting:** 8-antenna base station (half-wavelength ULA), otherwise as run 1.
+  16 antennas adds only 0.2–0.6 dB of CDL gap for 4x the cost; deferred.
+- **Estimator per arm:** LMMSE from the arm's 12k pre-training channels, plus a
+  CNN correction pre-trained on top of it (last layer zero-initialised, so it
+  starts as exactly that LMMSE). Fine-tuning on N target channels = blend the
+  covariances toward the N samples (weight by 2-fold CV) + 300 low-rate CNN steps.
+- **Arms:** `cdl`; `rt3` (other three cities, 4k each); `rt1` (one other city,
+  12k, **rotated**: Munich←Étoile, Étoile←Florence, Florence←SF, SF←Munich, so
+  the outlier Étoile is the single source once only).
+- **Baselines:** LS + interpolation; LMMSE from the N target samples alone;
+  LMMSE from 12k in-domain channels (ceiling).
+- **Gates — the arm comparison is not read unless both hold:**
+  a) every arm's `lin+cnn` at N=0 is within 0.1 dB of (or better than) its `lin`;
+  b) every arm at N ≥ 50 is no worse than LMMSE from the same N target samples.
+- **Claims and what falsifies them** (NMSE at 10 dB SNR, seed 0; confirm with seed 1):
+  - *RT realism*: `rt3` beats `cdl` at N=0 in ≥ 3 of 4 cities. Falsified otherwise.
+  - *Breadth*: `rt3` beats `rt1` by ≥ 0.5 dB averaged over the 4 cities at N=0
+    and N=50. Smaller or negative → no evidence that breadth matters here.
+  - *Beyond covariance*: `lin+cnn` beats `lin` by ≥ 0.5 dB in some arm. Otherwise
+    the prior's value is all second-order statistics, and the LMMSE-from-source
+    grid is the whole story.
+- **Not a deployable estimator:** dense 14336×1024 LMMSE plus a CNN is a
+  measuring instrument, not something that meets the <0.5 ms slot budget.
+- **Side result to carry forward:** the LMMSE-from-source gap is itself a cheap
+  "which pre-training source resembles this site?" metric — an open question the
+  notebook listed. If Étoile stays an outlier, the project's contribution may be
+  "when does an RT prior transfer, and can you tell in advance" rather than
+  "RT beats CDL".
