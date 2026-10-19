@@ -74,7 +74,8 @@ Results: see "Results" below.
    a property of urban canyons. **[verified]**
 5. **High-frequency trading framing.** HFT links use fibre and microwave, not
    cellular access. Keep Wall Street as a hard urban-canyon test scene; drop the
-   HFT claim or treat it as colour only. **[unverified judgment]**
+   HFT claim or treat it as colour only. **[unverified judgment]** → dropped
+   (see Decisions).
 6. **Scene building.** Sionna's documented OSM path is Blender + Blosm +
    Mitsuba-Blender add-on (https://nvlabs.github.io/sionna/rt/tutorials/Introduction.html);
    Blender is not installed here. geo2sigmap
@@ -111,9 +112,34 @@ Results: see "Results" below.
 - The pilot runs on the M4. Cloud is needed only for a large scene library or
   TimesFM fine-tuning.
 
-## Open decisions (Krish)
+## Decisions (2026-10-19)
 
-See the end of the session summary; recorded here once decided.
+- **Solo project.** The notebook's four roles (lead, ML research, systems
+  integration, data engineering) collapse to one person; scope and timeline
+  below are sized for that.
+- **Compute: this Mac until it's not enough.** No GCP yet. Revisit when the
+  scene library grows past ~20 cities or TimesFM fine-tuning starts; that needs
+  a paid upgrade and a GPU quota request (2+ days).
+- **Code: private GitHub repo** (`krishpatel18/6g-generalization`); data and
+  runs stay local (regenerable from the scripts).
+- **Framing: high-frequency trading dropped.** Wall Street stays as a candidate
+  hard urban-canyon scene, with no trading claim.
+
+## Solo plan (replaces the 8-month team timeline)
+
+1. **Now — settle the pilot** on Sionna's 4 built-in cities: run 2b (fair CDL),
+   seed 1, and a shrinkage-regularized "own N samples" baseline.
+2. **Scene library** — build 10–20 more cities with geo2sigmap or Blender+Blosm
+   (Wall Street and Houston among them), chosen to vary layout (grid streets,
+   open plazas like Étoile, high-rise canyons). This is what can actually test
+   *breadth*; four cities can't.
+3. **Similarity metric** — turn the LMMSE-from-source gap into a predictor of
+   which pre-training source suits a new site, and test whether it predicts
+   transfer (Étoile is the motivating case).
+4. **Sequence stage** — channel prediction across slots, where TimesFM (or a
+   small causal Transformer) belongs; check the non-commercial weight licence
+   is acceptable first.
+5. **Write-up** for the NVIDIA 6G Developer Program.
 
 ## Results
 
