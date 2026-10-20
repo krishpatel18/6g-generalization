@@ -639,13 +639,13 @@ leave-one-city-out, fixed-path Doppler evolution (re-trace check above).
 | | Wiener rt3 | −15.1 | −8.6 | −1.7 | −0.1 | 0.0 |
 | | learned (ant / ad) | −15.3 / −15.3 | −9.8 / −9.8 | −4.9 / −4.9 | −2.4 / −1.8 | −0.4 / −0.1 |
 | | **tone** | −12.8 | **−10.2** | **−7.5** | **−4.1** | **−2.6** |
-| Étoile | Wiener rt3 / learned best / **tone** | −14.2 / −14.5 / −14.5 | −8.4 / −9.9 / **−12.1** | −1.6 / −6.1 / **−9.6** | −0.1 / −2.9 / **−6.1** | 0.0 / −0.7 / **−4.1** |
+| Étoile | Wiener rt3 / learned (best arm per cell) / **tone** | −14.2 / −14.5 / −14.5 | −8.4 / −9.9 / **−12.1** | −1.6 / −6.1 / **−9.6** | −0.1 / −2.9 / **−6.1** | 0.0 / −0.7 / **−4.1** |
 | Florence | Wiener rt3 / learned best / **tone** | −15.6 / −15.9 / −13.1 | −8.6 / −10.0 / **−10.7** | −1.6 / −4.9 / **−8.4** | −0.1 / −2.1 / **−4.9** | 0.0 / −0.3 / **−3.1** |
 | San Francisco | Wiener rt3 / learned best / **tone** | −16.2 / −16.8 / **−19.5** | −9.1 / −11.6 / **−18.9** | −1.8 / −7.9 / **−17.8** | −0.1 / −4.3 / **−14.5** | 0.0 / −1.5 / **−10.7** |
 
 - **Primary gate: falsified.** At every horizon ≥ 2 ms in every city, both
   learned arms are worse than the classical per-user tone predictor — by
-  2.6–4.7 dB in Munich/Étoile/Florence and ~10–12 dB in San Francisco
+  1.8–4.7 dB in Munich/Étoile/Florence and ~9–12 dB in San Francisco
   (N = 0; N = 50 is worse still).
 - **The learned models did learn something:** 2–6 dB better than their own
   Wiener front at 2 ms, i.e. they pick up per-user extrapolation that no
@@ -661,7 +661,7 @@ leave-one-city-out, fixed-path Doppler evolution (re-trace check above).
   users (Munich 20–30 m/s: tone −10.8, learned −13.9). Tone is weakest for
   fast users and strongest for slow ones.
 - **RT vs CDL prior (secondary):** rt3 Wiener beats CDL Wiener by 0.2–1.5 dB
-  at 0.5 ms and ~0.5–1 dB at 1 ms; nothing past 2 ms, where every covariance
+  at 0.5 ms and 0.7–1.1 dB at 1 ms; nothing past 2 ms, where every covariance
   predictor is near 0 dB. The (a) result carries over only to the shortest
   horizon.
 - **Why tone is so strong here, stated plainly:** the simulator's motion is a
@@ -671,4 +671,9 @@ leave-one-city-out, fixed-path Doppler evolution (re-trace check above).
   would degrade; this simulator cannot show by how much without the
   re-tracing whose noise floor ruled it out.
 - Caveats as pre-registered: one CNN seed; one learned architecture (two
-  domains); simulation-to-simulation; tone designed by me before results.
+  domains); simulation-to-simulation; tone designed for this experiment (not a published method) and fixed before results.
+- **Post-hoc, a handicap of this learned model:** it was trained with MSE over
+  the whole 13-point track, in linear scale. The 8 history points and the
+  far targets (near 0 dB) dominate that loss; the 0.5–2 ms targets, where
+  prediction is possible, contribute little gradient. A loss weighted toward
+  the predictable horizons might do better. Not rerun.

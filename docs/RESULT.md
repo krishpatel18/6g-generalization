@@ -86,7 +86,7 @@ The same question for prediction (0.5–10 ms ahead from 1.4 ms of noisy
 history): does a learned predictor beat classical ones? **No, on this
 simulator.** A simple classical method (one Doppler tone per angle-delay bin,
 fitted per user, no training data) beat both learned models at every horizon
-of 2 ms and more in every city, by 2.6–4.7 dB and ~10–12 dB in San Francisco.
+of 2 ms and more in every city, by 1.8–4.7 dB, and ~9–12 dB in San Francisco.
 The learned models did beat covariance-based prediction by 2–6 dB at 2 ms, and
 learning is competitive only one slot (0.5 ms) ahead, mainly for fast users.
 The ray-traced prior beats CDL only at the shortest horizons (0.2–1.5 dB at
