@@ -37,6 +37,8 @@ TRACK_SUBCARRIER_STEP = 4
 
 def use_tracks() -> None:
     global TRACK_TIMES, NUM_SYMBOLS, NUM_SUBCARRIERS, PILOT_SYMBOLS, PILOT_SUBCARRIERS
+    if TRACK_TIMES:
+        return
     history = [14 * k + s for k in range(HISTORY_SLOTS) for s in PILOT_SYMBOLS]
     targets = [14 * (HISTORY_SLOTS - 1 + h) + 7 for h in HORIZON_SLOTS]
     TRACK_TIMES = tuple(history + targets)

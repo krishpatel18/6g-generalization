@@ -9,8 +9,9 @@ Tracks (grid.use_tracks): 8 noisy history observations over 4 slots, targets
   wiener     - space-time LMMSE from a covariance prior (cdl, rt3 = other three
                cities pooled, own = the N site tracks alone, ceiling = own 12k),
                blended with N site tracks
-  learned    - CNN residual on the rt3 Wiener (pre-trained on rt3 tracks,
-               fine-tuned on the N site tracks)
+  learned_ant - CNN residual on the rt3 Wiener (pre-trained on rt3 tracks,
+               fine-tuned on the N site tracks), on antenna x time x subcarrier
+  learned_ad  - the same, on angle x time x delay (unitary transform, as tone uses)
 Pre-registration and gate: docs/PLAN.md, "Prediction experiment".
 
 Writes runs/<grid tag>/predict_seed<seed>.csv:
@@ -85,6 +86,28 @@ def tone(h, snr_db, rng, chunk: int = 200):
     return out
 
 
+def ad(h: np.ndarray) -> np.ndarray:
+    """Antenna x subcarrier -> angle x delay; unitary, so NMSE is unchanged."""
+    return np.fft.ifft(np.fft.fft(h, axis=1, norm="ortho"), axis=3, norm="ortho").astype(np.complex64)
+
+
+def ad_inv(h: np.ndarray) -> np.ndarray:
+    return np.fft.fft(np.fft.ifft(h, axis=1, norm="ortho"), axis=3, norm="ortho").astype(np.complex64)
+
+
+class InDomain:
+    """A front end seen through a transform: noise is still drawn on the antenna-domain history."""
+
+    def __init__(self, front: linear.LMMSE, to, back):
+        self.front, self.to, self.back = front, to, back
+
+    def estimate(self, h, snr_db, rng):
+        return self.to(self.front.estimate(self.back(np.asarray(h)), snr_db, rng))
+
+
+DOMAINS = {"ant": (lambda h: np.asarray(h), lambda h: np.asarray(h)), "ad": (ad, ad_inv)}
+
+
 def targets_of(estimate):
     """Wrap a full-track estimator so it returns the target times only."""
     return lambda h, s, rng: estimate(h, s, rng)[:, :, len(grid.PILOT_SYMBOLS):]
@@ -136,29 +159,31 @@ def main(seed: int) -> None:
 
         pool = rt3(target)
         rt = linear.Stats.fit(pool)
-        for name, prior in (("cdl", cdl), ("rt3", rt)):
-            for n in SITE_N:
-                adapted, w = linear.Stats.blend(prior, site[:n], seed)
-                record(target, f"wiener_{name}", n, w, evaluate(targets_of(linear.LMMSE(adapted).estimate), test, speed))
+        blends = {(name, n): linear.Stats.blend(prior, site[:n], seed)
+                  for name, prior in (("cdl", cdl), ("rt3", rt)) for n in SITE_N}
+        for (name, n), (adapted, w) in blends.items():
+            record(target, f"wiener_{name}", n, w, evaluate(targets_of(linear.LMMSE(adapted).estimate), test, speed))
 
-        path = runs / f"pre_track_rt_not_{target}_s{seed}.pt"
-        if not path.exists():
-            t = time.time()
-            torch.manual_seed(seed)
-            model = estimators.train(estimators.Refiner(width=WIDTH), linear.LMMSE(rt), np.asarray(pool),
-                                     PRETRAIN_STEPS, 1e-3, seed)
-            torch.save(model.state_dict(), path)
-            print(f"  pre-trained in {time.time()-t:.0f}s", flush=True)
-        state = torch.load(path)
-        for n in SITE_N:
-            adapted, w = linear.Stats.blend(rt, site[:n], seed)
-            front = linear.LMMSE(adapted)
-            model = estimators.Refiner(width=WIDTH)
-            model.load_state_dict(state)
-            if n:
-                model = estimators.train(model, front, site[:n], FINETUNE_STEPS, 1e-4, seed + n, batch=min(64, n))
-            refine = lambda h, s, rng: estimators.refine(model, front, h, s, rng)  # noqa: E731
-            record(target, "learned", n, w, evaluate(targets_of(refine), test, speed))
+        for domain, (to, back) in DOMAINS.items():
+            path = runs / f"pre_track_{domain}_rt_not_{target}_s{seed}.pt"
+            if not path.exists():
+                t = time.time()
+                torch.manual_seed(seed)
+                model = estimators.train(estimators.Refiner(width=WIDTH), InDomain(linear.LMMSE(rt), to, back),
+                                         to(pool), PRETRAIN_STEPS, 1e-3, seed)
+                torch.save(model.state_dict(), path)
+                print(f"  pre-trained {domain} in {time.time()-t:.0f}s", flush=True)
+            state = torch.load(path)
+            for n in SITE_N:
+                adapted, w = blends[("rt3", n)]
+                front = InDomain(linear.LMMSE(adapted), to, back)
+                model = estimators.Refiner(width=WIDTH)
+                model.load_state_dict(state)
+                if n:
+                    model = estimators.train(model, front, to(site[:n]), FINETUNE_STEPS, 1e-4, seed + n,
+                                             batch=min(64, n))
+                refine = lambda h, s, rng: back(estimators.refine(model, front, to(h), s, rng))  # noqa: E731
+                record(target, f"learned_{domain}", n, w, evaluate(targets_of(refine), test, speed))
 
         with open(runs / f"predict_seed{seed}.csv", "w", newline="") as f:
             out = csv.writer(f)
@@ -171,16 +196,19 @@ def main(seed: int) -> None:
 def gate(rows) -> None:
     """Pre-registered gate: learned vs the best non-learned method at the same N, 10 dB, >= 2 ms."""
     v = {(t, m, n, ms): x for t, m, n, _, snr, ms, sp, x in rows if snr == 10.0 and sp == "all"}
-    print("\nGate (10 dB, all speeds): learned minus best non-learned, dB (negative = learned better)")
-    for n in SITE_N:
-        for t in channels.RT_SCENES:
-            cells = []
-            for ms in (2.0, 5.0, 10.0):
-                rivals = [v[(t, "tone", 0, ms)], v[(t, "wiener_cdl", n, ms)], v[(t, "wiener_rt3", n, ms)]]
-                if n:
-                    rivals.append(v[(t, "wiener_own", n, ms)])
-                cells.append(v[(t, "learned", n, ms)] - min(rivals))
-            print(f"  N={n:<3d} {t:14s} " + "  ".join(f"{ms:g}ms:{c:6.2f}" for ms, c in zip((2, 5, 10), cells)))
+    print("\nGate (10 dB, all speeds), dB, negative = learned better.")
+    print("Each cell: learned minus best non-learned [learned minus its own rt3 Wiener front]")
+    for arm in ("learned_ant", "learned_ad"):
+        for n in SITE_N:
+            for t in channels.RT_SCENES:
+                cells = []
+                for ms in (2.0, 5.0, 10.0):
+                    rivals = [v[(t, "tone", 0, ms)], v[(t, "wiener_cdl", n, ms)], v[(t, "wiener_rt3", n, ms)]]
+                    if n:
+                        rivals.append(v[(t, "wiener_own", n, ms)])
+                    x = v[(t, arm, n, ms)]
+                    cells.append(f"{ms:g}ms:{x - min(rivals):6.2f} [{x - v[(t, 'wiener_rt3', n, ms)]:6.2f}]")
+                print(f"  {arm:12s} N={n:<3d} {t:14s} " + "  ".join(cells))
 
 
 if __name__ == "__main__":

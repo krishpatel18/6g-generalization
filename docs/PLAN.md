@@ -619,3 +619,11 @@ leave-one-city-out, fixed-path Doppler evolution (re-trace check above).
   so a fail is "this model", not "learning"; users skew few-path (most placed
   users get no paths); simulation-to-simulation; the tone baseline is my design,
   not a published method, and fixed before results.
+- **Amendment (2026-10-20, before any result):** two learned arms instead of
+  one, gate passes if either does. *learned_ant* is the CNN as described;
+  *learned_ad* is the same CNN on the angle × time × delay view (unitary
+  transform of antennas and subcarriers, the domain the tone baseline uses).
+  Reason: with 3×3 kernels the antenna-domain CNN cannot form a delay
+  transform across 32 subcarriers, so a loss to tone would be uninformative.
+  Both are reported. The gate printout also shows each learned arm against its
+  own rt3 Wiener front.
