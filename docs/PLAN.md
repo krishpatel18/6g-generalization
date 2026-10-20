@@ -509,8 +509,18 @@ in-domain ceiling at 10 dB SNR, mean over 14 targets:
 - CDL + 50 fails badly on the open-area scene (`rochester_brighton`, 3.1 dB)
   where the RT pool is fine (0.2).
 
+- **The 14-city means are carried by one outlier.** Without `rochester_brighton`
+  (13 cities): CDL + 50 → 0.52 dB, pool + 50 → 0.33, pool with no site data →
+  0.46; medians over 14: 0.29 / 0.24 / 0.32. The robust statistics are the 12/14
+  count and a ~0.2 dB edge on built-up sites.
+- The blend rule (5-fold CV over a fixed weight grid) was settled after run 2,
+  before the library existed; it is a generic method, not fitted to these results.
+
 **Current one-line result:** for a new site, a ray-traced prior pooled from
-many cities and blended with a few dozen site measurements gets within ~0.3 dB
-of a site-trained estimator, beats the 3GPP-CDL equivalent by ~0.4 dB, and
-avoids the multi-dB failures of any single mismatched source.
-(Simulation-to-simulation, LMMSE, 8-antenna ULA, 3.5 GHz, one seed of site draws.)
+many cities and blended with ~50 site measurements gets within ~0.3 dB of a
+site-trained estimator. It beats the 3GPP-CDL equivalent in 12/14 cities — by
+~0.2 dB on built-up sites, ~3 dB where CDL mismatches badly (open terrain) — and
+avoids the multi-dB failures of any single mismatched source. With no site
+measurements at all, the pooled prior roughly ties CDL + 50 on built-up sites.
+(Simulation-to-simulation, LMMSE, 8-antenna ULA, 3.5 GHz; +50 rows from one
+site-pool draw until the pool-draw check below.)
