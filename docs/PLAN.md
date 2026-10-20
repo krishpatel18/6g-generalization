@@ -351,3 +351,41 @@ rt3 advantage over CDL at 10 dB SNR (dB, positive = RT prior better), N=0 / N=50
 - The gap from the zero-shot RT prior to the in-domain ceiling is 0.3–0.5 dB in
   Munich/Florence and ~1.5–1.8 dB in Étoile/SF: room a better prior could still
   take.
+
+### Prior selection from 50 site measurements (2026-10-20)
+
+`scripts/select_prior.py`, `runs/select_prior_a8.log`. For each city and
+pre-training variant (fresh test sites, as above), score each prior's zero-shot
+LMMSE on the 50-channel site pool only (noisy pilots at 0/10/20 dB, no test
+data), pick the best, and compare with the test-set winner at 10 dB.
+
+| | Munich | Étoile | Florence | San Francisco |
+|---|---|---|---|---|
+| A: picked / test best | rt3 / rt3 | **cdl / cdl** | rt3 / rt3 | rt3 / rt1 (−0.15 dB) |
+| B: picked / test best | rt3 / rt3 | **cdl / cdl** | rt3 / rt3 | rt3 / rt1 (−0.25 dB) |
+
+- **6/8 exact; mean regret 0.05 dB, worst 0.25 dB.** Both misses choose between
+  two RT priors that are within 0.3 dB of each other.
+- **It never picks the wrong family:** CDL for Étoile, an RT prior everywhere
+  else. Compared with always using the 3-city RT prior, selection recovers
+  ~1.2 dB on Étoile and costs nothing elsewhere.
+- This reframes the project: *maintain a few candidate priors (stochastic and
+  ray-traced) and let a handful of site measurements choose* beats any single
+  prior, and makes the Étoile failure a non-issue. It answers the notebook's
+  open "which source resembles this site?" question with a working, cheap rule.
+- Caveats: 4 cities × 2 draws; 3 candidate priors; simulation-to-simulation.
+  The obvious next test is a larger candidate library (more cities), which is
+  also what breadth needs.
+
+### Scene library: geo2sigmap blocked on OSM data access (2026-10-20)
+
+geo2sigmap (functions-lab, updated 2026-10-11) installs on macOS after
+`brew install libusb` (needed by open3d). Generating a Wall Street box
+(−74.0125, 40.7040, −74.0060, 40.7085) built the ground but failed fetching
+buildings: the public Overpass API refused the request, stating it is for
+browser/human use and asking automated tools to run their own instance. Not
+worked around. Legitimate paths: download an OSM extract (e.g. Geofabrik's
+New York file), cut the box locally, and point geo2sigmap's building fetch at the
+file; or run a local Overpass instance. Its scene XML uses the older material
+naming (`mat-itu_concrete`, `radio-material` bsdf); loading in Sionna 2.2 is
+still untested.
