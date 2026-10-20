@@ -1,0 +1,100 @@
+# Ray-traced city priors for channel estimation: what the pilot found
+
+Readable summary of the pilot. The lab notebook, with every pre-registration
+and raw result in order, is `docs/PLAN.md`.
+
+## The answer
+
+For a new site with **no channel measurements**, a covariance prior pooled from
+many ray-traced cities sits about 0.6 dB from an estimator trained on that site,
+which is about what the standard 3GPP CDL prior reaches once it is blended with 50 site
+measurements (0.47–0.73 dB across four draws of those 50). Pooling many
+cities also removes the multi-dB failures you get from relying on one
+mismatched city. Once 50 site measurements are available, the pooled prior and
+CDL are comparable on built-up sites (pooled ahead by ~0.1 dB on average). In
+everyday terms: **a pooled ray-traced prior is insurance that saves the first
+~50 site measurements; it is not an accuracy win once you have them.**
+
+Limits: simulation-to-simulation only (the test channels come from the same ray
+tracer as the priors); a linear estimator (LMMSE, built from channel
+covariance); one array (8-antenna ULA); 3.5 GHz; 14 cities, 10 of them in New
+York State. "Gap to ceiling" means NMSE at 10 dB SNR minus that of an LMMSE
+fitted on 12k channels from the target itself. The ceiling is itself an
+estimate, so gaps under ~0.1 dB are treated as zero.
+
+## The question as posed, and what changed
+
+The starting hypothesis was that a *learned* channel estimator pre-trained on
+many ray-traced (RT) cities generalizes to an unseen city better than one
+pre-trained on 3GPP stochastic models (CDL). The learning part did not hold up:
+a CNN refiner on top of LMMSE added ~0.2–0.45 dB on the CDL arm,
+at most 0.65 dB in any cell, and often nothing on the RT arms (one CNN seed only). The linear estimator did almost all of the
+work, so the result is about **which channel statistics to start from**, not
+about learning.
+
+Two fixes were needed along the way: the single-antenna setup could not tell the
+priors apart (moved to 8 antennas), and the first CDL arm had fixed arrival
+angles that made it look worse than it is (fixed with a random base-station
+heading per sample; the earlier run is kept but superseded).
+
+## What held on every repeat
+
+| finding | numbers | checked on | registered |
+|---|---|---|---|
+| RT prior beats CDL with no site data, except Paris-Étoile | +0.3–0.5 (Munich), +1.1–1.2 (Florence), +1.3–1.5 dB (San Francisco); −1.2 to −1.8 dB (Étoile) | original sites, new base-station sites, new pre-training draws | pre-registered |
+| Pooling cities is insurance | gap to ceiling, worst of 8 random pools: 3.99 dB with 1 city → 0.82 dB with 8; mean 1.59 → 0.60 | 14 targets × 8 draws | pre-registered |
+| Pooled RT prior beats CDL, no site data | better in 11/14 targets, by 0.29 dB on average; worst loss 0.4 dB | 14 targets | pre-registered |
+| Pooled RT, no site data ≈ CDL + 50 site measurements | 0.59 vs 0.47–0.73 dB gap to ceiling | four 50-measurement draws | post-hoc |
+
+Pooling has a price: the best single source city per target (which you can't
+know in advance) is 0.13 dB from the ceiling on average, the pool 0.59, so the
+insurance costs ~0.45 dB. The worst single-source cases (6–7 dB) all use the
+nearly empty open-area scene (`rochester_brighton`) as the only source for a
+dense downtown.
+
+## What did not hold
+
+- **Breadth at 4 cities.** Three cities vs one city differed by +0.15 to +0.5
+  dB, but per-city results move by ~1 dB between site draws: inconclusive. The
+  14-city library is what showed the insurance effect.
+- **Choosing a prior from 50 site measurements.** With 3 candidates it chose
+  well (6/8 exact, mean regret 0.05 dB, always CDL for Étoile). With 15 it
+  overfit: mean regret 0.48 dB, worst 2.0 dB (pre-registered bar ≤ 0.3: not
+  met). Scoring at the evaluation SNR didn't help (0.71 dB); 200 measurements
+  helped (0.44) but still lost to pooling and blending. *(Post-hoc diagnostics.)*
+- **A clear edge over CDL once 50 measurements are blended in.** Pool + 50 is
+  0.33–0.62 dB from the ceiling depending on which 50 measurements are taken; it
+  beats CDL + 50 in 10–12 of 14 targets, by ~0.1 dB on built-up sites. On the
+  open-area scene the edge was 2.9 dB in one draw and 0–0.5 dB in the other
+  three. *(Post-hoc.)*
+
+## Recommendation
+
+If a deployment must start with no site measurements, start from a covariance
+prior pooled over many ray-traced cities rather than CDL or any single city,
+then blend in site measurements as they arrive (5-fold cross-validated
+shrinkage). Don't try to pick one best source city from a few measurements
+when there are many candidates. Whether any of this survives contact with
+measured channels is untested.
+
+Novelty against the literature is **unverified** and needs a proper
+related-work pass before any claim is made.
+
+## Reproduce
+
+All scripts take the base-station antenna count as their first argument (`8`).
+Channels are cached under `data/a8_sc128/`; seed 1 = 12k pre-training, seed 2 =
+1k site pool, seed 4 = 2k test (fresh sites), seed 5 = redrawn pre-training.
+
+| result | command | output |
+|---|---|---|
+| leave-one-city-out, 4 cities | `scripts/make_data.py 8`, `scripts/loco.py 8 0`, then `scripts/report.py runs/a8_sc128/loco_seed0.csv` | `runs/a8_sc128/loco_seed0.csv` |
+| fresh sites | `scripts/fresh_sites.py 8` | `runs/a8_sc128/fresh_sites.csv` |
+| prior selection, 3 candidates | `scripts/select_prior.py 8` | `runs/select_prior_a8.log` |
+| New York scenes | `scripts/build_library.sh <new-york-latest.osm.pbf>` (Geofabrik), then `scripts/make_library.py 8` | `data/scenes/` |
+| library, 14 cities | `scripts/library.py 8` | `runs/a8_sc128/library.csv`, `runs/library_a8.log` |
+| follow-up (+50 blends, selection) | `scripts/library_followup.py 8` | `runs/library_followup_a8.log` |
+| other site-pool draws | `scripts/pool_draws.py 8` | `runs/pool_draws_a8.log` |
+
+Stack: Sionna 2.2 / Sionna RT 2.2 on Apple M4 (Metal), scenes from geo2sigmap
+(pinned commit, buildings read from a local OpenStreetMap extract).
