@@ -411,3 +411,21 @@ in-domain ceiling (12k) −22.1.
   testable with a larger library (worst-case, not mean).
 - Blending the 50 samples into the picked prior (w=0.25) was 0.1 dB worse than
   the prior alone — the known blend weakness.
+
+### Library experiment — pre-registered (2026-10-20, before results)
+
+14 cities (4 built-in + 10 New York areas in `scripts/scene_library.txt`, cut
+from a Geofabrik extract; `rochester_brighton` is nearly empty — an open-area
+case). Each city in turn is the unseen target; LMMSE only, no training;
+`scripts/library.py 8`. NMSE at 10 dB SNR, reported as gap to the target's
+in-domain ceiling.
+
+- **Breadth-as-insurance:** pool k random other cities (k = 1, 2, 4, 8, 13; 8
+  draws). Supported if the *worst* draw's gap shrinks by ≥ 1 dB more than the
+  *mean* draw's gap between k=1 and k=13. If both shrink alike, breadth raises
+  the average; if neither shrinks, breadth doesn't matter at this scale.
+- **Selection:** a 50-channel site pool picks among CDL, each other city, and
+  all-others pooled. Supported if mean regret vs the best candidate is ≤ 0.3 dB
+  and it beats always-use-all-others-pooled on average.
+- **RT vs CDL at scale:** all-others-pooled beats CDL on average over the 14
+  targets. Falsified otherwise.
