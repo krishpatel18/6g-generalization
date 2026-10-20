@@ -550,3 +550,38 @@ which 50 measurements are taken. Its clearer value is with no site data and as
 insurance: it avoids the multi-dB failures of any single mismatched source.
 (Simulation-to-simulation, LMMSE, 8-antenna ULA, 3.5 GHz; four 50-channel
 site-pool draws.)
+
+## Direction (b): multi-slot channel prediction
+
+### Re-trace check (diagnostic, 2026-10-20)
+
+`scratch/retrace_check.py <city>` (1024 users, one base station, 8-antenna ULA).
+Question: does re-tracing a moving user at each time step differ from rotating
+the phases of its t=0 paths (Doppler on a fixed path set, which is how both
+sources generate time evolution now)? Percent of users whose fixed-path channel
+is off by more than −20 dB NMSE from the re-traced one (mean dB is driven by a
+few outliers):
+
+| time ahead | Munich 0–10 / 10–20 / 20–30 m/s | Florence 0–10 / 10–20 / 20–30 m/s |
+|---|---|---|
+| 0 ms (same positions) | 1 / 1 / 0 % | 4 / 0 / 2 % |
+| 5 ms | 1 / 4 / 7 % | 8 / 4 / 3 % |
+| 10 ms | 3 / 8 / 13 % | 6 / 2 / 3 % |
+| 20 ms | 5 / 8 / 27 % | 12 / 9 / 34 % |
+| 50 ms | 11 / 55 / 84 % | 13 / 59 / 81 % |
+
+- **The solver disagrees with itself on 1–4% of users at identical positions**
+  (repeated at 10× rays: 1–4%). At 256 users per solve it matched exactly; at
+  1024 it doesn't. Re-traced trajectories would carry this flicker as fake
+  path changes, and regenerating cached channels is not bit-reproducible — the
+  saved `.npy` files are the record.
+- **Up to ~10 ms, re-tracing is within that noise floor** except the fastest
+  users (Munich 13%). Real path-set changes show at ≥ 20 ms.
+- **Decision:** prediction uses fixed-path Doppler evolution, horizons ≤ 10 ms;
+  no re-tracing. Consequence, stated up front: on this simulator the channel
+  over ≤ 10 ms is a finite sum of complex exponentials, so an ideal linear
+  predictor with long, clean history is near-perfect. **The only room for
+  learning is with short, noisy history.** That is the version of (b) to run.
+- Population caveat: 70–84% of placed users get no paths (max depth 3, no
+  diffraction) and are dropped, so users skew toward few-path, line-of-sight-like
+  links, which favours linear predictors.
