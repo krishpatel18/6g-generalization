@@ -1,0 +1,11 @@
+# name               min_lon    min_lat   max_lon    max_lat    layout
+wall_street          -74.0125   40.7040   -74.0060   40.7085    high-rise canyon
+midtown              -73.9880   40.7520   -73.9815   40.7565    high-rise grid
+harlem               -73.9480   40.8070   -73.9415   40.8115    mid-rise grid
+park_slope           -73.9800   40.6720   -73.9735   40.6765    rowhouses
+bayside              -73.7750   40.7600   -73.7685   40.7645    detached residential
+levittown            -73.5200   40.7250   -73.5135   40.7295    postwar suburb
+buffalo_downtown     -78.8800   42.8830   -78.8735   42.8875    mid/high-rise downtown
+albany_downtown      -73.7600   42.6480   -73.7535   42.6525    mid-rise downtown
+rochester_brighton   -77.5850   43.1250   -77.5785   43.1295    suburb
+cornell              -76.4870   42.4450   -76.4805   42.4495    campus
