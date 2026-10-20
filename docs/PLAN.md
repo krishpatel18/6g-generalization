@@ -323,3 +323,31 @@ picked pure-target weights at SF N=200. Gates and claims are unchanged.
   change with seed. They are confirmed instead on fresh base-station sites
   (new test and pre-training draws), below.
 - Simulation-to-simulation.
+
+### Fresh-site check (2026-10-20): the realism result holds; breadth is inside site noise
+
+`scripts/fresh_sites.py`, `runs/a8_sc128/fresh_sites.csv`. LMMSE (`lin`) rows only,
+on 2k channels from **new base-station sites** per city (seed 4). Variant A keeps
+the original pre-training draws; variant B redraws every pre-training set,
+CDL included (seed 5).
+
+rt3 advantage over CDL at 10 dB SNR (dB, positive = RT prior better), N=0 / N=50:
+
+| | Munich | Étoile | Florence | San Francisco |
+|---|---|---|---|---|
+| run 2b (original test sites) | +0.5 / −0.1 | −1.8 / −1.5 | +1.2 / +0.5 | +1.5 / +0.6 |
+| A: new sites, same pre-training | +0.3 / −0.3 | −1.2 / −1.3 | +1.2 / +0.5 | +1.5 / +0.6 |
+| B: new sites, new pre-training | +0.4 / −0.2 | −1.3 / −1.3 | +1.1 / +0.4 | +1.3 / +0.6 |
+
+- **RT realism holds** on fresh sites and fresh pre-training draws: same sign in
+  every city, magnitudes within ~0.3–0.6 dB. Florence and SF gain ~1.1–1.5 dB with
+  no site data; Munich gains little (+0.3–0.5); Étoile loses 1.2–1.8 dB.
+- **Breadth (rt3 − rt1, N=0): +0.43 (A) and +0.52 dB (B) on average**, vs +0.15 on
+  the original sites — almost all from Florence (+0.6 → +1.5/+1.9 dB with the
+  same pre-training, new test sites). Per-city breadth gaps move by ~1 dB between
+  site draws, so four cities cannot resolve a ~0.5 dB breadth effect.
+  **Inconclusive**, not "no effect". Testing breadth needs more cities (solo
+  plan step 2), not more seeds.
+- The gap from the zero-shot RT prior to the in-domain ceiling is 0.3–0.5 dB in
+  Munich/Florence and ~1.5–1.8 dB in Étoile/SF: room a better prior could still
+  take.
