@@ -80,6 +80,22 @@ measured channels is untested.
 Novelty against the literature is **unverified** and needs a proper
 related-work pass before any claim is made.
 
+## Follow-up: predicting the channel ahead (falsified)
+
+The same question for prediction (0.5–10 ms ahead from 1.4 ms of noisy
+history): does a learned predictor beat classical ones? **No, on this
+simulator.** A simple classical method (one Doppler tone per angle-delay bin,
+fitted per user, no training data) beat both learned models at every horizon
+of 2 ms and more in every city, by 2.6–4.7 dB and ~10–12 dB in San Francisco.
+The learned models did beat covariance-based prediction by 2–6 dB at 2 ms, and
+learning is competitive only one slot (0.5 ms) ahead, mainly for fast users.
+The ray-traced prior beats CDL only at the shortest horizons (0.2–1.5 dB at
+0.5 ms). Caveat that matters most: the simulator moves users by rotating the
+phases of a fixed set of paths, which is exactly the tone model; on real
+channels it would do worse, by an amount this simulator cannot measure.
+Pre-registered before results (with one amendment, also before results); see
+`docs/PLAN.md`, "Prediction experiment".
+
 ## Reproduce
 
 All scripts take the base-station antenna count as their first argument (`8`).
@@ -95,6 +111,7 @@ Channels are cached under `data/a8_sc128/`; seed 1 = 12k pre-training, seed 2 =
 | library, 14 cities | `scripts/library.py 8` | `runs/a8_sc128/library.csv`, `runs/library_a8.log` |
 | follow-up (+50 blends, selection) | `scripts/library_followup.py 8` | `runs/library_followup_a8.log` |
 | other site-pool draws | `scripts/pool_draws.py 8` | `runs/pool_draws_a8.log` |
+| prediction | `scripts/make_tracks.py 8`, then `scripts/predict.py 8 0` | `runs/a8_sc32_track/predict_seed0.csv` |
 
 Stack: Sionna 2.2 / Sionna RT 2.2 on Apple M4 (Metal), scenes from geo2sigmap
 (pinned commit, buildings read from a local OpenStreetMap extract).

@@ -627,3 +627,48 @@ leave-one-city-out, fixed-path Doppler evolution (re-trace check above).
   transform across 32 subcarriers, so a loss to tone would be uninformative.
   Both are reported. The gate printout also shows each learned arm against its
   own rt3 Wiener front.
+
+### Prediction experiment — results (seed 0, 2026-10-20)
+
+`scripts/predict.py 8 0`, `runs/a8_sc32_track/predict_seed0.csv`,
+`runs/predict_a8.log`. NMSE dB at 10 dB SNR, all speeds, N = 0:
+
+| city | method | 0.5 ms | 1 ms | 2 ms | 5 ms | 10 ms |
+|---|---|---|---|---|---|---|
+| Munich | hold-last | −7.1 | −2.3 | +1.9 | +2.7 | +3.0 |
+| | Wiener rt3 | −15.1 | −8.6 | −1.7 | −0.1 | 0.0 |
+| | learned (ant / ad) | −15.3 / −15.3 | −9.8 / −9.8 | −4.9 / −4.9 | −2.4 / −1.8 | −0.4 / −0.1 |
+| | **tone** | −12.8 | **−10.2** | **−7.5** | **−4.1** | **−2.6** |
+| Étoile | Wiener rt3 / learned best / **tone** | −14.2 / −14.5 / −14.5 | −8.4 / −9.9 / **−12.1** | −1.6 / −6.1 / **−9.6** | −0.1 / −2.9 / **−6.1** | 0.0 / −0.7 / **−4.1** |
+| Florence | Wiener rt3 / learned best / **tone** | −15.6 / −15.9 / −13.1 | −8.6 / −10.0 / **−10.7** | −1.6 / −4.9 / **−8.4** | −0.1 / −2.1 / **−4.9** | 0.0 / −0.3 / **−3.1** |
+| San Francisco | Wiener rt3 / learned best / **tone** | −16.2 / −16.8 / **−19.5** | −9.1 / −11.6 / **−18.9** | −1.8 / −7.9 / **−17.8** | −0.1 / −4.3 / **−14.5** | 0.0 / −1.5 / **−10.7** |
+
+- **Primary gate: falsified.** At every horizon ≥ 2 ms in every city, both
+  learned arms are worse than the classical per-user tone predictor — by
+  2.6–4.7 dB in Munich/Étoile/Florence and ~10–12 dB in San Francisco
+  (N = 0; N = 50 is worse still).
+- **The learned models did learn something:** 2–6 dB better than their own
+  Wiener front at 2 ms, i.e. they pick up per-user extrapolation that no
+  pooled covariance can. They just recover much less of it than fitting one
+  Doppler tone per angle-delay bin does. The angle-delay arm is better than
+  the antenna arm in Étoile and SF at 2 ms (−6.1 vs −4.9, −7.9 vs −5.7), about
+  equal elsewhere.
+- **Fine-tuning on 50 site tracks hurts** the learned arms (0.5–1.3 dB worse at
+  5 ms) and the CV blend chose w = 0 for every Wiener prior: 50 tracks are not
+  enough to move a 2048-dimensional space-time covariance.
+- **Where learning is competitive:** only at 0.5 ms (one slot ahead), where the
+  Wiener/learned methods match or beat tone in Munich, Florence and for fast
+  users (Munich 20–30 m/s: tone −10.8, learned −13.9). Tone is weakest for
+  fast users and strongest for slow ones.
+- **RT vs CDL prior (secondary):** rt3 Wiener beats CDL Wiener by 0.2–1.5 dB
+  at 0.5 ms and ~0.5–1 dB at 1 ms; nothing past 2 ms, where every covariance
+  predictor is near 0 dB. The (a) result carries over only to the shortest
+  horizon.
+- **Why tone is so strong here, stated plainly:** the simulator's motion is a
+  fixed set of paths rotating in phase (re-trace check), which is exactly
+  tone's model. San Francisco users are likely few-path, so one tone per bin is
+  nearly exact there. On real channels, where paths appear and vanish, tone
+  would degrade; this simulator cannot show by how much without the
+  re-tracing whose noise floor ruled it out.
+- Caveats as pre-registered: one CNN seed; one learned architecture (two
+  domains); simulation-to-simulation; tone designed by me before results.
