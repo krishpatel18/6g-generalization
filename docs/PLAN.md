@@ -483,3 +483,34 @@ samples alone" (6.5 dB) is a naive baseline, not the fair comparison. Choosing a
 prior from site measurements helped with 3 candidates, not with 15 (see the
 diagnostic below). All of this is simulation-to-simulation, LMMSE, one array
 geometry (8-antenna ULA), 3.5 GHz.
+
+### Library follow-up (post-hoc, 2026-10-20)
+
+`scripts/library_followup.py 8`, `runs/library_followup_a8.log`. Gap to the
+in-domain ceiling at 10 dB SNR, mean over 14 targets:
+
+| method | site channels | mean gap |
+|---|---|---|
+| CDL blended with site data | 50 | 0.70 |
+| all-others RT pool, no adaptation | 0 | 0.59 |
+| **all-others RT pool blended with site data** | 50 | **0.33** |
+| select one of 15 priors, pool scored at 10 dB | 50 | 0.71 |
+| select one of 15 priors, pool scored at 10 dB | 200 | 0.44 |
+| best single prior (oracle) | — | 0.10 |
+
+- **Pool + blend is the best practical recipe:** 0.33 dB from the ceiling with 50
+  site channels; better than CDL + 50 in 12/14 targets (worse in Midtown and
+  Cornell by ≤ 0.15 dB), by 0.37 dB on average. The RT pool with *no* site data
+  is already slightly better than CDL with 50 (0.59 vs 0.70).
+- **Hard selection stays fragile.** Scoring the pool at the evaluation SNR does
+  not fix it (0.71 dB), so the earlier failure wasn't an SNR mismatch; 200 site
+  channels help (0.44) but still lose to pool + blend. Choosing one source
+  throws away the pool's insurance; blending keeps it.
+- CDL + 50 fails badly on the open-area scene (`rochester_brighton`, 3.1 dB)
+  where the RT pool is fine (0.2).
+
+**Current one-line result:** for a new site, a ray-traced prior pooled from
+many cities and blended with a few dozen site measurements gets within ~0.3 dB
+of a site-trained estimator, beats the 3GPP-CDL equivalent by ~0.4 dB, and
+avoids the multi-dB failures of any single mismatched source.
+(Simulation-to-simulation, LMMSE, 8-antenna ULA, 3.5 GHz, one seed of site draws.)
