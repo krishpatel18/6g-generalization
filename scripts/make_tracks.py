@@ -1,0 +1,26 @@
+"""Generate and cache the channel tracks the prediction experiment needs (see grid.use_tracks).
+
+usage: make_tracks.py <num_bs_antennas>
+"""
+import sys
+import time
+
+from sixg_gen import channels, grid
+
+SETS = [("cdl", 12000, 1)] + [
+    (f"rt:{city}", n, seed)
+    for city in channels.RT_SCENES
+    for n, seed in ((12000, 1), (1000, 2), (2000, 3))
+]
+
+if __name__ == "__main__":
+    grid.NUM_ANTENNAS = int(sys.argv[1])
+    grid.use_tracks()
+    print(f"grid {grid.config_tag()}", flush=True)
+    start = time.time()
+    for i, (source, n, seed) in enumerate(SETS, 1):
+        t = time.time()
+        channels.generate(source, n, seed)
+        print(f"[{i}/{len(SETS)}] done {source} n={n} seed={seed} in {time.time()-t:.0f}s "
+              f"(total {(time.time()-start)/60:.1f} min)", flush=True)
+    print("ALL DONE", flush=True)
