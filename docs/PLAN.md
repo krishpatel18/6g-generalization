@@ -389,3 +389,25 @@ New York file), cut the box locally, and point geo2sigmap's building fetch at th
 file; or run a local Overpass instance. Its scene XML uses the older material
 naming (`mat-itu_concrete`, `radio-material` bsdf); loading in Sionna 2.2 is
 still untested.
+
+### Wall Street as a fifth, unseen city (2026-10-20)
+
+Scene: `scripts/build_scene.sh wall_street -74.0125 40.7040 -74.0060 40.7085 <new-york extract>`
+(geo2sigmap at a pinned commit, buildings read from a Geofabrik extract cut with
+osmium; Overpass not used). Sionna 2.2 loads it and maps the legacy material
+names to ITU concrete / metal / wet ground. Results: `scripts/new_city.py 8 wall_street`.
+
+NMSE at 10 dB SNR on Wall Street test sites with no Wall Street data:
+Munich prior −22.0 · all-4-cities −21.7 · Étoile −21.5 · Florence −21.4 ·
+CDL −21.4 · San Francisco −17.9. LMMSE from 50 site samples alone −15.5;
+in-domain ceiling (12k) −22.1.
+
+- The best prior (Munich) is within 0.05 dB of the in-domain ceiling, and the
+  50-sample pool picked it.
+- A single mismatched city is risky: the SF prior costs ~4 dB here (and SF alone
+  was also the weakest single source for Florence, ~1.5 dB below rt3). The
+  pooled 4-city prior is never best but never bad. **Hypothesis:** breadth acts
+  as insurance against a bad single source rather than raising the average —
+  testable with a larger library (worst-case, not mean).
+- Blending the 50 samples into the picked prior (w=0.25) was 0.1 dB worse than
+  the prior alone — the known blend weakness.
