@@ -429,3 +429,44 @@ in-domain ceiling.
   and it beats always-use-all-others-pooled on average.
 - **RT vs CDL at scale:** all-others-pooled beats CDL on average over the 14
   targets. Falsified otherwise.
+
+### Library experiment — results (2026-10-20)
+
+`runs/a8_sc128/library.csv`, `runs/library_a8.log`. 14 targets, LMMSE, no site
+data unless stated, NMSE at 10 dB SNR, gap to each target's in-domain ceiling.
+
+Breadth curve (pool of k random other cities, 8 draws; mean over targets):
+
+| k | mean draw | worst draw |
+|---|---|---|
+| 1 | 1.59 | 3.99 |
+| 2 | 0.84 | 1.70 |
+| 4 | 0.71 | 1.26 |
+| 8 | 0.60 | 0.82 |
+| 13 (all) | 0.59 | — (one draw) |
+
+- **Breadth-as-insurance: supported.** From k=1 to k=8 the worst draw's gap
+  shrinks 3.2 dB vs 1.0 dB for the mean. A single wrong source city can cost up
+  to 7.0 dB; the worst 8-city pool costs at most 2.7 dB. Breadth also helps the
+  average (1.6 → 0.6 dB), with most of the gain by k≈4.
+- **Selection among 15 candidates: not supported.** Mean regret vs the best
+  candidate 0.48 dB (bar: ≤ 0.3), worst 2.0 dB (Albany picked Bayside), exact in
+  5/14; on average it ties always-use-all-others-pooled (−0.01 dB, better in
+  7/14). With 3 candidates (4-city study) the same 50 samples chose well; with
+  15, they overfit the pool. Selection needs fewer, more distinct candidates or
+  more site samples.
+- **RT vs CDL at scale: supported, modestly.** All-others-pooled beats CDL in
+  11/14 targets, by 0.29 dB on average; it loses by at most 0.4 dB (Midtown,
+  Albany, Cornell). The pooled RT prior sits 0.59 dB from the in-domain ceiling
+  on average; LMMSE from 50 site samples alone is 6.5 dB away.
+- Some priors land at or slightly beyond the "ceiling" (e.g. Wall Street,
+  Étoile): the ceiling is itself a 12k-sample estimate, so treat gaps under
+  ~0.1 dB as zero.
+
+**What the evidence supports so far:** a ray-traced prior pooled from many
+cities is a safe default for a new site — close to in-domain performance
+(~0.6 dB), modestly better than 3GPP CDL, and far better than estimating from a
+few site measurements. Breadth matters mainly by removing the risk of a bad
+single source. Choosing a prior from site measurements helps only when the
+candidate set is small. All of this is simulation-to-simulation, LMMSE, one
+array geometry (8-antenna ULA), 3.5 GHz.

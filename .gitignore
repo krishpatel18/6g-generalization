@@ -6,3 +6,4 @@ runs/
 .DS_Store
 scratch/probe/
 .tools/
+debug.log
