@@ -516,11 +516,37 @@ in-domain ceiling at 10 dB SNR, mean over 14 targets:
 - The blend rule (5-fold CV over a fixed weight grid) was settled after run 2,
   before the library existed; it is a generic method, not fitted to these results.
 
+### Pool-draw check (post-hoc, 2026-10-20)
+
+`scripts/pool_draws.py 8`, `runs/pool_draws_a8.log`. The +50 rows above used
+one 50-channel site pool per target ([:50] of the seed-2 draw). Re-scored on
+three other pools ([50:100], [100:150], [150:200]); same priors, tests and
+ceiling. Gap to ceiling at 10 dB, mean over 14 targets:
+
+| site pool | CDL + 50 | pool + 50 | pool + 50 better | mean edge (13, no Rochester) |
+|---|---|---|---|---|
+| [:50] (follow-up above) | 0.70 | 0.33 | 12/14 | 0.19 |
+| [50:100] | 0.61 | 0.48 | 11/14 | 0.11 |
+| [100:150] | 0.73 | 0.62 | 10/14 | 0.11 |
+| [150:200] | 0.47 | 0.34 | 10/14 | 0.11 |
+
+- **The direction holds, the size shrinks.** Pool + 50 is ahead on average in
+  every draw, but by ~0.1 dB on built-up sites, not ~0.2, and it wins 10–12 of
+  14 targets, not reliably 12. The losses move around (Midtown, Albany, Cornell,
+  Buffalo), so on dense sites the two are comparable.
+- **The open-terrain gap was largely the first draw.** On `rochester_brighton`
+  CDL + 50 trails by 0.43 and 0.49 dB in two draws and ties in the third (both
+  3.26: the blend fell back to the site data alone), against 2.9 dB in the
+  first draw.
+- The gap to the ceiling with pool + 50 ranges 0.33–0.62 dB across draws, so
+  "within ~0.3 dB" was the favourable draw.
+
 **Current one-line result:** for a new site, a ray-traced prior pooled from
-many cities and blended with ~50 site measurements gets within ~0.3 dB of a
-site-trained estimator. It beats the 3GPP-CDL equivalent in 12/14 cities — by
-~0.2 dB on built-up sites, ~3 dB where CDL mismatches badly (open terrain) — and
-avoids the multi-dB failures of any single mismatched source. With no site
-measurements at all, the pooled prior roughly ties CDL + 50 on built-up sites.
-(Simulation-to-simulation, LMMSE, 8-antenna ULA, 3.5 GHz; +50 rows from one
-site-pool draw until the pool-draw check below.)
+many cities and blended with ~50 site measurements gets within ~0.3–0.6 dB of a
+site-trained estimator. Against the 3GPP-CDL equivalent with the same 50
+measurements it is comparable on built-up sites (ahead by ~0.1 dB on average,
+in 10–12 of 14 cities) and ahead by up to a few dB on open terrain, depending on
+which 50 measurements are taken. Its clearer value is with no site data and as
+insurance: it avoids the multi-dB failures of any single mismatched source.
+(Simulation-to-simulation, LMMSE, 8-antenna ULA, 3.5 GHz; four 50-channel
+site-pool draws.)
