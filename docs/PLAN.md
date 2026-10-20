@@ -463,10 +463,23 @@ Breadth curve (pool of k random other cities, 8 draws; mean over targets):
   Étoile): the ceiling is itself a 12k-sample estimate, so treat gaps under
   ~0.1 dB as zero.
 
+- **Insurance premium** (added after results): the best single source city per
+  target sits 0.13 dB from the ceiling on average, the all-others pool 0.59 dB,
+  so pooling costs ~0.45 dB relative to an oracle choice — about what 50-sample
+  selection loses (regret 0.48). Worst single-source cases (6.3–7.2 dB) are all
+  `rochester_brighton`, the nearly empty open-area scene, as the only source for
+  dense downtowns. Worst-case shrinking faster than the mean with k is partly a
+  generic property of averaging covariances; the informative numbers are the
+  premium and the size of the worst case.
+
 **What the evidence supports so far:** a ray-traced prior pooled from many
-cities is a safe default for a new site — close to in-domain performance
-(~0.6 dB), modestly better than 3GPP CDL, and far better than estimating from a
-few site measurements. Breadth matters mainly by removing the risk of a bad
-single source. Choosing a prior from site measurements helps only when the
-candidate set is small. All of this is simulation-to-simulation, LMMSE, one
-array geometry (8-antenna ULA), 3.5 GHz.
+cities, with **no site measurements**, sits ~0.6 dB from in-domain performance
+— roughly what CDL achieves once blended with 50 site measurements (run 2b,
+four built-in cities: 0.3–1.0 dB, mean ≈ 0.6). Its value is saving those
+measurements and removing the risk of a badly matched single source, at a
+~0.45 dB premium over the (unknowable in advance) best single city. It is
+modestly better than CDL with no measurements (0.29 dB). "LMMSE from 50 site
+samples alone" (6.5 dB) is a naive baseline, not the fair comparison. Choosing a
+prior from site measurements helped with 3 candidates, not with 15 (see the
+diagnostic below). All of this is simulation-to-simulation, LMMSE, one array
+geometry (8-antenna ULA), 3.5 GHz.
