@@ -5,8 +5,10 @@
 
 - ``"cdl"``: 3GPP TR 38.901 CDL-A..E, drawn uniformly, with random delay spread,
   user speed and base-station heading (Sionna PHY), or
-- ``"rt:<scene>"``: ray-traced paths in one of Sionna RT's built-in city scenes,
-  with a rooftop base station and moving street-level users.
+- ``"rt:<scene>"``: ray-traced paths in a city scene, with a rooftop base
+  station and moving street-level users. ``<scene>`` is one of Sionna RT's
+  built-in scenes, or a directory ``data/scenes/<scene>/`` holding a
+  ``scene.xml`` (e.g. generated from OpenStreetMap with geo2sigmap).
 
 Both use the same carrier, bandwidth, single isotropic antennas, speed range
 and slot timing, so a model trained on one can be evaluated on the other.
@@ -20,6 +22,7 @@ import numpy as np
 from . import grid
 
 DATA_DIR = Path(__file__).resolve().parents[2] / "data"
+SCENES_DIR = DATA_DIR / "scenes"
 MAX_SPEED_MPS = 30.0
 RT_SCENES = ("munich", "etoile", "florence", "san_francisco")
 
@@ -77,7 +80,8 @@ def _raytraced(scene_name: str, n: int, seed: int) -> np.ndarray:
     import sionna.rt as rt
 
     rng = np.random.default_rng(seed)
-    scene = rt.load_scene(getattr(rt.scene, scene_name))
+    external = SCENES_DIR / scene_name / "scene.xml"
+    scene = rt.load_scene(str(external) if external.exists() else getattr(rt.scene, scene_name))
     scene.frequency = grid.CARRIER_HZ
     iso = dict(num_rows=1, vertical_spacing=0.5, horizontal_spacing=0.5,
                pattern="iso", polarization="V")
