@@ -585,3 +585,37 @@ few outliers):
 - Population caveat: 70–84% of placed users get no paths (max depth 3, no
   diffraction) and are dropped, so users skew toward few-path, line-of-sight-like
   links, which favours linear predictors.
+
+### Prediction experiment — pre-registered (2026-10-20, before results)
+
+`scripts/make_tracks.py 8`, `scripts/predict.py 8 0`. Same four built-in cities,
+leave-one-city-out, fixed-path Doppler evolution (re-trace check above).
+
+- **Track:** history = the two pilot symbols of 4 consecutive slots (8 noisy
+  observations over 1.4 ms), 8 antennas × every 4th subcarrier (32); targets =
+  the mid-slot symbol 1, 2, 4, 10 and 20 slots after the last observed slot
+  (0.5, 1, 2, 5, 10 ms). Each track normalized to unit power once.
+- **Methods**, all given identical noisy history (SNR 0/10/20 dB):
+  - *hold-last*: the last noisy observation, repeated (naive reference);
+  - *tone*: classical, per user, no training data — angle-delay transform,
+    one Doppler tone per bin fitted to the history (periodogram peak within
+    ±400 Hz), noise-shrunk, extrapolated;
+  - *Wiener*: space-time LMMSE from covariance priors — CDL, rt3 (other three
+    cities pooled), each blended with N = 50 site tracks; own 12k as ceiling;
+  - *learned*: CNN residual on the rt3 Wiener output (the run-2 Refiner,
+    width 48), pre-trained on rt3 tracks (N = 0), fine-tuned on 50 site tracks
+    (N = 50).
+- **Expectation from the smoke test:** a pooled covariance predicts little past
+  ~1 ms (Doppler phases differ per user), so per-user methods (tone, learned)
+  have room at longer horizons.
+- **Primary gate:** at 10 dB, horizon ≥ 2 ms, learned beats the best
+  non-learned method with the same site data (max of tone and Wiener at that N)
+  by ≥ 0.5 dB in ≥ 3/4 cities → "learning has room here". Falsified if learned
+  is within 0.3 dB of, or worse than, the best non-learned method at every
+  horizon ≥ 2 ms in every city. In between: inconclusive.
+- **Secondary:** per speed bin (0–10, 10–20, 20–30 m/s) at 10 dB; RT vs CDL
+  prior for prediction (does the (a) result carry over?).
+- **Caveats written now:** one seed for CNN init; the CNN is one learned model,
+  so a fail is "this model", not "learning"; users skew few-path (most placed
+  users get no paths); simulation-to-simulation; the tone baseline is my design,
+  not a published method, and fixed before results.

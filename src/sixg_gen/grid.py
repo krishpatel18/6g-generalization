@@ -23,14 +23,44 @@ PILOT_SYMBOLS = (2, 11)
 PILOT_SUBCARRIERS = np.arange(0, NUM_SUBCARRIERS, 2)
 
 
+# Track mode (channel prediction): instead of one slot, each sample is the
+# channel at TRACK_TIMES (symbol indices from the start of slot 0) on every 4th
+# subcarrier. The first 8 times are the pilot symbols of slots 0-3 (the observed
+# history); the rest are mid-slot symbols HORIZON_SLOTS slots after slot 3.
+# `use_tracks()` re-points the grid at these axes, so pilots (= history), LMMSE,
+# blending and the Refiner work on tracks unchanged.
+TRACK_TIMES: tuple[int, ...] | None = None
+HISTORY_SLOTS = 4
+HORIZON_SLOTS = (1, 2, 4, 10, 20)
+TRACK_SUBCARRIER_STEP = 4
+
+
+def use_tracks() -> None:
+    global TRACK_TIMES, NUM_SYMBOLS, NUM_SUBCARRIERS, PILOT_SYMBOLS, PILOT_SUBCARRIERS
+    history = [14 * k + s for k in range(HISTORY_SLOTS) for s in PILOT_SYMBOLS]
+    targets = [14 * (HISTORY_SLOTS - 1 + h) + 7 for h in HORIZON_SLOTS]
+    TRACK_TIMES = tuple(history + targets)
+    NUM_SYMBOLS = len(TRACK_TIMES)
+    NUM_SUBCARRIERS //= TRACK_SUBCARRIER_STEP
+    PILOT_SYMBOLS = tuple(range(len(history)))
+    PILOT_SUBCARRIERS = np.arange(NUM_SUBCARRIERS)
+
+
+def target_index(horizon_slots: int) -> int:
+    """Time index in a track of the target `horizon_slots` after the last observed slot."""
+    return len(PILOT_SYMBOLS) + HORIZON_SLOTS.index(horizon_slots)
+
+
 def config_tag() -> str:
     """Names the settings that change a channel array, for cache keys."""
-    return f"a{NUM_ANTENNAS}_sc{NUM_SUBCARRIERS}"
+    return f"a{NUM_ANTENNAS}_sc{NUM_SUBCARRIERS}" + ("_track" if TRACK_TIMES else "")
 
 
 def subcarrier_offsets_hz() -> np.ndarray:
     """Baseband frequency of each subcarrier, centred on the carrier."""
-    return (np.arange(NUM_SUBCARRIERS) - NUM_SUBCARRIERS // 2) * SUBCARRIER_SPACING_HZ
+    step = TRACK_SUBCARRIER_STEP if TRACK_TIMES else 1
+    n = NUM_SUBCARRIERS * step
+    return (np.arange(0, n, step) - n // 2) * SUBCARRIER_SPACING_HZ
 
 
 def normalize_power(h: np.ndarray) -> np.ndarray:

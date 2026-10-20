@@ -33,15 +33,36 @@ def generate(source: str, n: int, seed: int, mmap: bool = False) -> np.ndarray:
     if path.exists():
         return np.load(path, mmap_mode="r" if mmap else None)
     if source == "cdl":
-        h = _cdl(n, seed)
+        h, speed = _cdl(n, seed), np.full(n, np.nan)
     elif source.startswith("rt:"):
-        h = _raytraced(source[3:], n, seed)
+        h, speed = _raytraced(source[3:], n, seed)
     else:
         raise ValueError(f"unknown channel source {source!r}")
     h = grid.normalize_power(h)
     path.parent.mkdir(parents=True, exist_ok=True)
     np.save(path, h)
+    np.save(_speed_path(path), speed.astype(np.float32))
     return h
+
+
+def speeds(source: str, n: int, seed: int) -> np.ndarray:
+    """User speed (m/s) of each channel in a cached set (NaN for CDL; sets cached before
+    speeds were recorded have none)."""
+    path = DATA_DIR / grid.config_tag() / f"{source.replace(':', '_')}_n{n}_s{seed}.npy"
+    return np.load(_speed_path(path))
+
+
+def _speed_path(path: Path) -> Path:
+    return path.with_name(path.stem + "_speed.npy")
+
+
+def _num_steps() -> int:
+    return max(grid.TRACK_TIMES) + 1 if grid.TRACK_TIMES else grid.NUM_SYMBOLS
+
+
+def _sample_times(h: np.ndarray) -> np.ndarray:
+    """Keep the track's time points (track mode); one slot is kept whole."""
+    return h[:, :, list(grid.TRACK_TIMES)] if grid.TRACK_TIMES else h
 
 
 def _cdl(n: int, seed: int) -> np.ndarray:
@@ -66,13 +87,14 @@ def _cdl(n: int, seed: int) -> np.ndarray:
         cdl = CDL(model, delay_spread, grid.CARRIER_HZ, ut_array=AntennaArray(num_cols=1, **ant),
                   bs_array=AntennaArray(num_cols=grid.NUM_ANTENNAS, **ant), direction="uplink",
                   bs_orientation=heading, min_speed=0.0, max_speed=MAX_SPEED_MPS, device="cpu")
-        a, tau = cdl(b, grid.NUM_SYMBOLS, 1.0 / grid.SYMBOL_PERIOD_S)
+        a, tau = cdl(b, _num_steps(), 1.0 / grid.SYMBOL_PERIOD_S)
         h = cir_to_ofdm_channel(freqs, a, tau)  # [b, rx, rx_ant (BS), tx, tx_ant, sym, sc]
-        out.append(h.reshape(b, grid.NUM_ANTENNAS, grid.NUM_SYMBOLS, grid.NUM_SUBCARRIERS).numpy())
+        h = h.reshape(b, grid.NUM_ANTENNAS, _num_steps(), grid.NUM_SUBCARRIERS).numpy()
+        out.append(_sample_times(h))
     return np.concatenate(out)
 
 
-def _raytraced(scene_name: str, n: int, seed: int) -> np.ndarray:
+def _raytraced(scene_name: str, n: int, seed: int) -> tuple[np.ndarray, np.ndarray]:
     import mitsuba as mi
 
     if mi.variant() is None:
@@ -91,15 +113,17 @@ def _raytraced(scene_name: str, n: int, seed: int) -> np.ndarray:
     lo, hi = np.array(bb.min)[:2], np.array(bb.max)[:2]
     centre, half = (lo + hi) / 2, 0.3 * (hi - lo)
     solver = rt.PathSolver()
-    rx_per_tx, out, have = 256, [], 0
+    rx_per_tx, out, speed_out, have = 256, [], [], 0
     while have < n:
         for name in list(scene.transmitters) + list(scene.receivers):
             scene.remove(name)
         tx_xy = centre + rng.uniform(-1, 1, 2) * half
         scene.add(rt.Transmitter("tx", position=[*map(float, tx_xy), float(rng.uniform(25, 40))]))
+        batch_speed = []
         for i in range(rx_per_tx):
             r, phi = 250 * np.sqrt(rng.uniform()), rng.uniform(0, 2 * np.pi)
             heading, speed = rng.uniform(0, 2 * np.pi), rng.uniform(0, MAX_SPEED_MPS)
+            batch_speed.append(speed)
             scene.add(rt.Receiver(
                 f"rx{i}",
                 position=[float(tx_xy[0] + r * np.cos(phi)), float(tx_xy[1] + r * np.sin(phi)), 1.5],
@@ -108,11 +132,13 @@ def _raytraced(scene_name: str, n: int, seed: int) -> np.ndarray:
                        diffuse_reflection=False)
         h = paths.cfr(frequencies=mi.Float(grid.subcarrier_offsets_hz()),
                       sampling_frequency=1.0 / grid.SYMBOL_PERIOD_S,
-                      num_time_steps=grid.NUM_SYMBOLS, normalize_delays=True, out_type="numpy")
+                      num_time_steps=_num_steps(), normalize_delays=True, out_type="numpy")
         # [rx, rx_ant=1, tx=1, tx_ant (BS), time, freq]
-        h = h.reshape(rx_per_tx, grid.NUM_ANTENNAS, grid.NUM_SYMBOLS, grid.NUM_SUBCARRIERS)
-        h = h[np.mean(np.abs(h) ** 2, axis=(1, 2, 3)) > 0]
+        h = _sample_times(h.reshape(rx_per_tx, grid.NUM_ANTENNAS, _num_steps(), grid.NUM_SUBCARRIERS))
+        has_paths = np.mean(np.abs(h) ** 2, axis=(1, 2, 3)) > 0
+        h = h[has_paths]
         out.append(h)
+        speed_out.append(np.array(batch_speed)[has_paths])
         have += len(h)
         print(f"  {scene_name}: {have}/{n} channels", flush=True)
-    return np.concatenate(out)[:n]
+    return np.concatenate(out)[:n], np.concatenate(speed_out)[:n]
