@@ -677,3 +677,20 @@ leave-one-city-out, fixed-path Doppler evolution (re-trace check above).
   far targets (near 0 dB) dominate that loss; the 0.5–2 ms targets, where
   prediction is possible, contribute little gradient. A loss weighted toward
   the predictable horizons might do better. Not rerun.
+
+## Next step (2026-10-22)
+
+Goal: portfolio project. First, a related-work check on both findings (is
+"pooled ray-traced priors as insurance" known? is "classical per-user Doppler
+fitting beats learned prediction on fixed-path simulators" known?). Then choose
+between:
+
+1. **Publish what exists.** Turn `docs/RESULT.md` into a short public write-up:
+   simulated cities are a good starting prior; learned models did not beat
+   classical methods here. Cost: a day or two, no money. Risk: modest,
+   simulation-only.
+2. **Test on measured channels.** Check the findings against a public dataset
+   of measured channels (sim-to-real), where learning may also have more room.
+   Cost: a few days; maybe a cloud GPU later. Risk: no dataset fits this setup.
+
+Related-work findings and the dataset survey go below, then the comparison.
