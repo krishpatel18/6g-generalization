@@ -694,3 +694,70 @@ between:
    Cost: a few days; maybe a cloud GPU later. Risk: no dataset fits this setup.
 
 Related-work findings and the dataset survey go below, then the comparison.
+
+### Re-trace check, deterministic solver (2026-10-22)
+
+The related-work search found that Sionna RT's path solver is documented as
+non-deterministic by default (hash collisions with many receivers; GPU
+floating point) and has `PathSolver(deterministic=True)` since 2.1.0. Our
+2.2.0 runs used the default. Re-run with the flag
+(`DET=1 scratch/retrace_check.py <city>`, `runs/retrace_check_det_*.log`):
+identical positions now agree to −150 dB (0% of users), and the fixed-path vs
+re-traced comparison is unchanged — 0–4% of users differ by more than −20 dB
+up to 10 ms (Munich 20–30 m/s: 12%), 3–31% at 20 ms, 54–83% at 50 ms for
+moving users. So: the 1–4% self-disagreement is known, avoidable behaviour,
+not a finding; the decision to use fixed-path evolution up to 10 ms stands.
+Cached channel sets were generated without the flag: each sample is still a
+valid trace, but regeneration is not bit-reproducible.
+
+### Related work (2026-10-22; search by subagent, key sources spot-checked)
+
+Finding A (pooled RT covariance prior):
+- Single-site RT/digital-twin covariance or subspace priors exist
+  (arXiv 2607.09334; 2501.02758), as does an uncalibrated digital twin as a
+  prior for channel statistics from a few measurements (2411.13360).
+- Leave-one-city-out pre-training over 10 DeepMIMO cities exists for CSI
+  feedback (2605.16141), without worst-case analysis.
+- Morais et al. (2512.12449, abstract checked): stochastic-only evaluation
+  can over- or under-estimate ML performance relative to ray tracing.
+- **Not found:** an equal-weight multi-city RT covariance as a
+  zero-measurement LMMSE prior; its rough equivalence to CDL + 50-sample
+  shrinkage; the worst-case-vs-number-of-cities curve; selection overfitting
+  as candidates grow. Novelty: medium, and it is in the empirical results,
+  not the method (pooling + shrinkage is standard). Robust/minimax MMSE under
+  covariance uncertainty is the likely theoretical ancestor of "pooling as
+  insurance" and must be cited (not yet located).
+
+Finding B (classical vs learned prediction):
+- On QuaDRiGa/CDL, published comparisons have deep models beating Prony
+  angle-delay prediction (WiFo, 2412.08908; LLM4CP); one study finds a Kalman
+  filter better than neural networks up to ~4 ms on 3GPP TDL without noise
+  (2308.14020; full-text claim from the subagent, abstract checked only).
+- Morais et al. re-trace per position and use only sample-and-hold as baseline.
+- **Not found:** a classical per-user predictor beating learned models on
+  ray-traced channels. Novelty: medium-high, with the obvious objection that
+  Sionna's fixed-path evolution is the classical model's own assumption; the
+  deterministic re-trace check is the answer up to ~10 ms at 3.5 GHz.
+
+### Measured-channel datasets (2026-10-22; subagent survey, not downloaded)
+
+No dataset fits both questions. Best candidates:
+- **DICHASUS outdoor** (Univ. Stuttgart, CC BY 4.0): 1.27 GHz, 50 MHz,
+  three 2×8 arrays, one campus, mostly line-of-sight, ~70 ms snapshot spacing
+  (inferred). Usable for a one-campus version of A; too coarse for B.
+- **Argos channel survey** (Rice, research and commercial use, no
+  redistribution): 2.4/5 GHz, 20 MHz, 96 antennas, 8 users, **2 ms
+  resounding** over 20–120 s. The only verified fit for B. Download host
+  refused connections on 2026-10-22; files 7.5–30 GB each.
+- Others: CAEZ (ETH + NVIDIA testbed, 3.45 GHz, 20 ms spacing); Niigata
+  (3 urban BS sites but 8 antennas, 0.5 s spacing); DICHASUS indoor with a
+  3D model used in NVIDIA's Sionna calibration paper (2311.18558).
+
+### Comparison of the two options
+
+| | 1. Publish what exists | 2. Measured channels |
+|---|---|---|
+| What it adds | Two pre-registered results, one likely-new (B), one modestly new (A) | Answers "does any of this hold on real channels?" — the main caveat of both |
+| Fit | Ready now | A: one campus, 1.27 GHz, weak test. B: Argos is a good fit if its host is back |
+| Cost | 1–2 days, no money | B on Argos: a few days, 30+ GB download, laptop is enough |
+| Risk | Reviewers call A obvious; B's simulator objection | Host unavailable; 20 MHz/2.4 GHz differs from the sim setup |

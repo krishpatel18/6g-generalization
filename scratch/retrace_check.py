@@ -37,7 +37,7 @@ for i in range(N):
     scene.add(rt.Receiver(f"rx{i}", position=[*map(float, p)], velocity=[*map(float, v)]))
 pos, vel = np.array(pos), np.array(vel)
 speed = np.linalg.norm(vel, axis=1)
-solver = rt.PathSolver()
+solver = rt.PathSolver(deterministic=bool(int(__import__("os").environ.get("DET", "0"))))
 freqs = mi.Float(grid.subcarrier_offsets_hz())
 
 
