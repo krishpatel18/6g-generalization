@@ -1,0 +1,14 @@
+AGX: exceeded compiled variants footprint limit
+wall_street: NMSE dB at 10 dB SNR on new-city test sites, no site data
+  rt_munich           -22.02
+  rt_all4             -21.70
+  rt_etoile           -21.51
+  rt_florence         -21.40
+  cdl                 -21.39
+  rt_san_francisco    -17.86
+  50-sample pool picks rt_munich (test -22.02); best is rt_munich (-22.02)
+  LMMSE from the 50 samples alone    -15.45
+  picked prior blended with the 50   -21.90 (w=0.25)
+  in-domain ceiling (12k)            -22.05
+ALL DONE
+EXIT 0

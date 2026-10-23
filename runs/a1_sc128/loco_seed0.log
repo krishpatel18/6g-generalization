@@ -1,0 +1,89 @@
+  pre-trained cdl in 188s
+== target munich
+  pre-trained rt_not_munich in 203s
+  pre-trained rt_only_etoile in 198s
+  munich         ls_interp    N=0        0dB:  -2.26    10dB: -12.20    20dB: -21.67
+  munich         ft_cdl       N=0        0dB: -11.44    10dB: -18.72    20dB: -25.45
+  munich         ft_rt3       N=0        0dB: -11.78    10dB: -19.06    20dB: -25.77
+  munich         ft_rt1       N=0        0dB: -11.81    10dB: -19.05    20dB: -25.77
+  munich         ft_cdl       N=50       0dB: -11.54    10dB: -18.96    20dB: -25.62
+  munich         ft_rt3       N=50       0dB: -11.62    10dB: -18.97    20dB: -25.65
+  munich         ft_rt1       N=50       0dB: -11.62    10dB: -18.98    20dB: -25.70
+  munich         scratch      N=50       0dB: -11.53    10dB: -18.91    20dB: -25.29
+  munich         lmmse        N=50       0dB: -14.61    10dB: -19.88    20dB: -22.75
+  munich         ft_cdl       N=200      0dB: -11.75    10dB: -19.10    20dB: -25.75
+  munich         ft_rt3       N=200      0dB: -11.83    10dB: -19.12    20dB: -25.76
+  munich         ft_rt1       N=200      0dB: -11.84    10dB: -19.14    20dB: -25.85
+  munich         scratch      N=200      0dB: -11.73    10dB: -19.07    20dB: -25.60
+  munich         lmmse        N=200      0dB: -14.88    10dB: -21.73    20dB: -27.53
+  munich         ft_cdl       N=1000     0dB: -11.77    10dB: -19.10    20dB: -25.75
+  munich         ft_rt3       N=1000     0dB: -11.85    10dB: -19.12    20dB: -25.79
+  munich         ft_rt1       N=1000     0dB: -11.86    10dB: -19.14    20dB: -25.87
+  munich         scratch      N=1000     0dB: -11.81    10dB: -19.09    20dB: -25.55
+  munich         lmmse        N=1000     0dB: -14.93    10dB: -21.94    20dB: -28.31
+== target etoile
+  pre-trained rt_not_etoile in 205s
+  pre-trained rt_only_munich in 203s
+  etoile         ls_interp    N=0        0dB:  -2.26    10dB: -12.20    20dB: -21.68
+  etoile         ft_cdl       N=0        0dB: -11.50    10dB: -18.46    20dB: -24.92
+  etoile         ft_rt3       N=0        0dB: -11.81    10dB: -18.31    20dB: -23.51
+  etoile         ft_rt1       N=0        0dB: -11.83    10dB: -18.46    20dB: -23.94
+  etoile         ft_cdl       N=50       0dB: -11.46    10dB: -18.51    20dB: -24.93
+  etoile         ft_rt3       N=50       0dB: -11.51    10dB: -18.55    20dB: -24.90
+  etoile         ft_rt1       N=50       0dB: -11.51    10dB: -18.58    20dB: -25.00
+  etoile         scratch      N=50       0dB: -11.24    10dB: -18.27    20dB: -24.34
+  etoile         lmmse        N=50       0dB: -13.36    10dB: -19.57    20dB: -25.73
+  etoile         ft_cdl       N=200      0dB: -11.62    10dB: -18.58    20dB: -25.01
+  etoile         ft_rt3       N=200      0dB: -11.69    10dB: -18.62    20dB: -24.96
+  etoile         ft_rt1       N=200      0dB: -11.70    10dB: -18.65    20dB: -25.06
+  etoile         scratch      N=200      0dB: -11.49    10dB: -18.53    20dB: -24.83
+  etoile         lmmse        N=200      0dB: -13.85    10dB: -20.36    20dB: -27.84
+  etoile         ft_cdl       N=1000     0dB: -11.73    10dB: -18.63    20dB: -25.02
+  etoile         ft_rt3       N=1000     0dB: -11.81    10dB: -18.65    20dB: -24.89
+  etoile         ft_rt1       N=1000     0dB: -11.83    10dB: -18.68    20dB: -24.99
+  etoile         scratch      N=1000     0dB: -11.67    10dB: -18.63    20dB: -24.76
+  etoile         lmmse        N=1000     0dB: -14.00    10dB: -20.71    20dB: -28.43
+== target florence
+  pre-trained rt_not_florence in 222s
+  florence       ls_interp    N=0        0dB:  -2.26    10dB: -12.20    20dB: -21.65
+  florence       ft_cdl       N=0        0dB: -11.42    10dB: -18.70    20dB: -25.41
+  florence       ft_rt3       N=0        0dB: -11.91    10dB: -19.28    20dB: -25.94
+  florence       ft_rt1       N=0        0dB: -12.02    10dB: -19.39    20dB: -26.14
+  florence       ft_cdl       N=50       0dB: -11.79    10dB: -19.05    20dB: -25.73
+  florence       ft_rt3       N=50       0dB: -11.91    10dB: -19.21    20dB: -25.90
+  florence       ft_rt1       N=50       0dB: -11.95    10dB: -19.29    20dB: -26.05
+  florence       scratch      N=50       0dB: -11.78    10dB: -19.04    20dB: -25.37
+  florence       lmmse        N=50       0dB: -15.33    10dB: -22.41    20dB: -28.39
+  florence       ft_cdl       N=200      0dB: -11.87    10dB: -19.23    20dB: -25.85
+  florence       ft_rt3       N=200      0dB: -11.98    10dB: -19.33    20dB: -25.97
+  florence       ft_rt1       N=200      0dB: -12.03    10dB: -19.39    20dB: -26.11
+  florence       scratch      N=200      0dB: -11.93    10dB: -19.28    20dB: -25.78
+  florence       lmmse        N=200      0dB: -15.45    10dB: -22.68    20dB: -28.74
+  florence       ft_cdl       N=1000     0dB: -11.90    10dB: -19.23    20dB: -25.82
+  florence       ft_rt3       N=1000     0dB: -12.00    10dB: -19.32    20dB: -25.98
+  florence       ft_rt1       N=1000     0dB: -12.05    10dB: -19.40    20dB: -26.09
+  florence       scratch      N=1000     0dB: -11.97    10dB: -19.29    20dB: -25.70
+  florence       lmmse        N=1000     0dB: -15.56    10dB: -22.75    20dB: -29.11
+== target san_francisco
+  pre-trained rt_not_san_francisco in 201s
+  san_francisco  ls_interp    N=0        0dB:  -2.26    10dB: -12.21    20dB: -21.75
+  san_francisco  ft_cdl       N=0        0dB: -12.45    10dB: -19.24    20dB: -25.99
+  san_francisco  ft_rt3       N=0        0dB: -13.03    10dB: -20.05    20dB: -26.69
+  san_francisco  ft_rt1       N=0        0dB: -12.92    10dB: -20.01    20dB: -26.79
+  san_francisco  ft_cdl       N=50       0dB: -12.44    10dB: -19.86    20dB: -26.22
+  san_francisco  ft_rt3       N=50       0dB: -12.50    10dB: -20.01    20dB: -26.49
+  san_francisco  ft_rt1       N=50       0dB: -12.46    10dB: -19.94    20dB: -26.46
+  san_francisco  scratch      N=50       0dB: -12.32    10dB: -19.70    20dB: -25.05
+  san_francisco  lmmse        N=50       0dB: -16.79    10dB: -22.91    20dB: -26.27
+  san_francisco  ft_cdl       N=200      0dB: -13.01    10dB: -20.28    20dB: -26.60
+  san_francisco  ft_rt3       N=200      0dB: -13.14    10dB: -20.43    20dB: -26.82
+  san_francisco  ft_rt1       N=200      0dB: -13.12    10dB: -20.41    20dB: -26.80
+  san_francisco  scratch      N=200      0dB: -13.05    10dB: -20.29    20dB: -26.07
+  san_francisco  lmmse        N=200      0dB: -16.91    10dB: -23.87    20dB: -29.88
+  san_francisco  ft_cdl       N=1000     0dB: -13.41    10dB: -20.38    20dB: -26.84
+  san_francisco  ft_rt3       N=1000     0dB: -13.57    10dB: -20.57    20dB: -27.05
+  san_francisco  ft_rt1       N=1000     0dB: -13.56    10dB: -20.55    20dB: -27.03
+  san_francisco  scratch      N=1000     0dB: -13.52    10dB: -20.58    20dB: -26.67
+  san_francisco  lmmse        N=1000     0dB: -16.88    10dB: -23.79    20dB: -30.00
+ALL DONE
+EXIT 0

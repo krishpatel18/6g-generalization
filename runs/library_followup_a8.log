@@ -1,0 +1,19 @@
+target                   cdl+50    pool+50   sel10@50  sel10@200       best
+munich                     0.30       0.20       0.58       0.55       0.10
+etoile                     0.20      -0.02      -0.10       0.18      -0.10
+florence                   0.77       0.49       0.12       0.12       0.12
+san_francisco              0.95       0.59       0.92       0.92       0.92
+wall_street                0.36       0.26       0.36      -0.07      -0.07
+midtown                    0.22       0.32       2.17       2.17      -0.12
+harlem                     0.16       0.07       0.44       0.23       0.03
+park_slope                 0.28       0.19       0.12       0.12       0.12
+bayside                    1.10       0.73       1.04       1.05      -0.04
+levittown                  0.17       0.02       1.14       0.00       0.00
+buffalo_downtown           0.14       0.09      -0.06      -0.06      -0.06
+albany_downtown            1.81       0.99       2.93       0.66       0.14
+rochester_brighton         3.11       0.22       0.19       0.19       0.19
+cornell                    0.27       0.42       0.10       0.10       0.10
+mean                       0.70       0.33       0.71       0.44       0.10
+(all-others pooled, no site data: see library.py; mean gap 0.59)
+ALL DONE
+EXIT 0

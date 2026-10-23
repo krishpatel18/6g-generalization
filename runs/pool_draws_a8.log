@@ -1,0 +1,19 @@
+munich               cdl+50  0.57 pool+50  0.23  cdl+50  0.55 pool+50  0.48  cdl+50  0.31 pool+50  0.23
+etoile               cdl+50  0.24 pool+50 -0.10  cdl+50  0.93 pool+50  0.81  cdl+50  1.34 pool+50  0.82
+florence             cdl+50  0.63 pool+50  0.42  cdl+50  0.64 pool+50  0.49  cdl+50  0.79 pool+50  0.47
+san_francisco        cdl+50  1.04 pool+50  0.65  cdl+50  1.40 pool+50  1.00  cdl+50  0.52 pool+50  0.52
+wall_street          cdl+50  0.36 pool+50  0.27  cdl+50  0.48 pool+50  0.28  cdl+50  0.37 pool+50  0.28
+midtown              cdl+50  1.10 pool+50  1.26  cdl+50  0.26 pool+50  0.65  cdl+50  0.27 pool+50  0.32
+harlem               cdl+50  0.22 pool+50  0.22  cdl+50  0.17 pool+50  0.03  cdl+50  0.46 pool+50  0.28
+park_slope           cdl+50  0.36 pool+50  0.18  cdl+50  0.27 pool+50  0.17  cdl+50  0.27 pool+50  0.16
+bayside              cdl+50  0.61 pool+50  0.41  cdl+50  1.29 pool+50  0.73  cdl+50  0.57 pool+50  0.41
+levittown            cdl+50  0.28 pool+50  0.02  cdl+50  0.20 pool+50  0.00  cdl+50  0.18 pool+50  0.00
+buffalo_downtown     cdl+50  0.14 pool+50  0.09  cdl+50  0.11 pool+50  0.12  cdl+50  0.14 pool+50  0.09
+albany_downtown      cdl+50  1.79 pool+50  2.22  cdl+50  0.34 pool+50  0.24  cdl+50  0.16 pool+50  0.31
+rochester_brighton   cdl+50  0.99 pool+50  0.56  cdl+50  3.26 pool+50  3.26  cdl+50  1.02 pool+50  0.53
+cornell              cdl+50  0.25 pool+50  0.33  cdl+50  0.26 pool+50  0.47  cdl+50  0.22 pool+50  0.34
+pool+50 better than cdl+50 per draw: 11/14, 10/14, 10/14
+mean edge per draw (14 cities): 0.13, 0.10, 0.13
+mean edge per draw (13, no rochester): 0.11, 0.11, 0.11
+ALL DONE
+EXIT 0

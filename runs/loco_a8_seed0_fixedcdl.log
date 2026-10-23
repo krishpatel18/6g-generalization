@@ -1,0 +1,131 @@
+== target munich
+  munich         -      ls_interp N=0     w=        0dB:  -2.26    10dB: -12.20    20dB: -21.69
+  munich         -      lmmse_in  N=12000 w=        0dB: -15.13    10dB: -22.25    20dB: -29.84
+  munich         -      lmmse_own N=50    w=        0dB: -13.28    10dB: -16.79    20dB: -18.24
+  munich         -      lmmse_own N=200   w=        0dB: -14.27    10dB: -19.27    20dB: -22.22
+  munich         -      lmmse_own N=1000  w=        0dB: -14.92    10dB: -21.32    20dB: -27.00
+  pre-trained cdl in 205s
+  munich         cdl    lin       N=0     w=0.0     0dB: -12.81    10dB: -20.15    20dB: -27.79
+  munich         cdl    lin+cnn   N=0     w=0.0     0dB: -12.76    10dB: -20.12    20dB: -27.75
+  munich         cdl    lin       N=50    w=0.75    0dB: -14.49    10dB: -21.60    20dB: -28.55
+  munich         cdl    lin+cnn   N=50    w=0.75    0dB: -14.49    10dB: -21.60    20dB: -28.52
+  munich         cdl    lin       N=200   w=0.9     0dB: -14.74    10dB: -21.58    20dB: -28.28
+  munich         cdl    lin+cnn   N=200   w=0.9     0dB: -14.77    10dB: -21.58    20dB: -28.26
+  munich         cdl    lin       N=1000  w=0.9     0dB: -15.01    10dB: -21.95    20dB: -28.78
+  munich         cdl    lin+cnn   N=1000  w=0.9     0dB: -15.04    10dB: -21.96    20dB: -28.76
+  pre-trained rt_not_munich in 236s
+  munich         rt3    lin       N=0     w=0.0     0dB: -14.93    10dB: -21.90    20dB: -29.27
+  munich         rt3    lin+cnn   N=0     w=0.0     0dB: -15.06    10dB: -22.00    20dB: -29.28
+  munich         rt3    lin       N=50    w=0.1     0dB: -14.94    10dB: -21.87    20dB: -29.23
+  munich         rt3    lin+cnn   N=50    w=0.1     0dB: -14.99    10dB: -21.86    20dB: -29.00
+  munich         rt3    lin       N=200   w=0.25    0dB: -14.94    10dB: -21.86    20dB: -29.17
+  munich         rt3    lin+cnn   N=200   w=0.25    0dB: -15.08    10dB: -21.93    20dB: -29.11
+  munich         rt3    lin       N=1000  w=0.25    0dB: -15.00    10dB: -21.98    20dB: -29.27
+  munich         rt3    lin+cnn   N=1000  w=0.25    0dB: -15.14    10dB: -22.09    20dB: -29.29
+  pre-trained rt_only_etoile in 197s
+  munich         rt1    lin       N=0     w=0.0     0dB: -14.98    10dB: -21.86    20dB: -29.47
+  munich         rt1    lin+cnn   N=0     w=0.0     0dB: -15.62    10dB: -22.52    20dB: -29.70
+  munich         rt1    lin       N=50    w=0.25    0dB: -14.98    10dB: -21.95    20dB: -29.50
+  munich         rt1    lin+cnn   N=50    w=0.25    0dB: -15.52    10dB: -22.41    20dB: -29.41
+  munich         rt1    lin       N=200   w=0.5     0dB: -14.98    10dB: -22.03    20dB: -29.53
+  munich         rt1    lin+cnn   N=200   w=0.5     0dB: -15.52    10dB: -22.54    20dB: -29.66
+  munich         rt1    lin       N=1000  w=0.75    0dB: -15.05    10dB: -22.11    20dB: -29.58
+  munich         rt1    lin+cnn   N=1000  w=0.75    0dB: -15.64    10dB: -22.60    20dB: -29.79
+== target etoile
+  etoile         -      ls_interp N=0     w=        0dB:  -2.26    10dB: -12.20    20dB: -21.69
+  etoile         -      lmmse_in  N=12000 w=        0dB: -14.23    10dB: -20.83    20dB: -28.20
+  etoile         -      lmmse_own N=50    w=        0dB: -12.49    10dB: -15.25    20dB: -16.39
+  etoile         -      lmmse_own N=200   w=        0dB: -13.30    10dB: -17.73    20dB: -20.77
+  etoile         -      lmmse_own N=1000  w=        0dB: -14.05    10dB: -20.06    20dB: -25.30
+  etoile         cdl    lin       N=0     w=0.0     0dB: -12.17    10dB: -19.01    20dB: -25.70
+  etoile         cdl    lin+cnn   N=0     w=0.0     0dB: -12.13    10dB: -18.98    20dB: -25.67
+  etoile         cdl    lin       N=50    w=0.5     0dB: -13.65    10dB: -20.02    20dB: -26.08
+  etoile         cdl    lin+cnn   N=50    w=0.5     0dB: -13.67    10dB: -20.01    20dB: -26.05
+  etoile         cdl    lin       N=200   w=0.75    0dB: -13.92    10dB: -19.97    20dB: -25.90
+  etoile         cdl    lin+cnn   N=200   w=0.75    0dB: -13.94    10dB: -19.96    20dB: -25.88
+  etoile         cdl    lin       N=1000  w=0.75    0dB: -14.10    10dB: -20.54    20dB: -27.27
+  etoile         cdl    lin+cnn   N=1000  w=0.75    0dB: -14.13    10dB: -20.54    20dB: -27.25
+  pre-trained rt_not_etoile in 209s
+  etoile         rt3    lin       N=0     w=0.0     0dB: -13.87    10dB: -18.73    20dB: -22.94
+  etoile         rt3    lin+cnn   N=0     w=0.0     0dB: -13.89    10dB: -18.72    20dB: -22.91
+  etoile         rt3    lin       N=50    w=0.1     0dB: -13.90    10dB: -19.12    20dB: -23.56
+  etoile         rt3    lin+cnn   N=50    w=0.1     0dB: -13.90    10dB: -19.08    20dB: -23.51
+  etoile         rt3    lin       N=200   w=0.25    0dB: -13.91    10dB: -19.26    20dB: -23.91
+  etoile         rt3    lin+cnn   N=200   w=0.25    0dB: -13.93    10dB: -19.22    20dB: -23.87
+  etoile         rt3    lin       N=1000  w=0.5     0dB: -14.14    10dB: -20.18    20dB: -25.67
+  etoile         rt3    lin+cnn   N=1000  w=0.5     0dB: -14.17    10dB: -20.17    20dB: -25.64
+  pre-trained rt_only_florence in 188s
+  etoile         rt1    lin       N=0     w=0.0     0dB: -13.84    10dB: -18.62    20dB: -22.23
+  etoile         rt1    lin+cnn   N=0     w=0.0     0dB: -14.04    10dB: -18.67    20dB: -22.18
+  etoile         rt1    lin       N=50    w=0.25    0dB: -13.85    10dB: -19.12    20dB: -23.09
+  etoile         rt1    lin+cnn   N=50    w=0.25    0dB: -14.02    10dB: -19.15    20dB: -23.02
+  etoile         rt1    lin       N=200   w=0.25    0dB: -13.91    10dB: -19.22    20dB: -23.48
+  etoile         rt1    lin+cnn   N=200   w=0.25    0dB: -14.10    10dB: -19.28    20dB: -23.44
+  etoile         rt1    lin       N=1000  w=0.5     0dB: -14.15    10dB: -20.18    20dB: -25.48
+  etoile         rt1    lin+cnn   N=1000  w=0.5     0dB: -14.37    10dB: -20.29    20dB: -25.46
+== target florence
+  florence       -      ls_interp N=0     w=        0dB:  -2.26    10dB: -12.20    20dB: -21.68
+  florence       -      lmmse_in  N=12000 w=        0dB: -15.85    10dB: -23.21    20dB: -30.57
+  florence       -      lmmse_own N=50    w=        0dB: -13.11    10dB: -16.62    20dB: -18.43
+  florence       -      lmmse_own N=200   w=        0dB: -14.75    10dB: -20.62    20dB: -25.16
+  florence       -      lmmse_own N=1000  w=        0dB: -15.56    10dB: -22.72    20dB: -28.57
+  florence       cdl    lin       N=0     w=0.0     0dB: -12.95    10dB: -20.33    20dB: -28.21
+  florence       cdl    lin+cnn   N=0     w=0.0     0dB: -12.90    10dB: -20.30    20dB: -28.16
+  florence       cdl    lin       N=50    w=0.5     0dB: -14.74    10dB: -22.06    20dB: -29.55
+  florence       cdl    lin+cnn   N=50    w=0.5     0dB: -14.77    10dB: -22.06    20dB: -29.46
+  florence       cdl    lin       N=200   w=0.75    0dB: -15.36    10dB: -22.63    20dB: -30.07
+  florence       cdl    lin+cnn   N=200   w=0.75    0dB: -15.40    10dB: -22.64    20dB: -30.04
+  florence       cdl    lin       N=1000  w=0.9     0dB: -15.56    10dB: -22.88    20dB: -30.13
+  florence       cdl    lin+cnn   N=1000  w=0.9     0dB: -15.60    10dB: -22.88    20dB: -30.10
+  pre-trained rt_not_florence in 337s
+  florence       rt3    lin       N=0     w=0.0     0dB: -15.70    10dB: -22.73    20dB: -30.17
+  florence       rt3    lin+cnn   N=0     w=0.0     0dB: -15.97    10dB: -22.99    20dB: -30.27
+  florence       rt3    lin       N=50    w=0.0     0dB: -15.70    10dB: -22.73    20dB: -30.17
+  florence       rt3    lin+cnn   N=50    w=0.0     0dB: -15.94    10dB: -22.92    20dB: -30.07
+  florence       rt3    lin       N=200   w=0.1     0dB: -15.71    10dB: -22.76    20dB: -30.19
+  florence       rt3    lin+cnn   N=200   w=0.1     0dB: -15.98    10dB: -23.01    20dB: -30.25
+  florence       rt3    lin       N=1000  w=0.1     0dB: -15.71    10dB: -22.76    20dB: -30.19
+  florence       rt3    lin+cnn   N=1000  w=0.1     0dB: -15.99    10dB: -23.03    20dB: -30.30
+  pre-trained rt_only_san_francisco in 241s
+  florence       rt1    lin       N=0     w=0.0     0dB: -15.16    10dB: -22.17    20dB: -28.90
+  florence       rt1    lin+cnn   N=0     w=0.0     0dB: -15.50    10dB: -22.37    20dB: -28.89
+  florence       rt1    lin       N=50    w=0.0     0dB: -15.16    10dB: -22.17    20dB: -28.90
+  florence       rt1    lin+cnn   N=50    w=0.0     0dB: -15.45    10dB: -22.27    20dB: -28.63
+  florence       rt1    lin       N=200   w=0.1     0dB: -15.33    10dB: -22.49    20dB: -29.05
+  florence       rt1    lin+cnn   N=200   w=0.1     0dB: -15.69    10dB: -22.72    20dB: -29.03
+  florence       rt1    lin       N=1000  w=0.5     0dB: -15.59    10dB: -22.82    20dB: -29.18
+  florence       rt1    lin+cnn   N=1000  w=0.5     0dB: -16.09    10dB: -23.21    20dB: -29.19
+== target san_francisco
+  san_francisco  -      ls_interp N=0     w=        0dB:  -2.26    10dB: -12.21    20dB: -21.75
+  san_francisco  -      lmmse_in  N=12000 w=        0dB: -17.34    10dB: -24.66    20dB: -31.46
+  san_francisco  -      lmmse_own N=50    w=        0dB: -16.45    10dB: -21.17    20dB: -23.79
+  san_francisco  -      lmmse_own N=200   w=        0dB: -17.03    10dB: -23.10    20dB: -26.61
+  san_francisco  -      lmmse_own N=1000  w=        0dB: -17.18    10dB: -24.11    20dB: -29.91
+  san_francisco  cdl    lin       N=0     w=0.0     0dB: -12.93    10dB: -20.34    20dB: -28.20
+  san_francisco  cdl    lin+cnn   N=0     w=0.0     0dB: -12.88    10dB: -20.31    20dB: -28.15
+  san_francisco  cdl    lin       N=50    w=0.9     0dB: -16.77    10dB: -23.88    20dB: -30.82
+  san_francisco  cdl    lin+cnn   N=50    w=0.9     0dB: -16.72    10dB: -23.87    20dB: -30.78
+  san_francisco  cdl    lin       N=200   w=1.0     0dB: -17.03    10dB: -23.10    20dB: -26.61
+  san_francisco  cdl    lin+cnn   N=200   w=1.0     0dB: -17.05    10dB: -23.09    20dB: -26.59
+  san_francisco  cdl    lin       N=1000  w=1.0     0dB: -17.18    10dB: -24.11    20dB: -29.91
+  san_francisco  cdl    lin+cnn   N=1000  w=1.0     0dB: -17.24    10dB: -24.11    20dB: -29.88
+  pre-trained rt_not_san_francisco in 228s
+  san_francisco  rt3    lin       N=0     w=0.0     0dB: -16.41    10dB: -23.16    20dB: -30.40
+  san_francisco  rt3    lin+cnn   N=0     w=0.0     0dB: -16.63    10dB: -23.33    20dB: -30.44
+  san_francisco  rt3    lin       N=50    w=0.75    0dB: -17.11    10dB: -24.24    20dB: -31.07
+  san_francisco  rt3    lin+cnn   N=50    w=0.75    0dB: -17.24    10dB: -24.31    20dB: -30.97
+  san_francisco  rt3    lin       N=200   w=0.9     0dB: -17.26    10dB: -24.55    20dB: -31.33
+  san_francisco  rt3    lin+cnn   N=200   w=0.9     0dB: -17.40    10dB: -24.64    20dB: -31.32
+  san_francisco  rt3    lin       N=1000  w=1.0     0dB: -17.18    10dB: -24.11    20dB: -29.91
+  san_francisco  rt3    lin+cnn   N=1000  w=1.0     0dB: -17.37    10dB: -24.21    20dB: -29.91
+  pre-trained rt_only_munich in 307s
+  san_francisco  rt1    lin       N=0     w=0.0     0dB: -16.31    10dB: -23.26    20dB: -30.27
+  san_francisco  rt1    lin+cnn   N=0     w=0.0     0dB: -16.56    10dB: -23.46    20dB: -30.35
+  san_francisco  rt1    lin       N=50    w=0.75    0dB: -17.08    10dB: -24.20    20dB: -30.74
+  san_francisco  rt1    lin+cnn   N=50    w=0.75    0dB: -17.24    10dB: -24.31    20dB: -30.63
+  san_francisco  rt1    lin       N=200   w=0.9     0dB: -17.26    10dB: -24.55    20dB: -30.97
+  san_francisco  rt1    lin+cnn   N=200   w=0.9     0dB: -17.43    10dB: -24.69    20dB: -30.99
+  san_francisco  rt1    lin       N=1000  w=1.0     0dB: -17.18    10dB: -24.11    20dB: -29.91
+  san_francisco  rt1    lin+cnn   N=1000  w=1.0     0dB: -17.41    10dB: -24.24    20dB: -29.93
+ALL DONE
+EXIT 0

@@ -1,0 +1,28 @@
+fitted 14 cities
+munich               cdl -21.38  all_others -21.81  best city_bayside -22.07  picked city_park_slope -21.59  ceiling -22.17
+etoile               cdl -21.03  all_others -21.38  best all_others -21.38  picked city_levittown -21.09  ceiling -21.28
+florence             cdl -21.52  all_others -22.08  best city_munich -22.81  picked city_munich -22.81  ceiling -22.94
+san_francisco        cdl -21.62  all_others -22.29  best city_florence -23.77  picked city_rochester_brighton -23.55  ceiling -24.69
+wall_street          cdl -21.39  all_others -21.72  best city_bayside -22.12  picked city_bayside -22.12  ceiling -22.05
+midtown              cdl -20.53  all_others -20.14  best city_albany_downtown -20.57  picked city_harlem -19.58  ceiling -20.45
+harlem               cdl -21.01  all_others -21.24  best all_others -21.24  picked city_wall_street -20.84  ceiling -21.27
+park_slope           cdl -21.31  all_others -21.81  best city_florence -22.17  picked city_florence -22.17  ceiling -22.29
+bayside              cdl -21.47  all_others -22.04  best city_florence -22.81  picked city_albany_downtown -21.72  ceiling -22.76
+levittown            cdl -20.78  all_others -20.98  best all_others -20.98  picked city_wall_street -19.84  ceiling -20.98
+buffalo_downtown     cdl -20.86  all_others -20.91  best city_cornell -21.06  picked city_cornell -21.06  ceiling -21.00
+albany_downtown      cdl -20.57  all_others -20.47  best cdl -20.57  picked city_bayside -18.53  ceiling -20.71
+rochester_brighton   cdl -21.56  all_others -22.21  best city_san_francisco -24.20  picked city_san_francisco -24.20  ceiling -24.39
+cornell              cdl -20.60  all_others -20.53  best city_levittown -20.72  picked cdl -20.60  ceiling -20.82
+
+Breadth curve (gap to in-domain ceiling, dB; mean over targets):
+   k   mean-draw   worst-draw
+   1       1.59        3.99
+   2       0.84        1.70
+   4       0.71        1.26
+   8       0.60        0.82
+  13       0.59        0.59
+
+Gap to ceiling, mean over 14 targets: CDL 0.87 | all others pooled 0.59 | 50 site samples alone 6.47
+Selection regret vs best candidate: mean 0.48 dB, worst 2.04 dB, exact 5/14
+ALL DONE
+EXIT 0

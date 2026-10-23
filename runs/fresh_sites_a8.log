@@ -1,0 +1,68 @@
+AGX: exceeded compiled variants footprint limit
+data ready in 1152s
+  A munich         cdl       N=0   w=0.0     0dB: -14.12    10dB: -21.38    20dB: -28.85
+  A munich         cdl       N=50  w=0.75    0dB: -14.53    10dB: -21.87    20dB: -29.35
+  A munich         rt3       N=0   w=0.0     0dB: -14.56    10dB: -21.70    20dB: -29.30
+  A munich         rt3       N=50  w=0.25    0dB: -14.52    10dB: -21.58    20dB: -29.17
+  A munich         rt1       N=0   w=0.0     0dB: -14.72    10dB: -21.70    20dB: -29.33
+  A munich         rt1       N=50  w=0.25    0dB: -14.71    10dB: -21.77    20dB: -29.35
+  A munich         in_domain N=0   w=0.0     0dB: -14.87    10dB: -22.17    20dB: -29.91
+  A munich done in 170s
+  A etoile         cdl       N=0   w=0.0     0dB: -13.80    10dB: -21.03    20dB: -28.55
+  A etoile         cdl       N=50  w=0.5     0dB: -13.99    10dB: -21.08    20dB: -28.65
+  A etoile         rt3       N=0   w=0.0     0dB: -14.14    10dB: -19.83    20dB: -25.15
+  A etoile         rt3       N=50  w=0.25    0dB: -14.01    10dB: -19.79    20dB: -25.13
+  A etoile         rt1       N=0   w=0.0     0dB: -14.07    10dB: -19.44    20dB: -23.66
+  A etoile         rt1       N=50  w=0.25    0dB: -13.98    10dB: -19.49    20dB: -23.95
+  A etoile         in_domain N=0   w=0.0     0dB: -14.46    10dB: -21.28    20dB: -28.89
+  A etoile done in 154s
+  A florence       cdl       N=0   w=0.0     0dB: -14.33    10dB: -21.52    20dB: -28.94
+  A florence       cdl       N=50  w=0.75    0dB: -15.00    10dB: -22.17    20dB: -29.63
+  A florence       rt3       N=0   w=0.0     0dB: -15.58    10dB: -22.67    20dB: -30.11
+  A florence       rt3       N=50  w=0.0     0dB: -15.58    10dB: -22.67    20dB: -30.11
+  A florence       rt1       N=0   w=0.0     0dB: -14.81    10dB: -21.21    20dB: -27.77
+  A florence       rt1       N=50  w=0.1     0dB: -14.95    10dB: -21.33    20dB: -27.79
+  A florence       in_domain N=0   w=0.0     0dB: -15.66    10dB: -22.94    20dB: -30.44
+  A florence done in 162s
+  A san_francisco  cdl       N=0   w=0.0     0dB: -14.47    10dB: -21.62    20dB: -28.99
+  A san_francisco  cdl       N=50  w=0.95    0dB: -16.88    10dB: -23.74    20dB: -30.79
+  A san_francisco  rt3       N=0   w=0.0     0dB: -16.40    10dB: -23.14    20dB: -30.40
+  A san_francisco  rt3       N=50  w=0.85    0dB: -17.13    10dB: -24.37    20dB: -31.14
+  A san_francisco  rt1       N=0   w=0.0     0dB: -16.28    10dB: -23.30    20dB: -30.75
+  A san_francisco  rt1       N=50  w=0.85    0dB: -17.10    10dB: -24.31    20dB: -31.16
+  A san_francisco  in_domain N=0   w=0.0     0dB: -17.40    10dB: -24.69    20dB: -31.40
+  A san_francisco done in 145s
+  B munich         cdl       N=0   w=0.0     0dB: -14.11    10dB: -21.41    20dB: -28.93
+  B munich         cdl       N=50  w=0.75    0dB: -14.54    10dB: -21.89    20dB: -29.41
+  B munich         rt3       N=0   w=0.0     0dB: -14.69    10dB: -21.82    20dB: -29.52
+  B munich         rt3       N=50  w=0.25    0dB: -14.62    10dB: -21.74    20dB: -29.43
+  B munich         rt1       N=0   w=0.0     0dB: -14.70    10dB: -21.66    20dB: -29.34
+  B munich         rt1       N=50  w=0.5     0dB: -14.58    10dB: -21.75    20dB: -29.35
+  B munich         in_domain N=0   w=0.0     0dB: -14.88    10dB: -22.14    20dB: -29.86
+  B munich done in 173s
+  B etoile         cdl       N=0   w=0.0     0dB: -13.79    10dB: -21.02    20dB: -28.60
+  B etoile         cdl       N=50  w=0.5     0dB: -13.99    10dB: -21.06    20dB: -28.65
+  B etoile         rt3       N=0   w=0.0     0dB: -14.16    10dB: -19.78    20dB: -25.04
+  B etoile         rt3       N=50  w=0.25    0dB: -14.03    10dB: -19.76    20dB: -24.96
+  B etoile         rt1       N=0   w=0.0     0dB: -14.13    10dB: -19.47    20dB: -23.31
+  B etoile         rt1       N=50  w=0.25    0dB: -14.01    10dB: -19.50    20dB: -23.60
+  B etoile         in_domain N=0   w=0.0     0dB: -14.46    10dB: -21.29    20dB: -28.83
+  B etoile done in 162s
+  B florence       cdl       N=0   w=0.0     0dB: -14.31    10dB: -21.54    20dB: -29.02
+  B florence       cdl       N=50  w=0.75    0dB: -14.98    10dB: -22.17    20dB: -29.67
+  B florence       rt3       N=0   w=0.0     0dB: -15.61    10dB: -22.60    20dB: -30.08
+  B florence       rt3       N=50  w=0.0     0dB: -15.61    10dB: -22.60    20dB: -30.08
+  B florence       rt1       N=0   w=0.0     0dB: -14.70    10dB: -20.74    20dB: -27.33
+  B florence       rt1       N=50  w=0.0     0dB: -14.70    10dB: -20.74    20dB: -27.33
+  B florence       in_domain N=0   w=0.0     0dB: -15.66    10dB: -22.99    20dB: -30.61
+  B florence done in 140s
+  B san_francisco  cdl       N=0   w=0.0     0dB: -14.45    10dB: -21.64    20dB: -29.07
+  B san_francisco  cdl       N=50  w=0.95    0dB: -16.86    10dB: -23.73    20dB: -30.79
+  B san_francisco  rt3       N=0   w=0.0     0dB: -16.28    10dB: -22.98    20dB: -30.31
+  B san_francisco  rt3       N=50  w=0.85    0dB: -17.13    10dB: -24.32    20dB: -31.10
+  B san_francisco  rt1       N=0   w=0.0     0dB: -16.18    10dB: -23.22    20dB: -30.72
+  B san_francisco  rt1       N=50  w=0.85    0dB: -17.11    10dB: -24.30    20dB: -31.19
+  B san_francisco  in_domain N=0   w=0.0     0dB: -17.44    10dB: -24.80    20dB: -31.74
+  B san_francisco done in 134s
+ALL DONE
+EXIT 0

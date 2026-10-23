@@ -1,7 +1,7 @@
 .venv/
 __pycache__/
 data/
-runs/
+runs/**/*.pt
 *.pt
 .DS_Store
 scratch/probe/

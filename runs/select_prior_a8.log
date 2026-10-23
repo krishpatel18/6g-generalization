@@ -1,0 +1,11 @@
+A munich         pool picks rt3  test best rt3  regret  0.00 dB | test @10dB cdl:-21.38 rt3:-21.70 rt1:-21.70
+A etoile         pool picks cdl  test best cdl  regret  0.00 dB | test @10dB cdl:-21.03 rt3:-19.83 rt1:-19.44
+A florence       pool picks rt3  test best rt3  regret  0.00 dB | test @10dB cdl:-21.52 rt3:-22.67 rt1:-21.21
+A san_francisco  pool picks rt3  test best rt1  regret  0.15 dB | test @10dB cdl:-21.62 rt3:-23.14 rt1:-23.30
+B munich         pool picks rt3  test best rt3  regret  0.00 dB | test @10dB cdl:-21.41 rt3:-21.82 rt1:-21.66
+B etoile         pool picks cdl  test best cdl  regret  0.00 dB | test @10dB cdl:-21.02 rt3:-19.78 rt1:-19.47
+B florence       pool picks rt3  test best rt3  regret  0.00 dB | test @10dB cdl:-21.54 rt3:-22.60 rt1:-20.74
+B san_francisco  pool picks rt3  test best rt1  regret  0.25 dB | test @10dB cdl:-21.64 rt3:-22.98 rt1:-23.22
+hit rate 6/8; mean regret 0.05 dB, worst 0.25 dB
+ALL DONE
+EXIT 0

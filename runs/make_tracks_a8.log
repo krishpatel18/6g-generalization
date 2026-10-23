@@ -1,0 +1,17 @@
+grid a8_sc32_track
+[1/13] done cdl n=12000 seed=1 in 17s (total 0.3 min)
+AGX: exceeded compiled variants footprint limit
+[2/13] done rt:munich n=12000 seed=1 in 438s (total 7.6 min)
+[3/13] done rt:munich n=1000 seed=2 in 45s (total 8.3 min)
+[4/13] done rt:munich n=2000 seed=3 in 95s (total 9.9 min)
+[5/13] done rt:etoile n=12000 seed=1 in 348s (total 15.7 min)
+[6/13] done rt:etoile n=1000 seed=2 in 28s (total 16.2 min)
+[7/13] done rt:etoile n=2000 seed=3 in 53s (total 17.0 min)
+[8/13] done rt:florence n=12000 seed=1 in 405s (total 23.8 min)
+[9/13] done rt:florence n=1000 seed=2 in 18s (total 24.1 min)
+[10/13] done rt:florence n=2000 seed=3 in 41s (total 24.8 min)
+[11/13] done rt:san_francisco n=12000 seed=1 in 126s (total 26.9 min)
+[12/13] done rt:san_francisco n=1000 seed=2 in 10s (total 27.0 min)
+[13/13] done rt:san_francisco n=2000 seed=3 in 21s (total 27.4 min)
+ALL DONE
+EXIT 0
