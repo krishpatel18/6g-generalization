@@ -789,3 +789,66 @@ one seed.
   Four arms × three horizons × four cities against a 0.5 dB bar is the most
   favourable reading for learning; a pass needs a second seed before any
   change to the README.
+
+## Sim-to-real: finding 1 on measured channels (DICHASUS)
+
+### Data and processing (2026-10-27)
+
+DICHASUS `dxxx-complete` (Univ. Stuttgart, DaRUS doi:10.18419/DARUS-3153,
+CC BY 4.0): three 2×8 arrays (λ/2 at 1.272 GHz, 50 MHz, 1024 subcarriers) on
+one building facade, ~10 m up and tilted ~20° down; a hand-pulled transmitter
+on the street in front, tachymeter positions, a snapshot every ~48 ms.
+Checked on the data, not assumed:
+
+- **Subcarrier order is FFT order**; after `fftshift`, each antenna's phase
+  offset is a straight line across the band (fit residual 3–5°). The authors'
+  calibration tutorial uses the same fftshift and describes constant
+  per-receiver carrier phase and sampling-time offsets; offset files are not
+  shipped for this dataset.
+- **Calibration:** per antenna, a phase offset + delay (relative to antenna 0)
+  fitted to the line-of-sight phase predicted from the tachymeter positions,
+  plus a gain. The 8-element axis is horizontal: that layout fits far better
+  than the alternatives (array A coherence 0.73 vs ≤ 0.32; B 0.46, C 0.37 on
+  the first five files).
+- **One processing chain for every source** (measured, CDL, ray-traced), all
+  generated on the full 1024-subcarrier band: align the first arrival (first
+  delay tap within 10 dB of the peak) to 0, keep taps −10…+100 (−200 ns…2 µs),
+  take the 128 subcarriers around the carrier (6.25 MHz), normalise to unit
+  power. On usable datapoints, > 99.5% of measured energy lies within taps
+  −10…+30.
+- **Pilot** (array A, 639 calibration-file datapoints, 620 test datapoints,
+  10 dB): LS interpolation −11.2 dB, CDL prior −17.9, LMMSE fitted on the
+  calibration files −19.6. The data has structure a prior can exploit.
+
+### Sim-to-real experiment — pre-registered (2026-10-27, before results)
+
+`scripts/dichasus_test.py`. Grid: 16 antennas (2×8) × 128 subcarriers, one
+snapshot, pilots on every other subcarrier; LMMSE only; NMSE at 0 and 10 dB.
+
+- **Target data.** Array A primary. B and C count toward a claim only if their
+  calibration coherence on the calibration files is ≥ 0.5. Datapoints kept if
+  mean per-antenna SNR ≥ 10 dB and tachymeter interpolation age < 0.1 s.
+  Calibration and ceiling: d006–d010, d014. Site measurements: 50 random
+  datapoints from d012, 4 draws. Test: d011 + d013. The three sets are disjoint
+  files.
+- **Priors.** CDL (A–E, delay spread 30–300 ns as before, array heading
+  uniform within ±75°, 20° downtilt, 38.901 element pattern). Ray-traced: the
+  14 scenes re-simulated at 1.272 GHz with the 2×8 array and a facade-like
+  placement — base station 10 m up, 20° downtilt, 38.901 pattern, random
+  heading; users 1.5 m up, 10–65 m away within ±75° of boresight; positions
+  inside buildings rejected; 6000 channels per city. Pools: all 14 (equal
+  weight), and k random cities (k = 1, 2, 4, 8; 8 draws).
+- **Ceiling:** LMMSE fitted on the calibration files (site-trained).
+- **Claims, 10 dB, array A:**
+  - P1 — the 14-city RT pool beats CDL with no site data. Falsified if CDL is
+    better.
+  - P2 — insurance: the worst of 8 single-city priors is ≥ 1 dB further from
+    the ceiling than the worst 8-city pool. Falsified if not.
+  - P3 — the 14-city pool is within 1 dB of the ceiling. Reported either way.
+  - P4 — pool + 50 vs CDL + 50 (4 draws): reported as in simulation.
+- **Secondary, robust to residual phase miscalibration:** the same ladder on
+  each antenna alone (frequency only, 1×128).
+- **Can't be tested if:** the ceiling is within 3 dB of LS interpolation, or
+  calibration coherence on array A is < 0.5.
+- **Parked:** a ray-traced model of the campus itself (geo-registration of the
+  local frame is uncertain; a different hypothesis).
