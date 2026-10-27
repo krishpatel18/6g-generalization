@@ -1,7 +1,7 @@
 """Measured channels from the DICHASUS outdoor dataset, on the experiment grid.
 
-`measured(array, files, cal)` returns one array's channels from converted files
-(`scripts/dichasus_convert.py`), calibrated, reduced to the grid by the same
+`measured(load(array, files), cal)` returns one array's channels from converted
+files (`scripts/dichasus_convert.py`), calibrated, reduced to the grid by the same
 `wideband.to_grid` chain the simulated channels use, at unit power, keeping
 datapoints with usable SNR and a fresh tachymeter position.
 
@@ -89,7 +89,8 @@ def fit_calibration(array: Array, raw: Raw) -> tuple[np.ndarray, float]:
     gain = np.sqrt(np.mean(np.abs(csi) ** 2, axis=(0, 2)))
     corr = corr / (gain / gain.mean())[:, None]
     resid = np.sum(rel * np.exp(-1j * (fit[:, :1] * f[None] + fit[:, 1:]))[None], axis=2) * los.conj()
-    coherence = float(np.mean(np.abs(np.mean(resid / (np.abs(resid) + 1e-12), axis=1))))
+    unit = resid[:, 1:] / (np.abs(resid[:, 1:]) + 1e-12)  # antenna 0 is the reference: always 1
+    coherence = float(np.mean(np.abs(np.mean(unit, axis=1))))
     return corr[:, None, :].astype(np.complex64), coherence
 
 

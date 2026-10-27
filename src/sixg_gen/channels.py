@@ -5,8 +5,9 @@
 
 - ``"cdl"``: 3GPP TR 38.901 CDL-A..E, drawn uniformly, with random delay spread,
   user speed and base-station heading (Sionna PHY), or
-- ``"rt:<scene>"`` / ``"rtd:<scene>"``: ray-traced paths (specular only / also diffuse
-  scattering and diffraction) in a city scene, with a rooftop base
+- ``"rt:<scene>"`` / ``"rtd:<scene>"`` / ``"rt32:<scene>"``: ray-traced paths (specular
+  only / also diffuse scattering and diffraction / specular with rtd's 32 users per
+  base-station site) in a city scene, with a rooftop base
   station and moving street-level users. ``<scene>`` is one of Sionna RT's
   built-in scenes, or a directory ``data/scenes/<scene>/`` holding a
   ``scene.xml`` (e.g. generated from OpenStreetMap with geo2sigmap).
@@ -16,6 +17,8 @@ and slot timing, so a model trained on one can be evaluated on the other.
 Results are cached under ``data/`` keyed by grid settings, source, n and seed.
 """
 
+import json
+import warnings
 from pathlib import Path
 
 import numpy as np
@@ -30,6 +33,7 @@ FACADE_USER_RANGE_M = (10.0, 65.0)
 FACADE_SECTOR_RAD = np.radians(75)
 USER_HEIGHT_M = 1.5
 RICH_SCATTERING = 0.3
+RICH_USERS_PER_SITE = 32
 RT_SCENES = ("munich", "etoile", "florence", "san_francisco")
 
 
@@ -37,6 +41,7 @@ def generate(source: str, n: int, seed: int, mmap: bool = False) -> np.ndarray:
     """`mmap=True` leaves a cached set on disk and pages it in as it is sliced."""
     path = DATA_DIR / grid.config_tag() / f"{source.replace(':', '_')}_n{n}_s{seed}.npy"
     if path.exists():
+        _check_settings(path, source)
         return np.load(path, mmap_mode="r" if mmap else None)
     if source == "cdl":
         h, speed = _cdl(n, seed), np.full(n, np.nan)
@@ -44,13 +49,49 @@ def generate(source: str, n: int, seed: int, mmap: bool = False) -> np.ndarray:
         h, speed = _raytraced(source[3:], n, seed)
     elif source.startswith("rtd:"):
         h, speed = _raytraced(source[4:], n, seed, rich=True)
+    elif source.startswith("rt32:"):  # specular, but as many base-station sites per channel as rtd:
+        h, speed = _raytraced(source[5:], n, seed, users_per_site=RICH_USERS_PER_SITE)
     else:
         raise ValueError(f"unknown channel source {source!r}")
     h = grid.normalize_power(h)
     path.parent.mkdir(parents=True, exist_ok=True)
     np.save(path, h)
     np.save(_speed_path(path), speed.astype(np.float32))
+    _settings_path(path).write_text(json.dumps(settings(source), indent=1, sort_keys=True))
     return h
+
+
+def settings(source: str) -> dict:
+    """Everything besides n and seed that determines a generated set (the cache path holds
+    the rest). Written next to each cached set and checked when it is reused."""
+    out = {k: (v.tolist() if isinstance(v, np.ndarray) else v) for k, v in vars(grid).items()
+           if k.isupper() and isinstance(v, (int, float, str, tuple, type(None), np.ndarray))}
+    out["MAX_SPEED_MPS"] = MAX_SPEED_MPS
+    if grid.PLACEMENT == "facade":
+        out.update(FACADE_HEIGHT_M=FACADE_HEIGHT_M, FACADE_USER_RANGE_M=FACADE_USER_RANGE_M,
+                   FACADE_SECTOR_RAD=float(FACADE_SECTOR_RAD), USER_HEIGHT_M=USER_HEIGHT_M)
+    if grid.WIDEBAND_SUBCARRIERS:
+        out.update(WINDOW_TAPS=wideband.WINDOW_TAPS, FIRST_ARRIVAL_DB=wideband.FIRST_ARRIVAL_DB,
+                   SEARCH_TAPS=wideband.SEARCH_TAPS)
+    if source.startswith(("rtd:", "rt32:")):
+        out.update(RICH_SCATTERING=RICH_SCATTERING, RICH_USERS_PER_SITE=RICH_USERS_PER_SITE)
+    return json.loads(json.dumps(out))  # tuples -> lists, as read back
+
+
+def _settings_path(path: Path) -> Path:
+    return path.with_name(path.stem + "_settings.json")
+
+
+def _check_settings(path: Path, source: str) -> None:
+    saved = _settings_path(path)
+    if not saved.exists():
+        warnings.warn(f"{path.name}: cached before settings were recorded; reusing it unchecked")
+        return
+    old, now = json.loads(saved.read_text()), settings(source)
+    changed = sorted(k for k in old.keys() | now.keys() if old.get(k) != now.get(k))
+    if changed:
+        raise RuntimeError(f"{path.name} was generated with different settings ({', '.join(changed)}); "
+                           "delete it to regenerate")
 
 
 def speeds(source: str, n: int, seed: int) -> np.ndarray:
@@ -85,10 +126,12 @@ def _cdl_pattern() -> str:
 
 def _cdl(n: int, seed: int) -> np.ndarray:
     import torch
+    import sionna.phy
     from sionna.phy.channel import cir_to_ofdm_channel
     from sionna.phy.channel.tr38901 import CDL, AntennaArray
 
     torch.manual_seed(seed)
+    sionna.phy.config.seed = seed  # Sionna draws CDL rays and speeds from its own generators
     rng = np.random.default_rng(seed)
     ant = dict(polarization="single", polarization_type="V", carrier_frequency=grid.CARRIER_HZ)
     freqs = torch.tensor(grid.subcarrier_offsets_hz(), dtype=torch.float32)
@@ -118,7 +161,8 @@ def _cdl(n: int, seed: int) -> np.ndarray:
     return np.concatenate(out)
 
 
-def _raytraced(scene_name: str, n: int, seed: int, rich: bool = False) -> tuple[np.ndarray, np.ndarray]:
+def _raytraced(scene_name: str, n: int, seed: int, rich: bool = False,
+               users_per_site: int | None = None) -> tuple[np.ndarray, np.ndarray]:
     """`rich`: also diffuse scattering (every material's scattering coefficient set to
     RICH_SCATTERING, Lambertian) and edge diffraction; otherwise specular paths only."""
     import mitsuba as mi
@@ -141,14 +185,16 @@ def _raytraced(scene_name: str, n: int, seed: int, rich: bool = False) -> tuple[
     bb = scene.mi_scene.bbox()
     lo, hi = np.array(bb.min)[:2], np.array(bb.max)[:2]
     centre, half = (lo + hi) / 2, 0.3 * (hi - lo)
+    ground = _ground_scene(scene) if grid.PLACEMENT == "facade" else None
     solver = rt.PathSolver()
     # Diffuse scattering multiplies the path count; smaller batches keep cfr under Dr.Jit's 2^32 limit.
-    rx_per_tx, out, speed_out, have = (32 if rich else 256), [], [], 0
+    rx_per_tx = users_per_site or (RICH_USERS_PER_SITE if rich else 256)
+    out, speed_out, have = [], [], 0
     while have < n:
         for name in list(scene.transmitters) + list(scene.receivers):
             scene.remove(name)
         if grid.PLACEMENT == "facade":
-            tx, users = _facade(scene, rng, centre, half, rx_per_tx)
+            tx, users = _facade(scene, ground, rng, centre, half, rx_per_tx)
         else:
             tx, users = _rooftop(rng, centre, half, rx_per_tx)
         scene.add(rt.Transmitter("tx", **tx))
@@ -185,13 +231,13 @@ def _rooftop(rng, centre, half, count):
     return tx, users
 
 
-def _facade(scene, rng, centre, half, count):
+def _facade(scene, ground_scene, rng, centre, half, count):
     """Base station FACADE_HEIGHT_M above the local ground and above any roof there, random
     heading, downtilted; static users USER_HEIGHT_M above open ground in front of it
     (FACADE_USER_RANGE_M, within FACADE_SECTOR_RAD). Heights follow terrain."""
     while True:
         tx_xy = centre + rng.uniform(-1, 1, 2) * half
-        top, ground = _heights(scene, tx_xy[None])
+        top, ground = _first_hit(scene.mi_scene, tx_xy[None]), _first_hit(ground_scene, tx_xy[None])
         if top[0] < ground[0] + FACADE_HEIGHT_M:
             break
     yaw = rng.uniform(0, 2 * np.pi)
@@ -203,24 +249,17 @@ def _facade(scene, rng, centre, half, count):
         r = np.sqrt(rng.uniform(lo**2, hi**2, 4 * count))
         az = yaw + rng.uniform(-FACADE_SECTOR_RAD, FACADE_SECTOR_RAD, 4 * count)
         xy = tx_xy + np.stack([r * np.cos(az), r * np.sin(az)], axis=1)
-        top, ground = _heights(scene, xy)
+        top, ground = _first_hit(scene.mi_scene, xy), _first_hit(ground_scene, xy)
         outdoors = np.isfinite(ground) & (top < ground + 0.5)
         users += [((x, y, g + USER_HEIGHT_M), (0.0, 0.0, 0.0)) for (x, y), g in zip(xy[outdoors], ground[outdoors])]
     return tx, users[:count]
 
 
-_GROUND_SCENES: dict[int, object] = {}
-
-
-def _heights(scene, xy: np.ndarray) -> tuple[np.ndarray, np.ndarray]:
-    """For each (x, y): height of the first surface seen from above, and of the ground there."""
+def _ground_scene(scene):
+    """A Mitsuba scene holding only `scene`'s ground, to read terrain height under a point."""
     import mitsuba as mi
 
-    key = id(scene)
-    if key not in _GROUND_SCENES:
-        _GROUND_SCENES.clear()
-        _GROUND_SCENES[key] = mi.load_dict({"type": "scene", "ground": _ground_object(scene).mi_mesh})
-    return _first_hit(scene.mi_scene, xy), _first_hit(_GROUND_SCENES[key], xy)
+    return mi.load_dict({"type": "scene", "ground": _ground_object(scene).mi_mesh})
 
 
 def _ground_object(scene):
