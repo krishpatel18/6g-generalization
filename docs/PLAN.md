@@ -761,3 +761,24 @@ No dataset fits both questions. Best candidates:
 | Fit | Ready now | A: one campus, 1.27 GHz, weak test. B: Argos is a good fit if its host is back |
 | Cost | 1–2 days, no money | B on Argos: a few days, 30+ GB download, laptop is enough |
 | Risk | Reviewers call A obvious; B's simulator objection | Host unavailable; 20 MHz/2.4 GHz differs from the sim setup |
+
+### Fairer learned predictors — post-hoc check, written before running (2026-10-27)
+
+Not pre-registered with the prediction experiment: added after its results,
+to address its two stated handicaps. `scripts/predict_fair.py 8 0`, N = 0
+only (fine-tuning on 50 tracks hurt before), same tracks, same noise draws,
+one seed.
+
+- **Weighted loss:** train only on the 5 target times, each weighted by
+  1 / (its front end's NMSE at that horizon on the training pool, 10 dB), so
+  every horizon counts equally in relative terms; history points get 0.
+- **Arms:** `wiener_w_{ant,ad}` — the original CNN on the rt3 Wiener front,
+  weighted loss; `tone_res_{ant,ad}` — the same CNN as a residual on the tone
+  predictor (front = tone's fit at the history times plus its extrapolation),
+  weighted loss. Zero-initialised last layer, so each arm starts exactly at its
+  front end.
+- **Bar for changing finding 3** ("a classical method beat the neural
+  networks"): any arm beats tone by ≥ 0.5 dB at 10 dB SNR, at some horizon
+  ≥ 2 ms, in ≥ 3 of 4 cities → restate as "learning helps on top of the
+  classical method" (tone_res) or "the training loss was the handicap"
+  (wiener_w). Otherwise finding 3 stands, strengthened.
