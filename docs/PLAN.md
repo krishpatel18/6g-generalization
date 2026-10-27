@@ -981,7 +981,7 @@ datapoints. NMSE at 10 dB SNR:
   simulated channels are cleaner in delay than the measured street (first
   160 ns tap: 89–100% of energy across the 14 cities vs 79–84% measured, CDL
   79%; `runs/dichasus_diagnostics.log`, 1000 channels spread across each set).
-  Spatial concentration is not more concentrated in simulation (top-3 spatial
+  The simulated channels are not more spatially concentrated (top-3 spatial
   eigenvalues 39–46% simulated, 40–51% measured).
   Every ray-traced candidate is biased the same way, so pooling cannot insure
   against it.
