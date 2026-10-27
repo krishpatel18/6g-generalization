@@ -103,6 +103,20 @@ Re-weighting the original CNNs' loss toward the predictable horizons does not
 help (still 2–13 dB behind tone). See `docs/PLAN.md`, "Fairer learned
 predictors".
 
+## Sim-to-real: finding A on measured channels (falsified)
+
+On the DICHASUS outdoor measurements (Univ. Stuttgart; one building, three
+2×8 arrays, a transmitter on the street, 1.272 GHz), with all 14 cities
+re-simulated in the same setup and every source through one processing
+chain, the pooled ray-traced prior is **worse than 3GPP CDL** with no site
+data: by 3.1–4.1 dB on the full array × frequency grid and 0.5–1.3 dB per
+antenna, on all three arrays. With 50 site measurements CDL still leads by
+1.2–1.7 dB (full grid). Pooling still shrinks the worst single-city case
+(5 of 6 checks), but around a level below CDL. The simulated channels are
+cleaner than the measured street (first 160 ns tap: 95–100% of energy for
+most cities vs 85% measured). Pre-registered; see `docs/PLAN.md`,
+"Sim-to-real".
+
 ## Reproduce
 
 All scripts take the base-station antenna count as their first argument (`8`).
@@ -118,7 +132,8 @@ Channels are cached under `data/a8_sc128/`; seed 1 = 12k pre-training, seed 2 =
 | library, 14 cities | `scripts/library.py 8` | `runs/a8_sc128/library.csv`, `runs/library_a8.log` |
 | follow-up (+50 blends, selection) | `scripts/library_followup.py 8` | `runs/library_followup_a8.log` |
 | other site-pool draws | `scripts/pool_draws.py 8` | `runs/pool_draws_a8.log` |
-| prediction | `scripts/make_tracks.py 8`, then `scripts/predict.py 8 0` | `runs/a8_sc32_track/predict_seed0.csv` |
+| prediction | `scripts/make_tracks.py 8`, then `scripts/predict.py 8 0`; follow-up `scripts/predict_fair.py 8 0` | `runs/a8_sc32_track/predict_seed0.csv`, `predict_fair_seed*.csv` |
+| measured channels | `scripts/dichasus_convert.py` (TensorFlow) on DaRUS files, then `scripts/dichasus_test.py` | `runs/a16_sc128_dichasus/dichasus_test.csv` |
 
 Stack: Sionna 2.2 / Sionna RT 2.2 on Apple M4 (Metal), scenes from geo2sigmap
 (pinned commit, buildings read from a local OpenStreetMap extract).

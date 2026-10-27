@@ -7,15 +7,21 @@ particular street. Ray tracers like NVIDIA Sionna RT can simulate real city
 layouts instead. This project asks whether that helps at a **new** site, and
 whether **learned** models are what make the difference.
 
-Everything is simulation: 14 ray-traced city scenes, an 8-antenna base station
-at 3.5 GHz, 5G NR-like OFDM. The three main experiments (4-city, 14-city and
-prediction) had their expected outcome and pass/fail bar written down before
-they ran; follow-up checks are labelled post-hoc in the
-[lab notebook](docs/PLAN.md).
+Findings 1–3 come from simulation (14 ray-traced city scenes, an 8-antenna
+base station at 3.5 GHz, 5G NR-like OFDM); finding 4 tests finding 1 on real
+measured channels — and reverses it. The four main experiments (4-city,
+14-city, prediction, measured channels) had their expected outcome and
+pass/fail bar written down before they ran; follow-up checks are labelled
+post-hoc in the [lab notebook](docs/PLAN.md).
+
+**In short:** in simulation, pooling many simulated cities looked like a good
+starting point for a new site. On real measurements from one site it was worse
+than 3GPP's generic models, because the simulated channels were too clean.
+Learned models never beat the classical methods; at best they refined them.
 
 ## Findings
 
-**1. Pooling many simulated cities is insurance.** With no measurements at a
+**1. In simulation, pooling many simulated cities is insurance.** With no measurements at a
 new site, a linear (LMMSE) estimator built from channel statistics pooled over
 many ray-traced cities comes within about 0.6 dB of one trained on that site —
 roughly what the 3GPP CDL models reach only after 50 site measurements. Any
@@ -53,6 +59,20 @@ check (re-tracing each user at its moved position) showed this matches the full
 simulation up to ~10 ms for nearly all users at 3.5 GHz — but on real channels,
 the classical method would degrade by an amount simulation can't measure.
 
+**4. On real measured channels, the simulated cities lost.** A follow-up
+test used the University of Stuttgart's DICHASUS measurements: three antenna
+arrays on one building, a transmitter pulled along the street, 1.27 GHz. All
+14 cities were re-simulated with the same array and a matching placement, and
+every source went through one processing chain. With no site measurements,
+the pooled simulated prior was 3–4 dB *worse* than the 3GPP CDL model on the
+full array (0.5–1.3 dB worse per antenna), and no single city beat CDL either;
+with 50 measurements, CDL still led by 1.2–1.7 dB. Pooling still shrank the
+worst case, but around a worse level. The simulated channels were cleaner
+than the real street (95–100% of energy in the first 160 ns for most cities,
+85% measured), so finding 1 held only on simulated ground — the caveat stated
+before the first run. One site, one band; an exploratory rerun with diffuse
+scattering and diffraction is in the [lab notebook](docs/PLAN.md).
+
 ## How it was done
 
 - **Scenes:** Sionna RT's four built-in cities plus ten New York areas built
@@ -70,8 +90,9 @@ the classical method would degrade by an amount simulation can't measure.
 
 ## Limits
 
-- Simulation-to-simulation only: test channels come from the same ray tracer as
-  the priors. Nothing here is tested on measured channels.
+- Findings 1–3 are simulation-to-simulation: test channels come from the same
+  ray tracer as the priors. The one measured-data test (finding 4) is a single
+  site at 1.27 GHz, mostly line-of-sight, and it reversed finding 1.
 - One linear estimator family, one array (8-antenna ULA), one band (3.5 GHz);
   10 of 14 cities from one US state.
 - Most randomly placed users receive no ray-traced paths and are dropped, so
@@ -113,9 +134,10 @@ tables are in `runs/`.
 | New York scenes | `scripts/build_library.sh <new-york-latest.osm.pbf>` (needs `osmium-tool`, `libusb`), then `scripts/make_library.py 8` |
 | 14-city library | `scripts/library.py 8`, `scripts/library_followup.py 8`, `scripts/pool_draws.py 8` |
 | prediction | `scripts/make_tracks.py 8`, `scripts/predict.py 8 0`, `scripts/predict_fair.py 8 0` |
+| measured channels (DICHASUS) | download `dxxx-complete` from [DaRUS](https://doi.org/10.18419/DARUS-3153) into `data/dichasus/raw/`, convert with `scripts/dichasus_convert.py` (needs TensorFlow), then `scripts/dichasus_test.py` |
 | figures | `scripts/figures.py` |
 
 A results summary with every number is in [docs/RESULT.md](docs/RESULT.md).
 
 Built with [Sionna](https://github.com/NVlabs/sionna). Map data © OpenStreetMap
-contributors.
+contributors. Measured channels: DICHASUS (University of Stuttgart), CC BY 4.0.
