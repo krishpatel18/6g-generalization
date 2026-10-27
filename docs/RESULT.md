@@ -123,7 +123,7 @@ antenna, on all three arrays. With 50 site measurements CDL still leads by
 1.2–1.7 dB (full grid); per antenna both reach the site-trained level.
 Pooling still shrinks the worst single-city case (5 of 6 checks), but around a
 level below CDL. The simulated channels are cleaner in delay than the measured
-street (first 160 ns tap: 88–100% of energy across the 14 cities vs 79–84%
+street (first 160 ns tap: 89–100% of energy across the 14 cities vs 79–84%
 measured). The simulated users were also placed farther away and at a
 shallower angle than the real ones (median 46 m / 10° below the array by the
 placement rule on flat ground, vs 18–20 m / 24–26° measured). Pre-registered, though not blind: a pilot had already

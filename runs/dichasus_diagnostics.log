@@ -4,28 +4,27 @@
   array C: 0.623
 == scattering control, array A, 10 dB (7 cities x 2000)
   specular, 256 users/site (rt:)           full grid -14.57 | per antenna -18.32
-AGX: exceeded compiled variants footprint limit
   specular, 32 users/site (rt32:)          full grid -14.81 | per antenna -18.35
   scattering+diffraction, 32/site (rtd:)   full grid -17.62 | per antenna -19.22
 == cleanliness: first-tap energy %, top-3 spatial eigenvalues %
   measured A              84.3  50.5
   measured B              79.1  39.6
   measured C              83.7  43.5
-  cdl                     75.8  43.5
-  rt:munich                87.6  51.3   rtd:  86.5  43.1
-  rt:etoile                90.8  53.0   rtd:  88.7  40.0
-  rt:florence              92.5  43.9   rtd:  85.5  42.3
-  rt:san_francisco         92.6  42.3   rtd:  84.1  39.8
-  rt:wall_street           91.7  48.7   rtd:  91.2  43.0
-  rt:midtown               95.8  43.6   rtd:  94.4  44.0
-  rt:harlem                95.2  41.2
-  rt:park_slope            94.8  45.2   rtd:  87.9  40.3
-  rt:bayside               95.7  45.3
-  rt:levittown             93.6  44.5
-  rt:buffalo_downtown      94.3  45.0
-  rt:albany_downtown       95.1  45.9
-  rt:rochester_brighton    99.9  43.5
-  rt:cornell               96.1  45.4
+  cdl                     78.5  42.8
+  rt:munich                89.2  39.6   rt32:  89.3  39.7   rtd:  87.7  41.1
+  rt:etoile                90.8  41.3   rt32:  90.6  41.7   rtd:  89.0  39.6
+  rt:florence              91.3  38.7   rt32:  91.9  39.0   rtd:  86.4  41.4
+  rt:san_francisco         90.8  39.6   rt32:  90.8  39.7   rtd:  84.7  38.7
+  rt:wall_street           94.3  43.3   rt32:  93.2  42.3   rtd:  90.7  40.4
+  rt:midtown               94.4  42.0   rt32:  94.8  42.6   rtd:  93.5  42.1
+  rt:harlem                95.3  45.4
+  rt:park_slope            95.0  45.0   rt32:  94.8  40.3   rtd:  87.9  39.1
+  rt:bayside               94.0  40.9
+  rt:levittown             93.9  41.3
+  rt:buffalo_downtown      94.9  44.3
+  rt:albany_downtown       95.9  45.0
+  rt:rochester_brighton    99.7  45.5
+  rt:cornell               96.7  41.9
 == user geometry: horizontal distance (m) and angle below the array (deg), median [10th-90th pct]
   measured A:  17.9 [16.0-29.3] m,  26.1 [16.6-28.7] deg
   measured B:  19.7 [16.0-32.2] m,  23.9 [15.2-28.5] deg

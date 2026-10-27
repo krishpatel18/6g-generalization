@@ -170,7 +170,7 @@ def _cdl(n: int, seed: int) -> np.ndarray:
 def _raytraced(scene_name: str, n: int, seed: int, rich: bool = False,
                users_per_site: int | None = None) -> tuple[np.ndarray, np.ndarray]:
     """`rich`: also diffuse scattering (every material's scattering coefficient set to
-    RICH_SCATTERING, Lambertian) and edge diffraction; otherwise specular paths only."""
+    RICH_SCATTERING, Lambertian) and Sionna's wedge diffraction; otherwise specular paths only."""
     import mitsuba as mi
 
     if mi.variant() is None:

@@ -2,8 +2,8 @@
 
 usage: dichasus_regen_check.py [rt|rtd]
 For each city: regenerate the first channels of rt:<city> n6000 s1 (all 14 cities) or
-rtd:<city> n2000 s1 (the 7 scattering cities) and compare with the cache. Matches are expected up to Sionna RT's non-deterministic path solver (a few
-percent of channels differ slightly). Prints per-city share of channels within 1e-3 relative error of their closest cached
+rtd:<city> n2000 s1 (the 7 scattering cities) and compare with the cache. Most channels should match to 1e-3; the rest differ by solver non-determinism or by
+users whose paths change between runs (not separated here). Prints per-city share of channels within 1e-3 relative error of their closest cached
 channel (index shifts from dropped users tolerated).
 """
 import sys

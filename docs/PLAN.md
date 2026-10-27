@@ -798,11 +798,12 @@ one seed.
 DICHASUS `dxxx-complete` (Univ. Stuttgart, DaRUS doi:10.18419/DARUS-3153,
 CC BY 4.0): three 2×8 arrays (λ/2 at 1.272 GHz, 50 MHz, 1024 subcarriers) on
 one building facade, ~10 m up and tilted ~20° down; a hand-pulled transmitter
-on the street in front, tachymeter positions, a snapshot every ~48 ms.
-Checked on the data, not assumed:
+on the street in front, tachymeter positions, a snapshot every ~48 ms
+(`scratch/dichasus_peek.py`, not logged). Checked on the data, not assumed:
 
 - **Subcarrier order is FFT order**; after `fftshift`, each antenna's phase
-  offset is a straight line across the band (fit residual 3–5°). The authors'
+  offset is a straight line across the band (fit residual 3–5°; scratch
+  check, not logged). The authors'
   calibration tutorial uses the same fftshift and describes constant
   per-receiver carrier phase and sampling-time offsets; offset files are not
   shipped for this dataset.
@@ -816,7 +817,9 @@ Checked on the data, not assumed:
   delay tap within 10 dB of the peak) to 0, keep taps −10…+99 (−200 ns…2 µs),
   take the 128 subcarriers around the carrier (6.25 MHz), normalise to unit
   power. On usable datapoints, > 99.5% of measured energy lies within taps
-  −10…+30.
+  −10…+30 (scratch check, not logged; the pilot log's "0.608 in the first
+  100 taps" is a different measure: all test datapoints, noise included, no
+  first-arrival shift).
 - **Pilot** (array A, 639 calibration-file datapoints, 620 test datapoints,
   10 dB; `scratch/dichasus_pilot.py`, rerun into `runs/dichasus_pilot.log`):
   LS interpolation −11.2 dB, CDL prior −17.9, LMMSE fitted on the
@@ -882,7 +885,8 @@ Arm minus tone at 10 dB (negative = arm better), horizons 2 / 5 / 10 ms:
 - **Seed 1 (`runs/predict_fair_seed1_a8.log`) reproduces seed 0 within
   ~0.2 dB (largest difference 0.21, San Francisco 2 ms):** tone_res_ad
   −0.61 / −0.52 / −0.60 dB at 10 ms (Munich, Étoile, Florence), −0.61 at 2 ms
-  in San Francisco (4/4); tone_res_ant 3/4 (Florence −0.501). Finding 3 is restated: the classical tone predictor beats
+  in San Francisco (4/4); tone_res_ant 3/4 (Florence −0.501). In San
+  Francisco tone_res_ant also costs 0.38–0.59 dB at 2 ms (seeds 0 / 1). Finding 3 is restated: the classical tone predictor beats
   learned models trained alone by 2–13 dB, but a learned correction on top of
   it adds a small, repeatable ~0.3–0.6 dB at 2–10 ms (cells 0.26–0.65) —
   except where tone is already near-exact (San Francisco, where it costs
@@ -892,13 +896,15 @@ Arm minus tone at 10 dB (negative = arm better), horizons 2 / 5 / 10 ms:
 - **Implementation note (sim-to-real, before results):** "positions inside
   buildings rejected" is implemented relative to each scene's ground mesh, so
   heights follow terrain (San Francisco's ground spans 2–79 m over the central
-  area sampled, 0–104 m overall); a spot counts
+  area sampled, 0–104 m overall; scratch checks, not logged); a spot counts
   as outdoors if the first surface above it is within 0.5 m of the ground.
 
 ### Scattering variant — exploratory (2026-10-27, after the dry run, before the full run's results)
 
 A 300-per-city dry run of the registered test (which touched the test data)
-showed the ray-traced priors far behind CDL. Diagnosis on that run: the
+showed the ray-traced priors far behind CDL. Diagnosis on that run (an
+uncommitted run whose hilly-scene caches were later found suspect; figures
+not logged): the
 ray-traced channels are cleaner than the measured ones — 95–100% of energy in
 the first 160 ns tap for most cities vs 85% measured (75% for the weaker,
 farther datapoints, 94% for the strongest; measurement noise explains ~1%).
@@ -910,7 +916,7 @@ It runs unchanged. In addition, exploratory and labelled so: `rtd:` sources
 diffraction; its separate edge-diffraction option stays off) for the 4 built-in cities and wall_street, midtown, park_slope,
 2000 channels each, through the same test (`scripts/dichasus_rich.py`).
 A first look on Munich suggests scattering adds little energy (first-tap share
-90% → 89%), so a large change is not expected.
+90% → 89%; scratch check, not logged), so a large change is not expected.
 
 ### Sim-to-real experiment — results (2026-10-27, corrected after review)
 
@@ -921,14 +927,25 @@ which Python can reuse for a later scene, handing it an earlier scene's
 ground. A first regeneration check flagged park_slope and bayside
 (`runs/dichasus_regen_check.log`: 4–28% matching), but that check compared
 channels index by index, and users dropped for having no paths shift every
-later index — a later review showed the same mismatch with the fixed code. So
+later index — a later review showed the same mismatch with the fixed code
+(reviewer's check, not logged). So
 whether the bug actually fired is unproven. The bug was fixed, both caches
 regenerated, and everything rerun; reported numbers moved by ≤ 0.02 dB. A
 shift-tolerant check (`runs/dichasus_regen_check_rt_v2.log`,
-`..._rtd_v2.log`) now finds every current cache reproduced by the fixed code
-(95–100% of channels within 0.1 relative error, the rest solver noise). All three arrays pass the coherence bar (A 0.80, B 0.58,
+`..._rtd_v2.log`) regenerates the first base-station site of each cache (256
+channels for `rt:`, 64 for `rtd:`) with the fixed code: 75–100% of channels
+match their cached counterpart to 1e-3 relative error, against 0–3.5% when
+cached channels are matched to *other* cached channels (a reviewer's null
+check, not logged), so the caches are reproduced; why the rest differ
+(solver non-determinism or users whose paths change) is not shown. A
+per-scene ground mix-up would affect every site, so the first site suffices
+to catch it. The `_settings.json` sidecars were written after generation from
+the current code, so they record, rather than prove, the settings; what backs
+the caches is these regeneration checks (ray-traced) and
+`runs/cdl_seed_check_dichasus.log` (CDL). All three arrays pass the coherence bar (A 0.80, B 0.58,
 C 0.62 with the reference antenna excluded; the registered check used the
-metric including it: 0.81 / 0.59 / 0.63). Test sets 620 / 754 / 391
+metric including it: 0.81 / 0.59 / 0.63, in `runs/dichasus_test.log` at
+commit 605663a). Test sets 620 / 754 / 391
 datapoints. NMSE at 10 dB SNR:
 
 | array, grid | LS | ceiling | CDL | 14-city RT pool | best / worst single city | CDL + 50 | pool + 50 |
@@ -962,9 +979,10 @@ datapoints. NMSE at 10 dB SNR:
 - **Reading:** the simulation result did not transfer; the caveat written
   before run 1 ("RT prior vs CDL prior for an RT target") applies. The
   simulated channels are cleaner in delay than the measured street (first
-  160 ns tap: 88–100% of energy across the 14 cities vs 79–84% measured, CDL
-  76%; `runs/dichasus_diagnostics.log`). Spatial concentration is not clearly
-  different (top-3 spatial eigenvalues 41–53% simulated, 40–51% measured).
+  160 ns tap: 89–100% of energy across the 14 cities vs 79–84% measured, CDL
+  79%; `runs/dichasus_diagnostics.log`, 1000 channels spread across each set).
+  Spatial concentration is not more concentrated in simulation (top-3 spatial
+  eigenvalues 39–46% simulated, 40–51% measured).
   Every ray-traced candidate is biased the same way, so pooling cannot insure
   against it.
 - **Placement is not matched to the real users** (fixed before results, not
@@ -985,11 +1003,12 @@ datapoints. NMSE at 10 dB SNR:
 - **CDL reproducibility:** the cached CDL set was generated before Sionna's
   own generator was seeded (fixed after review), so it can't be regenerated
   bitwise. Statistically it is equivalent: on array A, 4000 channels score
-  −17.90 cached, −17.92 regenerated seeded, −17.95 regenerated unseeded, with
+  −17.9 cached, −17.92 regenerated seeded, −17.95 regenerated unseeded, with
   the same spatial spread (`runs/cdl_seed_check_dichasus.log`). (A reviewer's
-  −18.26 for a fresh set came from skipping the per-channel power
-  normalisation the pipeline applies.) Seeding also leaves the original
-  study's CDL prior unchanged (Munich, 2000 channels: −21.58 vs −21.57).
+  −18.26 for a fresh set — not logged — came from skipping the per-channel
+  power normalisation the pipeline applies.) Seeding also leaves the original
+  study's CDL prior unchanged (Munich, 2000 channels: −21.58 vs −21.57;
+  `scratch/cdl_seed_check.py`, not logged).
 - Limits: one site (one street, one building, three arrays on its facade),
   1.272 GHz, mostly line-of-sight; LMMSE only.
 
@@ -1019,11 +1038,13 @@ datapoints. NMSE at 10 dB SNR:
   on the full grid, vs −17.6 with scattering; per antenna −18.3 / −18.4 vs
   −19.2. So ~0.2 dB comes from the extra base-station sites and ~2.8 dB from
   scattering and diffraction.
-- **What scattering changes:** delay spread (first-tap share 88–96% → 84–94%
-  across the 7 cities) and spatial spread (top-3 eigenvalues 42–53% →
-  40–44%).
+- **What scattering changes:** delay spread — first-tap share 89–95% → 84–94%
+  across the 7 cities at the same number of sites (`rt32:` → `rtd:`). Spatial
+  spread barely changes (top-3 eigenvalues 39–43% → 39–42%); an earlier
+  version of this line credited scattering with narrowing it, which came from
+  scoring only the first 1000 channels (~4 base-station sites for `rt:`).
 - **My first look was wrong:** the Munich-only first-tap check before the run
-  (90% → 89%) suggested little change.
+  (90% → 89%, not logged) suggested little change.
 - **Insurance:** on the full grid, pooling 4 cities still shrinks the worst
   case (A 5.5 → 3.3, B 6.3 → 3.6, C 5.6 → 3.3 dB from the ceiling); per
   antenna the drop is under 1 dB (1.8 → 1.1, 1.4 → 0.8, 1.2 → 0.7). (Only 7

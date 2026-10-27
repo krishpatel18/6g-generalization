@@ -25,7 +25,8 @@ from make_library import library  # noqa: E402
 
 
 def cleanliness(h) -> tuple[float, float]:
-    h = np.asarray(h)[:1000, :, 0]
+    """Over 1000 channels spread evenly through the set, so they span many base-station sites."""
+    h = np.asarray(h[::max(1, len(h) // 1000)][:1000])[:, :, 0]
     taps = np.fft.ifft(np.fft.ifftshift(h, axes=-1), axis=-1)
     pdp = np.mean(np.abs(taps) ** 2, axis=(0, 1))
     f = h[:, :, grid.NUM_SUBCARRIERS // 2]
@@ -64,6 +65,7 @@ def main() -> None:
     for c in list(BUILT_IN) + library():
         line = "{:5.1f} {:5.1f}".format(*cleanliness(channels.generate(f"rt:{c}", 6000, 1, mmap=True)))
         if c in CITIES:
+            line += "   rt32: {:5.1f} {:5.1f}".format(*cleanliness(channels.generate(f"rt32:{c}", PER_CITY, 1, mmap=True)))
             line += "   rtd: {:5.1f} {:5.1f}".format(*cleanliness(channels.generate(f"rtd:{c}", PER_CITY, 1, mmap=True)))
         print(f"  rt:{c:20s} {line}", flush=True)
 

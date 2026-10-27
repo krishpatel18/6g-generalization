@@ -73,9 +73,9 @@ full array (0.5–1.3 dB worse per antenna), and on the full array no single
 city beat CDL either; with 50 measurements, CDL still led by 1.2–1.7 dB on the
 full array (per antenna the two tied). Pooling still shrank the worst case,
 but around a worse level. The simulated channels were cleaner in delay than
-the real street (88–100% of energy in the first 160 ns across the 14 cities,
-79–84% measured), and the simulated users sat farther away and at a shallower
-angle than the real ones. Finding 1 held only on simulated ground — the
+the real street (89–100% of energy in the first 160 ns across the 14 cities,
+79–84% measured), and the placement rule put simulated users farther away and
+at a shallower angle than the real ones. Finding 1 held only on simulated ground — the
 caveat stated before the first run.
 
 An exploratory rerun suggests the ray tracer's settings, inherited from the
