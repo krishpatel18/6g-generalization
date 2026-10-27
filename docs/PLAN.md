@@ -905,3 +905,43 @@ diffraction) for the 4 built-in cities and wall_street, midtown, park_slope,
 2000 channels each, through the same test (`scripts/dichasus_rich.py`).
 A first look on Munich suggests scattering adds little energy (first-tap share
 90% → 89%), so a large change is not expected.
+
+### Sim-to-real experiment — results (2026-10-27)
+
+`scripts/dichasus_test.py`, `runs/dichasus_test.log`,
+`runs/a16_sc128_dichasus/dichasus_test.csv`. All three arrays pass the
+coherence bar (A 0.81, B 0.59, C 0.63 on the calibration files); test sets
+620 / 754 / 391 datapoints. NMSE at 10 dB SNR:
+
+| array, variant | LS | ceiling | CDL | 14-city RT pool | best / worst single city | CDL + 50 | pool + 50 |
+|---|---|---|---|---|---|---|---|
+| A, array × freq | −11.2 | −20.5 | **−17.9** | −14.8 | −15.3 / −10.2 | **−18.8** | −17.2 |
+| B, array × freq | −11.2 | −20.2 | **−17.5** | −13.4 | −13.9 / −8.9 | **−18.6** | −16.9 |
+| C, array × freq | −11.2 | −20.4 | **−17.9** | −14.4 | −14.8 / −9.7 | **−19.0** | −17.8 |
+| A, per antenna | −11.2 | −20.0 | **−19.3** | −18.0 | −19.2 / −10.9 | −19.9 | −19.9 |
+| B, per antenna | −11.2 | −20.1 | **−19.3** | −18.6 | −19.5 / −10.9 | −20.0 | −20.0 |
+| C, per antenna | −11.2 | −20.2 | **−19.3** | −18.8 | −19.7 / −11.9 | −20.2 | −20.2 |
+
+- **P1 falsified on every array:** on measured channels the pooled
+  ray-traced prior is worse than CDL with no site data — by 3.1–4.1 dB on the
+  full array × frequency grid, 0.5–1.3 dB per antenna. No single city beats
+  CDL on the full grid either (best city 2.7–3.6 dB behind).
+- **P2 (insurance):** holds on A and C (worst single city vs worst 8-city
+  pool: 8.4 → 6.1 and 7.5 → 6.4 dB from the ceiling) and per antenna on all
+  three (6.1 → 2.5, 5.1 → 1.8, 4.7 → 1.7); fails narrowly on B's full grid
+  (8.2 → 7.3, 0.98 dB). Pooling still protects against the worst city — but
+  around a level well below CDL.
+- **P3 falsified:** the pool is 5.8–6.8 dB from the ceiling on the full grid
+  (1.4–2.0 per antenna), vs ~0.6 in simulation.
+- **P4:** with 50 site measurements, CDL + 50 beats pool + 50 by 1.2–1.7 dB on
+  the full grid; per antenna both reach the ceiling.
+- **Reading:** the simulation result was a home-ground effect, as the caveat
+  written before run 1 warned ("RT prior vs CDL prior for an RT target"). CDL
+  is fitted to measurements; ray tracing at the original settings (specular,
+  3 bounces, no scattering) produces channels cleaner than the measured street
+  — the delay profile check above — and, on the array, spatially more
+  concentrated. Every ray-traced candidate is biased the same way, so pooling
+  cannot insure against it. The gap is largest on the spatial dimension, where
+  geometry (array height, placement, the real building) matters most.
+- Limits: one site (one street, one building, three arrays on its facade),
+  1.272 GHz, mostly line-of-sight; LMMSE only.
