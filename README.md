@@ -16,7 +16,8 @@ post-hoc in the [lab notebook](docs/PLAN.md).
 
 **In short:** in simulation, pooling many simulated cities looked like a good
 starting point for a new site. On real measurements from one site it was worse
-than 3GPP's generic models, because the simulated channels were too clean.
+than 3GPP's generic models, because the simulated channels were too clean;
+with scattering switched on in the ray tracer, it roughly matched them.
 Learned models never beat the classical methods; at best they refined them.
 
 ## Findings
@@ -70,8 +71,14 @@ with 50 measurements, CDL still led by 1.2–1.7 dB. Pooling still shrank the
 worst case, but around a worse level. The simulated channels were cleaner
 than the real street (95–100% of energy in the first 160 ns for most cities,
 85% measured), so finding 1 held only on simulated ground — the caveat stated
-before the first run. One site, one band; an exploratory rerun with diffuse
-scattering and diffraction is in the [lab notebook](docs/PLAN.md).
+before the first run.
+
+The cause was the ray tracer's settings, inherited from the simulation study:
+specular reflections only, no scattering off rough surfaces, no diffraction.
+An exploratory rerun with scattering and diffraction switched on (7 cities,
+added after a dry run, labelled as such) brought the simulated prior to within
+0.3–0.5 dB of CDL on the full array and level with it per antenna — a match,
+not a win. One site, one band.
 
 ## How it was done
 

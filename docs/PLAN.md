@@ -945,3 +945,35 @@ coherence bar (A 0.81, B 0.59, C 0.63 on the calibration files); test sets
   geometry (array height, placement, the real building) matters most.
 - Limits: one site (one street, one building, three arrays on its facade),
   1.272 GHz, mostly line-of-sight; LMMSE only.
+
+### Scattering variant — results (exploratory, 2026-10-27)
+
+`scripts/dichasus_rich.py`, `runs/dichasus_rich.log`,
+`runs/a16_sc128_dichasus/dichasus_rich.csv`. 7 cities × 2000 `rtd:` channels
+(scattering 0.3, diffraction). NMSE at 10 dB:
+
+| array | grid | CDL | rtd pool | CDL + 50 | rtd pool + 50 |
+|---|---|---|---|---|---|
+| A | array × freq | −17.9 | −17.7 | −18.8 | −18.5 |
+| B | array × freq | −17.5 | −17.0 | −18.6 | −18.1 |
+| C | array × freq | −17.9 | −17.5 | −19.0 | −19.0 |
+| A / B / C | per antenna | −19.3 / −19.3 / −19.3 | −19.2 / −19.6 / −19.7 | −19.9 / −20.0 / −20.2 | same |
+
+- **Scattering closes most of the gap:** the ray-traced pool goes from
+  3.1–4.1 dB behind CDL (full grid, specular only) to 0.3–0.5 dB behind, and
+  per antenna from 0.5–1.3 dB behind to −0.0 / +0.3 / +0.3 dB (ties or
+  slightly ahead). With 50 site measurements: 0.0–0.5 dB behind on the full
+  grid.
+- **The gain is the scattering, not the smaller setup:** the same 7 cities at
+  2000 each, specular only, score −14.6 (full grid) and −18.3 (per antenna)
+  on array A, against −17.7 and −19.2 with scattering (`scratch/rich_confound.py`).
+  Scattering mostly spreads the spatial structure (top-3 spatial eigenvalues
+  44–51% → 42–43% of power) and adds some delay spread (first tap 88–93% →
+  86–91%).
+- **My first look was wrong:** the Munich-only tap-share check before the run
+  (90% → 89%) suggested little change; the spatial effect was the larger one.
+- **Still not a win:** with the more realistic solver settings, ray-traced
+  cities roughly match CDL on measured channels; they do not beat it. Pooling
+  still insures (worst single city vs worst 4-city pool: 5.5 → 3.3 dB on A).
+  Exploratory: chosen after the dry run, one scattering value (0.3, not
+  tuned), 7 cities, one site.

@@ -117,6 +117,13 @@ cleaner than the measured street (first 160 ns tap: 95–100% of energy for
 most cities vs 85% measured). Pre-registered; see `docs/PLAN.md`,
 "Sim-to-real".
 
+Exploratory follow-up (added after a dry run): with diffuse scattering
+(coefficient 0.3) and diffraction on, 7 cities at 2000 channels, the pooled
+ray-traced prior comes within 0.3–0.5 dB of CDL on the full grid and ties or
+slightly beats it per antenna (−0.0 to +0.3 dB). The same 7 cities without
+scattering are 3.1 dB (full grid) and 0.9 dB (per antenna) worse, so the
+solver settings, not the city set, caused the gap.
+
 ## Reproduce
 
 All scripts take the base-station antenna count as their first argument (`8`).
