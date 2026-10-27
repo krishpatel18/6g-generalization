@@ -11,7 +11,6 @@ would pick, LMMSE from those 50 alone, and the in-domain ceiling (12k, seed 1).
 import sys
 from pathlib import Path
 
-import numpy as np
 
 from sixg_gen import channels, grid, linear
 

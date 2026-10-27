@@ -17,7 +17,6 @@ first), with the 8-element axis horizontal, as the data fits best.
 
 import json
 from dataclasses import dataclass
-from pathlib import Path
 
 import numpy as np
 
