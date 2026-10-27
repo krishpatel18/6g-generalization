@@ -8,8 +8,10 @@ layouts instead. This project asks whether that helps at a **new** site, and
 whether **learned** models are what make the difference.
 
 Everything is simulation: 14 ray-traced city scenes, an 8-antenna base station
-at 3.5 GHz, 5G NR-like OFDM. Each experiment's expected outcome and pass/fail
-bar were written down before it ran ([lab notebook](docs/PLAN.md)).
+at 3.5 GHz, 5G NR-like OFDM. The three main experiments (4-city, 14-city and
+prediction) had their expected outcome and pass/fail bar written down before
+they ran; follow-up checks are labelled post-hoc in the
+[lab notebook](docs/PLAN.md).
 
 ## Findings
 
@@ -73,15 +75,19 @@ the classical method would degrade by an amount simulation can't measure.
 
 ## Related work
 
-Closest found: single-site ray-traced or digital-twin covariance and subspace
-priors ([2607.09334](https://arxiv.org/abs/2607.09334),
+Closest found: site-specific ray-traced or digital-twin priors for a channel
+covariance, subspace or channel statistics
+([2607.09334](https://arxiv.org/abs/2607.09334),
 [2501.02758](https://arxiv.org/abs/2501.02758),
-[2411.13360](https://arxiv.org/abs/2411.13360)); leave-one-city-out
-pre-training for CSI feedback ([2605.16141](https://arxiv.org/abs/2605.16141));
+[2411.13360](https://arxiv.org/abs/2411.13360)); pre-training across source
+cities and adapting to a target site, for CSI feedback
+([2605.16141](https://arxiv.org/abs/2605.16141));
 stochastic vs ray-traced data for ML, including prediction
-([2512.12449](https://arxiv.org/abs/2512.12449)); learned vs classical
-prediction on 3GPP models ([2412.08908](https://arxiv.org/abs/2412.08908),
-[2308.14020](https://arxiv.org/abs/2308.14020)). A search did not find the
+([2512.12449](https://arxiv.org/abs/2512.12449)); learned prediction beating a
+classical Prony angle-delay baseline on 3GPP-compliant QuaDRiGa channels
+([2412.08908](https://arxiv.org/abs/2412.08908)); neural network predictors
+compared on the 3GPP tapped-delay-line model
+([2308.14020](https://arxiv.org/abs/2308.14020)). A search did not find the
 pooled-city worst-case result or a classical predictor beating learned ones on
 ray-traced channels; that is a search, not a full review.
 
