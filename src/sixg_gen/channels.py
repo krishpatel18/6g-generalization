@@ -35,6 +35,7 @@ FACADE_SECTOR_RAD = np.radians(75)
 USER_HEIGHT_M = 1.5
 RICH_SCATTERING = 0.3
 RICH_USERS_PER_SITE = 32
+FACADE_MAX_USER_TRIES = 50
 MATCHED_USER_RANGE_M = (12.0, 30.0)  # DICHASUS users: median ~19 m, 10-90% 16-32 m
 USERS_PER_SITE = 256
 ROOFTOP_HEIGHT_M = (25.0, 40.0)
@@ -247,23 +248,26 @@ def _facade(scene, ground_scene, rng, centre, half, count, user_range_m=FACADE_U
     heading, downtilted; static users USER_HEIGHT_M above open ground in front of it
     (FACADE_USER_RANGE_M, within FACADE_SECTOR_RAD). Heights follow terrain."""
     while True:
-        tx_xy = centre + rng.uniform(-1, 1, 2) * half
-        top, ground = _first_hit(scene.mi_scene, tx_xy[None]), _first_hit(ground_scene, tx_xy[None])
-        if top[0] < ground[0] + FACADE_HEIGHT_M:
-            break
-    yaw = rng.uniform(0, 2 * np.pi)
-    tx = dict(position=[*map(float, tx_xy), float(ground[0] + FACADE_HEIGHT_M)],
-              orientation=[float(yaw), grid.DOWNTILT_RAD, 0.0])
-    lo, hi = user_range_m
-    users = []
-    while len(users) < count:
-        r = np.sqrt(rng.uniform(lo**2, hi**2, 4 * count))
-        az = yaw + rng.uniform(-FACADE_SECTOR_RAD, FACADE_SECTOR_RAD, 4 * count)
-        xy = tx_xy + np.stack([r * np.cos(az), r * np.sin(az)], axis=1)
-        top, ground = _first_hit(scene.mi_scene, xy), _first_hit(ground_scene, xy)
-        outdoors = np.isfinite(ground) & (top < ground + 0.5)
-        users += [((x, y, g + USER_HEIGHT_M), (0.0, 0.0, 0.0)) for (x, y), g in zip(xy[outdoors], ground[outdoors])]
-    return tx, users[:count]
+        while True:
+            tx_xy = centre + rng.uniform(-1, 1, 2) * half
+            top, ground = _first_hit(scene.mi_scene, tx_xy[None]), _first_hit(ground_scene, tx_xy[None])
+            if top[0] < ground[0] + FACADE_HEIGHT_M:
+                break
+        yaw = rng.uniform(0, 2 * np.pi)
+        tx = dict(position=[*map(float, tx_xy), float(ground[0] + FACADE_HEIGHT_M)],
+                  orientation=[float(yaw), grid.DOWNTILT_RAD, 0.0])
+        lo, hi = user_range_m
+        users = []
+        for _ in range(FACADE_MAX_USER_TRIES):  # a site facing a wall may have no outdoor spots in range
+            r = np.sqrt(rng.uniform(lo**2, hi**2, 4 * count))
+            az = yaw + rng.uniform(-FACADE_SECTOR_RAD, FACADE_SECTOR_RAD, 4 * count)
+            xy = tx_xy + np.stack([r * np.cos(az), r * np.sin(az)], axis=1)
+            top, ground_xy = _first_hit(scene.mi_scene, xy), _first_hit(ground_scene, xy)
+            outdoors = np.isfinite(ground_xy) & (top < ground_xy + 0.5)
+            users += [((x, y, g + USER_HEIGHT_M), (0.0, 0.0, 0.0))
+                      for (x, y), g in zip(xy[outdoors], ground_xy[outdoors])]
+            if len(users) >= count:
+                return tx, users[:count]
 
 
 def _ground_scene(scene):
