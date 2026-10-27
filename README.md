@@ -12,7 +12,8 @@ base station at 3.5 GHz, 5G NR-like OFDM); finding 4 tests finding 1 on real
 measured channels — and reverses it. The four main experiments (4-city,
 14-city, prediction, measured channels) had their expected outcome and
 pass/fail bar written down before they ran (for the measured-channel test, a
-pilot had already scored the 3GPP baseline on the test data); follow-up
+pilot had already scored the 3GPP baseline on the test data, and a dry run
+had touched it); follow-up
 checks are labelled post-hoc in the [lab notebook](docs/PLAN.md).
 
 **In short:** in simulation, pooling many simulated cities looked like a good
@@ -51,7 +52,7 @@ dB with no site data. The pre-registered test for "learning has room here" faile
 A follow-up check, added after these results and labelled as such: a CNN
 trained to *correct* the classical method's prediction, rather than replace
 it, adds a small but repeatable ~0.3–0.6 dB at 2–10 ms in three of four cities
-(same result on two training seeds), and costs about 1 dB in San Francisco,
+(same result on two training seeds), and costs about 1 dB at 5–10 ms in San Francisco,
 where the classical method is already near-exact. Retraining the original
 CNNs with a loss focused on the predictable horizons did not close the gap.
 So: classical first, learning as a refinement on top.
@@ -65,7 +66,7 @@ the classical method would degrade by an amount simulation can't measure.
 **4. On real measured channels, the simulated cities lost.** A follow-up
 test used the University of Stuttgart's DICHASUS measurements: three antenna
 arrays on one building, a transmitter pulled along the street, 1.27 GHz. All
-14 cities were re-simulated with the same array and a matching placement, and
+14 cities were re-simulated with the same array and a facade-like placement, and
 every source went through one processing chain. With no site measurements,
 the pooled simulated prior was 3–4 dB *worse* than the 3GPP CDL model on the
 full array (0.5–1.3 dB worse per antenna), and on the full array no single
@@ -79,7 +80,7 @@ caveat stated before the first run.
 
 An exploratory rerun suggests the ray tracer's settings, inherited from the
 simulation study, drove most of the gap: with scattering off rough surfaces
-and diffraction switched on (7 cities, added after a dry run, labelled as
+and wedge diffraction switched on (7 cities, added after a dry run, labelled as
 such), the simulated prior came within 0.3–0.5 dB of CDL on the full array
 and level with it per antenna (slightly ahead on two arrays) — a match, not a
 win. One site, one band, one scattering value.

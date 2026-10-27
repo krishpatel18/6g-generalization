@@ -744,7 +744,8 @@ Finding B (classical vs learned prediction):
 No dataset fits both questions. Best candidates:
 - **DICHASUS outdoor** (Univ. Stuttgart, CC BY 4.0): 1.27 GHz, 50 MHz,
   three 2×8 arrays, one campus, mostly line-of-sight, ~70 ms snapshot spacing
-  (inferred). Usable for a one-campus version of A; too coarse for B.
+  (inferred; the data turned out to have ~48 ms). Usable for a one-campus
+  version of A; too coarse for B.
 - **Argos channel survey** (Rice, research and commercial use, no
   redistribution): 2.4/5 GHz, 20 MHz, 96 antennas, 8 users, **2 ms
   resounding** over 20–120 s. The only verified fit for B. Download host
@@ -812,13 +813,15 @@ Checked on the data, not assumed:
   the first five files).
 - **One processing chain for every source** (measured, CDL, ray-traced), all
   generated on the full 1024-subcarrier band: align the first arrival (first
-  delay tap within 10 dB of the peak) to 0, keep taps −10…+100 (−200 ns…2 µs),
+  delay tap within 10 dB of the peak) to 0, keep taps −10…+99 (−200 ns…2 µs),
   take the 128 subcarriers around the carrier (6.25 MHz), normalise to unit
   power. On usable datapoints, > 99.5% of measured energy lies within taps
   −10…+30.
 - **Pilot** (array A, 639 calibration-file datapoints, 620 test datapoints,
-  10 dB): LS interpolation −11.2 dB, CDL prior −17.9, LMMSE fitted on the
+  10 dB; `scratch/dichasus_pilot.py`, rerun into `runs/dichasus_pilot.log`):
+  LS interpolation −11.2 dB, CDL prior −17.9, LMMSE fitted on the
   calibration files −19.6. The data has structure a prior can exploit.
+  Layout and offset fits: `runs/dichasus_calib_layout.log`.
 
 ### Sim-to-real experiment — pre-registered (2026-10-27, before results)
 
@@ -873,7 +876,7 @@ Arm minus tone at 10 dB (negative = arm better), horizons 2 / 5 / 10 ms:
   already very good.
 - **The loss was not the main handicap:** the weighted loss on the Wiener
   front gains up to ~1 dB at 2 ms in the angle-delay arm and loses elsewhere;
-  still 2–13 dB behind tone.
+  still ~2–13 dB behind tone (1.8–12.6).
 - As written beforehand: a second seed of the tone-residual arms runs before
   any change to the README (`scripts/predict_fair.py 8 1 tone_res`).
 - **Seed 1 (`runs/predict_fair_seed1_a8.log`) reproduces seed 0 within
@@ -888,7 +891,8 @@ Arm minus tone at 10 dB (negative = arm better), horizons 2 / 5 / 10 ms:
 
 - **Implementation note (sim-to-real, before results):** "positions inside
   buildings rejected" is implemented relative to each scene's ground mesh, so
-  heights follow terrain (San Francisco's ground spans 2–79 m); a spot counts
+  heights follow terrain (San Francisco's ground spans 2–79 m over the central
+  area sampled, 0–104 m overall); a spot counts
   as outdoors if the first surface above it is within 0.5 m of the ground.
 
 ### Scattering variant — exploratory (2026-10-27, after the dry run, before the full run's results)
@@ -902,8 +906,8 @@ The registered experiment inherits the original study's solver settings:
 `max_depth=3`, specular reflection and refraction only, no diffuse scattering,
 no diffraction, and every material's scattering coefficient is 0 by default.
 It runs unchanged. In addition, exploratory and labelled so: `rtd:` sources
-(scattering coefficient 0.3 on all materials, Lambertian, plus edge
-diffraction) for the 4 built-in cities and wall_street, midtown, park_slope,
+(scattering coefficient 0.3 on all materials, Lambertian, plus Sionna's wedge
+diffraction; its separate edge-diffraction option stays off) for the 4 built-in cities and wall_street, midtown, park_slope,
 2000 channels each, through the same test (`scripts/dichasus_rich.py`).
 A first look on Munich suggests scattering adds little energy (first-tap share
 90% → 89%), so a large change is not expected.
@@ -913,11 +917,16 @@ A first look on Munich suggests scattering adds little energy (first-tap share
 `scripts/dichasus_test.py`, `runs/dichasus_test.log`,
 `runs/a16_sc128_dichasus/dichasus_test.csv`. **Rerun after a review found a
 bug:** the facade placement cached each scene's ground mesh by `id(scene)`,
-which Python reused, so in the first 14-city run park_slope and bayside placed
-users using another scene's ground (`runs/dichasus_regen_check.log`: 4–28% of
-their cached channels matched a fresh regeneration, vs 78–100% for the other
-cities). Fixed, those caches regenerated, everything rerun; reported numbers
-moved by ≤ 0.02 dB. All three arrays pass the coherence bar (A 0.80, B 0.58,
+which Python can reuse for a later scene, handing it an earlier scene's
+ground. A first regeneration check flagged park_slope and bayside
+(`runs/dichasus_regen_check.log`: 4–28% matching), but that check compared
+channels index by index, and users dropped for having no paths shift every
+later index — a later review showed the same mismatch with the fixed code. So
+whether the bug actually fired is unproven. The bug was fixed, both caches
+regenerated, and everything rerun; reported numbers moved by ≤ 0.02 dB. A
+shift-tolerant check (`runs/dichasus_regen_check_rt_v2.log`,
+`..._rtd_v2.log`) now finds every current cache reproduced by the fixed code
+(95–100% of channels within 0.1 relative error, the rest solver noise). All three arrays pass the coherence bar (A 0.80, B 0.58,
 C 0.62 with the reference antenna excluded; the registered check used the
 metric including it: 0.81 / 0.59 / 0.63). Test sets 620 / 754 / 391
 datapoints. NMSE at 10 dB SNR:
@@ -960,21 +969,27 @@ datapoints. NMSE at 10 dB SNR:
   against it.
 - **Placement is not matched to the real users** (fixed before results, not
   tuned): simulated users sit at a median 46 m and ~10° below the array, the
-  measured ones at ~18–20 m and 24–26° below. Per-array downtilts are 20.4 /
-  21.0 / 24.1°; 20.4° was used for all. Either could add to the gap; a
+  measured ones at ~18–20 m and 24–26° below (simulated figures from the
+  placement rule on flat ground, not from generated positions). Per-array
+  downtilts in spec.json are 20.4 / 21.0 / 24.1°; 20.4° was used for all. Either could add to the gap; a
   matched-placement rerun is listed as a follow-up.
 - **Smaller asymmetries, bounded:** measured channels sit ~10–20 ns later
   after alignment than simulated ones (a fractional timing offset the
   first-arrival rule can't remove); adding a random 0–20 ns delay to the
   simulated channels moved CDL by −0.26 and the pool by +0.21 dB on array A
-  (reviewer's check), so at most ~0.5 dB of the CDL-vs-pool gap. Observed and
-  unexplained: the correlation between the two antenna rows is 0.40–0.48 in
-  magnitude measured vs ~0.9 simulated (multipath, or calibration error that
-  varies across frequency).
+  (a reviewer's scratch check, not logged), so at most ~0.5 dB of the
+  CDL-vs-pool gap. Observed and unexplained (reviewer's check, not logged):
+  the correlation between the two antenna rows is 0.40–0.48 in magnitude
+  measured vs ~0.9 simulated (multipath, or calibration error that varies
+  across frequency).
 - **CDL reproducibility:** the cached CDL set was generated before Sionna's
-  own generator was seeded (fixed after review). Regenerated sets score
-  −17.90 / −17.86 vs the cached −17.94 on array A: statistically, not
-  bitwise, equivalent.
+  own generator was seeded (fixed after review), so it can't be regenerated
+  bitwise. Statistically it is equivalent: on array A, 4000 channels score
+  −17.90 cached, −17.92 regenerated seeded, −17.95 regenerated unseeded, with
+  the same spatial spread (`runs/cdl_seed_check_dichasus.log`). (A reviewer's
+  −18.26 for a fresh set came from skipping the per-channel power
+  normalisation the pipeline applies.) Seeding also leaves the original
+  study's CDL prior unchanged (Munich, 2000 channels: −21.58 vs −21.57).
 - Limits: one site (one street, one building, three arrays on its facade),
   1.272 GHz, mostly line-of-sight; LMMSE only.
 
@@ -984,8 +999,8 @@ datapoints. NMSE at 10 dB SNR:
 `runs/a16_sc128_dichasus/dichasus_rich.csv`, control and diagnostics in
 `runs/dichasus_diagnostics.log`. 7 cities × 2000 `rtd:` channels (scattering
 0.3, diffraction, 32 users per base-station site). Rerun after the review fix
-(park_slope regenerated; `runs/dichasus_regen_check_rtd.log` confirms the
-other six). NMSE at 10 dB:
+(park_slope regenerated; the shift-tolerant check in
+`runs/dichasus_regen_check_rtd_v2.log` reproduces all seven). NMSE at 10 dB:
 
 | array | grid | CDL | rtd pool | CDL + 50 | rtd pool + 50 |
 |---|---|---|---|---|---|

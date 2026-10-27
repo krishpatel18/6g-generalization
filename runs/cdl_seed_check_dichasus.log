@@ -1,0 +1,6 @@
+cached 12000: -17.94 | cached first 4000: -17.9
+fresh seeded 4000: -17.92
+fresh unseeded 4000: -17.95
+  cached: top-3 spatial eig share 0.419
+  seeded: top-3 spatial eig share 0.417
+  unseeded: top-3 spatial eig share 0.421

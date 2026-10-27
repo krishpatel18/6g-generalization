@@ -34,6 +34,13 @@ FACADE_SECTOR_RAD = np.radians(75)
 USER_HEIGHT_M = 1.5
 RICH_SCATTERING = 0.3
 RICH_USERS_PER_SITE = 32
+USERS_PER_SITE = 256
+ROOFTOP_HEIGHT_M = (25.0, 40.0)
+ROOFTOP_RADIUS_M = 250.0
+RT_MAX_DEPTH = 3
+RT_SAMPLES_PER_SRC = 10**5
+CDL_DELAY_SPREAD_S = (30e-9, 300e-9)
+CDL_BATCH = 64
 RT_SCENES = ("munich", "etoile", "florence", "san_francisco")
 
 
@@ -64,17 +71,16 @@ def generate(source: str, n: int, seed: int, mmap: bool = False) -> np.ndarray:
 def settings(source: str) -> dict:
     """Everything besides n and seed that determines a generated set (the cache path holds
     the rest). Written next to each cached set and checked when it is reused."""
-    out = {k: (v.tolist() if isinstance(v, np.ndarray) else v) for k, v in vars(grid).items()
-           if k.isupper() and isinstance(v, (int, float, str, tuple, type(None), np.ndarray))}
-    out["MAX_SPEED_MPS"] = MAX_SPEED_MPS
-    if grid.PLACEMENT == "facade":
-        out.update(FACADE_HEIGHT_M=FACADE_HEIGHT_M, FACADE_USER_RANGE_M=FACADE_USER_RANGE_M,
-                   FACADE_SECTOR_RAD=float(FACADE_SECTOR_RAD), USER_HEIGHT_M=USER_HEIGHT_M)
-    if grid.WIDEBAND_SUBCARRIERS:
-        out.update(WINDOW_TAPS=wideband.WINDOW_TAPS, FIRST_ARRIVAL_DB=wideband.FIRST_ARRIVAL_DB,
-                   SEARCH_TAPS=wideband.SEARCH_TAPS)
-    if source.startswith(("rtd:", "rt32:")):
-        out.update(RICH_SCATTERING=RICH_SCATTERING, RICH_USERS_PER_SITE=RICH_USERS_PER_SITE)
+    def constants(module) -> dict:
+        return {f"{module.__name__.rsplit('.', 1)[-1]}.{k}": (v.tolist() if isinstance(v, np.ndarray) else v)
+                for k, v in vars(module).items()
+                if k.isupper() and isinstance(v, (int, float, str, tuple, type(None), np.ndarray))}
+
+    import sys
+
+    # Every upper-case constant of the modules that shape a set; generation choices that
+    # are not constants (the code itself, scene files, library versions) are not covered.
+    out = {**constants(grid), **constants(wideband), **constants(sys.modules[__name__])}
     return json.loads(json.dumps(out))  # tuples -> lists, as read back
 
 
@@ -135,11 +141,11 @@ def _cdl(n: int, seed: int) -> np.ndarray:
     rng = np.random.default_rng(seed)
     ant = dict(polarization="single", polarization_type="V", carrier_frequency=grid.CARRIER_HZ)
     freqs = torch.tensor(grid.subcarrier_offsets_hz(), dtype=torch.float32)
-    out, batch = [], 64
+    out, batch = [], CDL_BATCH
     for start in range(0, n, batch):
         b = min(batch, n - start)
         model = "ABCDE"[rng.integers(5)]
-        delay_spread = float(rng.uniform(30e-9, 300e-9))
+        delay_spread = float(rng.uniform(*CDL_DELAY_SPREAD_S))
         # CDL clusters have fixed angles; a random base-station heading per sample
         # spreads users around the array, as the ray-traced placement does.
         # On a facade, users are only in front: headings within the placement sector.
@@ -188,7 +194,7 @@ def _raytraced(scene_name: str, n: int, seed: int, rich: bool = False,
     ground = _ground_scene(scene) if grid.PLACEMENT == "facade" else None
     solver = rt.PathSolver()
     # Diffuse scattering multiplies the path count; smaller batches keep cfr under Dr.Jit's 2^32 limit.
-    rx_per_tx = users_per_site or (RICH_USERS_PER_SITE if rich else 256)
+    rx_per_tx = users_per_site or (RICH_USERS_PER_SITE if rich else USERS_PER_SITE)
     out, speed_out, have = [], [], 0
     while have < n:
         for name in list(scene.transmitters) + list(scene.receivers):
@@ -202,7 +208,7 @@ def _raytraced(scene_name: str, n: int, seed: int, rich: bool = False,
         for i, (pos, vel) in enumerate(users):
             batch_speed.append(float(np.linalg.norm(vel)))
             scene.add(rt.Receiver(f"rx{i}", position=[*map(float, pos)], velocity=[*map(float, vel)]))
-        paths = solver(scene, max_depth=3, samples_per_src=10**5, synthetic_array=True,
+        paths = solver(scene, max_depth=RT_MAX_DEPTH, samples_per_src=RT_SAMPLES_PER_SRC, synthetic_array=True,
                        diffuse_reflection=rich, diffraction=rich)
         h = paths.cfr(frequencies=mi.Float(grid.subcarrier_offsets_hz().astype(np.float32)),
                       sampling_frequency=1.0 / grid.SYMBOL_PERIOD_S,
@@ -221,10 +227,10 @@ def _raytraced(scene_name: str, n: int, seed: int, rich: bool = False,
 def _rooftop(rng, centre, half, count):
     """Base station 25-40 m up in the central area; users anywhere within 250 m, moving."""
     tx_xy = centre + rng.uniform(-1, 1, 2) * half
-    tx = dict(position=[*map(float, tx_xy), float(rng.uniform(25, 40))])
+    tx = dict(position=[*map(float, tx_xy), float(rng.uniform(*ROOFTOP_HEIGHT_M))])
     users = []
     for _ in range(count):
-        r, phi = 250 * np.sqrt(rng.uniform()), rng.uniform(0, 2 * np.pi)
+        r, phi = ROOFTOP_RADIUS_M * np.sqrt(rng.uniform()), rng.uniform(0, 2 * np.pi)
         heading, speed = rng.uniform(0, 2 * np.pi), rng.uniform(0, MAX_SPEED_MPS)
         users.append(((tx_xy[0] + r * np.cos(phi), tx_xy[1] + r * np.sin(phi), USER_HEIGHT_M),
                       (speed * np.cos(heading), speed * np.sin(heading), 0.0)))

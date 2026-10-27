@@ -79,9 +79,9 @@ dense downtown.
 
 On the one measured site tested, start from CDL, not from ray-traced cities
 at default solver settings, then blend in site measurements as they arrive
-(5-fold cross-validated shrinkage). Ray-traced priors need diffuse scattering
-and diffraction switched on to be competitive, and even then only matched CDL
-there. In simulation, pooling many cities is still the safer choice than any
+(5-fold cross-validated shrinkage). In one exploratory rerun, switching on
+diffuse scattering and diffraction in the ray tracer brought ray-traced priors
+level with CDL there, not ahead. In simulation, pooling many cities is still the safer choice than any
 single city, and picking one best source city from a few measurements
 overfits when there are many candidates.
 
@@ -109,7 +109,7 @@ prediction adds ~0.3–0.6 dB at 2–10 ms in Munich, Étoile and Florence (cell
 0.26–0.65; two seeds agree within ~0.2 dB) and costs 0.8–1.2 dB at 5–10 ms in
 San Francisco.
 Re-weighting the original CNNs' loss toward the predictable horizons does not
-help (still 2–13 dB behind tone). See `docs/PLAN.md`, "Fairer learned
+help (still ~2–13 dB behind tone). See `docs/PLAN.md`, "Fairer learned
 predictors".
 
 ## Sim-to-real: the pooled-prior result on measured channels (falsified)
@@ -125,8 +125,8 @@ Pooling still shrinks the worst single-city case (5 of 6 checks), but around a
 level below CDL. The simulated channels are cleaner in delay than the measured
 street (first 160 ns tap: 88–100% of energy across the 14 cities vs 79–84%
 measured). The simulated users were also placed farther away and at a
-shallower angle than the real ones (median 46 m / 10° below the array vs
-18–20 m / 24–26°). Pre-registered, though not blind: a pilot had already
+shallower angle than the real ones (median 46 m / 10° below the array by the
+placement rule on flat ground, vs 18–20 m / 24–26° measured). Pre-registered, though not blind: a pilot had already
 scored CDL on the test data, and a dry run preceded the full run. See
 `docs/PLAN.md`, "Sim-to-real".
 

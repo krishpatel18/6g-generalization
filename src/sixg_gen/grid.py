@@ -62,7 +62,7 @@ def use_tracks() -> None:
 def use_dichasus() -> None:
     """The DICHASUS outdoor setup: 1.272 GHz, 2 x 8 array on a facade tilted ~20 deg down,
     50 MHz / 1024 subcarriers reduced to one snapshot of 128 subcarriers (6.25 MHz)."""
-    global CARRIER_HZ, SUBCARRIER_SPACING_HZ, NUM_ANTENNAS, NUM_SYMBOLS, NUM_SUBCARRIERS, \
+    global CARRIER_HZ, SUBCARRIER_SPACING_HZ, SYMBOL_PERIOD_S, NUM_ANTENNAS, NUM_SYMBOLS, NUM_SUBCARRIERS, \
         PILOT_SYMBOLS, PILOT_SUBCARRIERS, ARRAY_ROWS, ANTENNA_PATTERN, DOWNTILT_RAD, PLACEMENT, \
         WIDEBAND_SUBCARRIERS
     if WIDEBAND_SUBCARRIERS:
@@ -70,6 +70,7 @@ def use_dichasus() -> None:
     CARRIER_HZ = 1.272e9
     WIDEBAND_SUBCARRIERS = 1024
     SUBCARRIER_SPACING_HZ = 50e6 / WIDEBAND_SUBCARRIERS
+    SYMBOL_PERIOD_S = (1 + 144 / 2048) / SUBCARRIER_SPACING_HZ  # unused: one snapshot, static users
     NUM_ANTENNAS, ARRAY_ROWS = 16, 2
     NUM_SYMBOLS, NUM_SUBCARRIERS = 1, 128
     PILOT_SYMBOLS, PILOT_SUBCARRIERS = (0,), np.arange(0, NUM_SUBCARRIERS, 2)

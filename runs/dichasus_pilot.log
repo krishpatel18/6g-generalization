@@ -1,0 +1,4 @@
+fit 639  test 620  (of 1894 / 1666)
+   0 dB: ls_interp  -1.23 | lmmse_cdl -10.68 | lmmse_own_fit -12.24 | own_fit on uncalibrated -10.11
+  10 dB: ls_interp -11.23 | lmmse_cdl -17.87 | lmmse_own_fit -19.63 | own_fit on uncalibrated -17.36
+power share in first 100 taps after alignment ~ 0.608

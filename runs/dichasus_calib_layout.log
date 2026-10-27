@@ -1,0 +1,30 @@
+== array A
+8-axis horizontal signs (+1,+1): coherence 0.696  offsets deg [   0  126   31  -73   21 -130 -154   13]
+8-axis horizontal signs (+1,-1): coherence 0.726  offsets deg [   0  126   31  -73   21 -130 -154   13]
+8-axis horizontal signs (-1,+1): coherence 0.284  offsets deg [   0  -21 -132  158   27 -114  100   -8]
+8-axis horizontal signs (-1,-1): coherence 0.287  offsets deg [   0  -21 -132  158   27 -114  100   -9]
+8-axis vertical   signs (+1,+1): coherence 0.307  offsets deg [  0 109 -85 -71 -97 -29 -43  24]
+8-axis vertical   signs (+1,-1): coherence 0.257  offsets deg [  0 109 -85 -71 -97 -29 -43  25]
+8-axis vertical   signs (-1,+1): coherence 0.316  offsets deg [   0   40  179 -125  133 -165 -140  -70]
+8-axis vertical   signs (-1,-1): coherence 0.249  offsets deg [   0   40  179 -125  134 -166 -140  -70]
+offsets only, no geometry: coherence 0.257
+== array B
+8-axis horizontal signs (+1,+1): coherence 0.452  offsets deg [   0   68  150  150 -122 -139  -13   39]
+8-axis horizontal signs (+1,-1): coherence 0.455  offsets deg [   0   68  150  150 -122 -139  -13   39]
+8-axis horizontal signs (-1,+1): coherence 0.259  offsets deg [   0  -74  106  -92   97 -178 -155 -179]
+8-axis horizontal signs (-1,-1): coherence 0.261  offsets deg [   0  -74  106  -92   97 -177 -156 -179]
+8-axis vertical   signs (+1,+1): coherence 0.267  offsets deg [   0  134   25 -118  135 -124   80    6]
+8-axis vertical   signs (+1,-1): coherence 0.243  offsets deg [   0  134   25 -118  136 -124   80    6]
+8-axis vertical   signs (-1,+1): coherence 0.259  offsets deg [  0  98 -44 150  33 127  99 111]
+8-axis vertical   signs (-1,-1): coherence 0.244  offsets deg [  0  98 -44 150  33 128  99 111]
+offsets only, no geometry: coherence 0.263
+== array C
+8-axis horizontal signs (+1,+1): coherence 0.369  offsets deg [   0 -148    0 -132  122   35  110 -147]
+8-axis horizontal signs (+1,-1): coherence 0.372  offsets deg [   0 -148    0 -132  122   35  110 -147]
+8-axis horizontal signs (-1,+1): coherence 0.263  offsets deg [  0 110 138 109  50  76  73 145]
+8-axis horizontal signs (-1,-1): coherence 0.262  offsets deg [  0 111 138 109  50  76  73 145]
+8-axis vertical   signs (+1,+1): coherence 0.280  offsets deg [   0  174   75 -138  -46  102  -52   63]
+8-axis vertical   signs (+1,-1): coherence 0.272  offsets deg [   0  174   75 -138  -47  102  -52   63]
+8-axis vertical   signs (-1,+1): coherence 0.290  offsets deg [   0  146   30  171  105   14 -114  -80]
+8-axis vertical   signs (-1,-1): coherence 0.272  offsets deg [   0  146   30  171  105   14 -113  -80]
+offsets only, no geometry: coherence 0.298
