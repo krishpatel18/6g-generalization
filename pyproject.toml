@@ -3,6 +3,7 @@ name = "sixg-gen"
 version = "0.1.0"
 description = "Does ray-traced pre-training generalize better than stochastic pre-training for learned OFDM channel estimation?"
 requires-python = ">=3.12"
+license = "MIT"
 dependencies = [
     "sionna>=2.2.0",
 ]
