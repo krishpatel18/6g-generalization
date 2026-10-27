@@ -1,6 +1,6 @@
 """Post-hoc: give the learned predictors a fairer shot (docs/PLAN.md, "Fairer learned predictors").
 
-usage: predict_fair.py <num_bs_antennas> <seed>
+usage: predict_fair.py <num_bs_antennas> <seed> [fronts]   (fronts: comma list, default wiener_w,tone_res)
 
 Same tracks, noise draws and test sets as predict.py, N = 0 only. Arms, each a
 zero-initialised CNN residual trained with the loss on the target times only,
@@ -47,7 +47,7 @@ def horizon_weights(front, pool: np.ndarray) -> np.ndarray:
     return w * grid.NUM_SYMBOLS / w.sum()
 
 
-def main(seed: int) -> None:
+def main(seed: int, only: set[str]) -> None:
     runs = RUNS / grid.config_tag()
     rows = []
     for target in channels.RT_SCENES:
@@ -57,6 +57,8 @@ def main(seed: int) -> None:
         pool = rt3(target)
         fronts = {"wiener_w": linear.LMMSE(linear.Stats.fit(pool)), "tone_res": ToneFront()}
         for name, front in fronts.items():
+            if name not in only:
+                continue
             weights = horizon_weights(front, pool)
             print(f"  {name} weights (targets): " + " ".join(f"{x:.2f}" for x in weights[-5:]), flush=True)
             for domain, (to, back) in DOMAINS.items():
@@ -75,7 +77,7 @@ def main(seed: int) -> None:
             out = csv.writer(f)
             out.writerow(("target", "method", "n", "blend_w", "snr_db", "horizon_ms", "speed", "nmse_db"))
             out.writerows(rows)
-    summary(rows, runs / f"predict_seed{seed}.csv")
+    summary(rows, runs / "predict_seed0.csv")  # tone has no seed; originals ran with seed 0
     print("ALL DONE", flush=True)
 
 
@@ -93,7 +95,7 @@ def summary(rows, original: Path) -> None:
             cells = []
             for ms in (2.0, 5.0, 10.0):
                 x = new[(t, arm, ms)]
-                orig = min(old[(t, "learned_ant", ms)], old[(t, "learned_ad", ms)])
+                orig = min(old[(t, "learned_ant", ms)], old[(t, "learned_ad", ms)])  # seed-0 originals
                 cells.append(f"{ms:g}ms:{x - old[(t, 'tone', ms)]:6.2f} [{x - orig:6.2f}]")
             print(f"  {arm:12s} {t:14s} " + "  ".join(cells))
 
@@ -101,4 +103,4 @@ def summary(rows, original: Path) -> None:
 if __name__ == "__main__":
     grid.NUM_ANTENNAS = int(sys.argv[1])
     grid.use_tracks()
-    main(int(sys.argv[2]))
+    main(int(sys.argv[2]), set(sys.argv[3].split(",")) if len(sys.argv) > 3 else {"wiener_w", "tone_res"})

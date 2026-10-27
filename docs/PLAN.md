@@ -852,3 +852,27 @@ snapshot, pilots on every other subcarrier; LMMSE only; NMSE at 0 and 10 dB.
   calibration coherence on array A is < 0.5.
 - **Parked:** a ray-traced model of the campus itself (geo-registration of the
   local frame is uncertain; a different hypothesis).
+
+### Fairer learned predictors — results (seed 0, 2026-10-27)
+
+`runs/predict_fair_a8.log`, `runs/a8_sc32_track/predict_fair_seed0.csv`.
+Arm minus tone at 10 dB (negative = arm better), horizons 2 / 5 / 10 ms:
+
+| arm | Munich | Étoile | Florence | San Francisco |
+|---|---|---|---|---|
+| tone_res_ad | −0.36 / −0.45 / **−0.65** | −0.26 / −0.36 / **−0.52** | −0.32 / −0.42 / **−0.58** | **−0.56** / +0.78 / +1.16 |
+| tone_res_ant | −0.37 / −0.34 / **−0.55** | −0.50 / −0.32 / −0.38 | −0.37 / −0.39 / **−0.55** | +0.38 / +0.86 / +0.93 |
+| wiener_w_ad | +1.8 / +2.7 / +2.5 | +3.1 / +4.6 / +4.1 | +2.5 / +3.6 / +3.0 | +9.5 / +12.6 / +10.5 |
+| wiener_w_ant | +3.0 / +2.9 / +2.5 | +4.4 / +4.8 / +4.1 | +3.9 / +3.6 / +3.1 | +11.9 / +12.3 / +10.5 |
+
+- **Bar met, narrowly, by the tone residual:** tone_res_ad beats tone by
+  ≥ 0.5 dB in 4/4 cities (0.52–0.65 dB; at 10 ms in three, 2 ms in San
+  Francisco); tone_res_ant in 3/4 (Étoile at 0.50 exactly). It is ahead of
+  tone by 0.3–0.6 dB at every horizon ≥ 2 ms in Munich, Étoile and Florence,
+  and worse than tone by 0.8–1.2 dB at 5–10 ms in San Francisco, where tone is
+  already very good.
+- **The loss was not the main handicap:** the weighted loss on the Wiener
+  front gains up to ~1 dB at 2 ms in the angle-delay arm and loses elsewhere;
+  still 2–13 dB behind tone.
+- As written beforehand: a second seed of the tone-residual arms runs before
+  any change to the README (`scripts/predict_fair.py 8 1 tone_res`).

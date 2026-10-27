@@ -1,0 +1,49 @@
+== target munich
+  wiener_w weights (targets): 9.74 2.18 0.45 0.32 0.31
+  wiener_w_ant (112s) 10dB 0.5ms:-15.98  1ms:-10.55  2ms: -4.46  5ms: -1.24  10ms: -0.09
+  wiener_w_ad  (114s) 10dB 0.5ms:-16.13  1ms:-11.14  2ms: -5.71  5ms: -1.44  10ms: -0.07
+  tone_res weights (targets): 6.18 3.44 1.91 0.91 0.56
+  tone_res_ant (146s) 10dB 0.5ms:-14.41  1ms:-11.07  2ms: -7.85  5ms: -4.48  10ms: -3.13
+  tone_res_ad  (166s) 10dB 0.5ms:-13.51  1ms:-10.63  2ms: -7.83  5ms: -4.58  10ms: -3.23
+== target etoile
+  wiener_w weights (targets): 9.93 2.08 0.42 0.29 0.28
+  wiener_w_ant (111s) 10dB 0.5ms:-15.05  1ms:-10.74  2ms: -5.17  5ms: -1.38  10ms: -0.06
+  wiener_w_ad  (116s) 10dB 0.5ms:-15.16  1ms:-11.26  2ms: -6.47  5ms: -1.56  10ms: -0.08
+  tone_res weights (targets): 6.23 3.42 1.85 0.91 0.59
+  tone_res_ant (148s) 10dB 0.5ms:-15.99  1ms:-13.30  2ms:-10.10  5ms: -6.46  10ms: -4.52
+  tone_res_ad  (175s) 10dB 0.5ms:-15.63  1ms:-12.87  2ms: -9.86  5ms: -6.50  10ms: -4.66
+== target florence
+  wiener_w weights (targets): 9.91 2.09 0.42 0.29 0.28
+  wiener_w_ant (106s) 10dB 0.5ms:-16.80  1ms:-10.90  2ms: -4.45  5ms: -1.30  10ms: -0.02
+  wiener_w_ad  (112s) 10dB 0.5ms:-16.88  1ms:-11.72  2ms: -5.89  5ms: -1.30  10ms: -0.03
+  tone_res weights (targets): 6.23 3.42 1.85 0.91 0.59
+  tone_res_ant (150s) 10dB 0.5ms:-14.87  1ms:-11.62  2ms: -8.72  5ms: -5.30  10ms: -3.62
+  tone_res_ad  (176s) 10dB 0.5ms:-13.93  1ms:-11.16  2ms: -8.67  5ms: -5.33  10ms: -3.66
+== target san_francisco
+  wiener_w weights (targets): 9.92 2.09 0.42 0.29 0.28
+  wiener_w_ant (134s) 10dB 0.5ms:-18.07  1ms:-12.30  2ms: -5.89  5ms: -2.17  10ms: -0.20
+  wiener_w_ad  (121s) 10dB 0.5ms:-18.31  1ms:-13.79  2ms: -8.29  5ms: -1.84  10ms: -0.19
+  tone_res weights (targets): 6.23 3.42 1.85 0.91 0.59
+  tone_res_ant (147s) 10dB 0.5ms:-20.33  1ms:-19.37  2ms:-17.37  5ms:-13.62  10ms: -9.79
+  tone_res_ad  (175s) 10dB 0.5ms:-22.64  1ms:-21.09  2ms:-18.31  5ms:-13.70  10ms: -9.56
+
+10 dB, all speeds, dB, negative = new arm better.
+Each cell: arm minus tone [arm minus best original learned arm]
+  tone_res_ad  munich         2ms: -0.36 [ -2.92]  5ms: -0.45 [ -2.21]  10ms: -0.65 [ -2.83]
+  tone_res_ad  etoile         2ms: -0.26 [ -3.77]  5ms: -0.36 [ -3.60]  10ms: -0.52 [ -3.93]
+  tone_res_ad  florence       2ms: -0.32 [ -3.76]  5ms: -0.42 [ -3.21]  10ms: -0.58 [ -3.36]
+  tone_res_ad  san_francisco  2ms: -0.56 [-10.43]  5ms:  0.78 [ -9.36]  10ms:  1.16 [ -8.07]
+  tone_res_ant munich         2ms: -0.37 [ -2.94]  5ms: -0.34 [ -2.10]  10ms: -0.55 [ -2.73]
+  tone_res_ant etoile         2ms: -0.50 [ -4.01]  5ms: -0.32 [ -3.57]  10ms: -0.38 [ -3.79]
+  tone_res_ant florence       2ms: -0.37 [ -3.81]  5ms: -0.39 [ -3.19]  10ms: -0.55 [ -3.33]
+  tone_res_ant san_francisco  2ms:  0.38 [ -9.49]  5ms:  0.86 [ -9.29]  10ms:  0.93 [ -8.30]
+  wiener_w_ad  munich         2ms:  1.77 [ -0.80]  5ms:  2.70 [  0.93]  10ms:  2.51 [  0.34]
+  wiener_w_ad  etoile         2ms:  3.13 [ -0.39]  5ms:  4.58 [  1.33]  10ms:  4.06 [  0.65]
+  wiener_w_ad  florence       2ms:  2.46 [ -0.98]  5ms:  3.62 [  0.82]  10ms:  3.04 [  0.26]
+  wiener_w_ad  san_francisco  2ms:  9.46 [ -0.41]  5ms: 12.64 [  2.49]  10ms: 10.54 [  1.30]
+  wiener_w_ant munich         2ms:  3.02 [  0.45]  5ms:  2.90 [  1.14]  10ms:  2.49 [  0.31]
+  wiener_w_ant etoile         2ms:  4.43 [  0.91]  5ms:  4.76 [  1.51]  10ms:  4.08 [  0.66]
+  wiener_w_ant florence       2ms:  3.90 [  0.46]  5ms:  3.62 [  0.82]  10ms:  3.06 [  0.28]
+  wiener_w_ant san_francisco  2ms: 11.86 [  1.99]  5ms: 12.31 [  2.16]  10ms: 10.52 [  1.29]
+ALL DONE
+EXIT 0
