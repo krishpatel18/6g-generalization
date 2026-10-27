@@ -69,7 +69,35 @@ def prediction() -> None:
     fig.savefig(OUT / "prediction.png", dpi=150)
 
 
+def measured() -> None:
+    """Measured DICHASUS channels, full array x frequency grid, 10 dB, no site data."""
+    def load(name):
+        v = defaultdict(list)
+        for r in csv.DictReader(open(ROOT / f"runs/a16_sc128_dichasus/{name}.csv")):
+            if r["snr_db"] == "10.0" and r["variant"] == "spatial":
+                v[(r["array"], r["estimator"])].append(float(r["nmse_db"]))
+        return v
+    main, rich = load("dichasus_test"), load("dichasus_rich")
+    bars = [("LS interpolation", main, "ls_interp"), ("RT pool, specular (14 cities)", main, "pool_all"),
+            ("RT pool, scattering (7 cities)", rich, "pool_all"), ("3GPP CDL", main, "cdl"),
+            ("site-trained ceiling", main, "ceiling")]
+    fig, ax = plt.subplots(figsize=(6, 3.8))
+    width = 0.16
+    for i, (label, v, est) in enumerate(bars):
+        ys = [np.mean(v[(a, est)]) for a in "ABC"]
+        ax.bar(np.arange(3) + (i - 2) * width, ys, width, label=label)
+    ax.set_xticks(range(3), ["array A", "array B", "array C"])
+    ax.set_ylabel("NMSE (dB); taller bar = better")
+    ax.invert_yaxis()
+    ax.set_ylim(-9, -21)
+    ax.legend(frameon=False, loc="upper center", bbox_to_anchor=(0.5, -0.12), ncol=2, fontsize=8)
+    ax.set_title("Measured channels: simulated cities vs 3GPP CDL", loc="left")
+    fig.tight_layout()
+    fig.savefig(OUT / "measured.png", dpi=150)
+
+
 if __name__ == "__main__":
     OUT.mkdir(parents=True, exist_ok=True)
     breadth()
     prediction()
+    measured()

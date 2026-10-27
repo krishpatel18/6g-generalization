@@ -7,3 +7,5 @@ runs/**/*.pt
 scratch/probe/
 .tools/
 debug.log
+docs/paper/*.aux
+docs/paper/*.log
