@@ -1053,3 +1053,17 @@ datapoints. NMSE at 10 dB SNR:
   match CDL on measured channels; they do not beat it. Exploratory: chosen
   after the dry run, one scattering value (0.3, not tuned), 7 cities, one
   site.
+
+## Where next (2026-10-27)
+
+### Matched-placement probe — written before running (exploratory)
+
+The simulated users in the sim-to-real test sat at a median 46 m and ~10°
+below the array; the measured ones at ~18–20 m and 24–26°. Probe: `rtdm:`
+sources = scattering + diffraction (as `rtd:`) with users 12–30 m from the
+base station (median ~23 m, ~20° below on flat ground), same 7 cities × 2000,
+same test (`scripts/dichasus_matched.py`). Bar, array A, full grid, 10 dB, no
+site data: the matched pool beats CDL by ≥ 0.5 dB → "a site-matched simulator
+helps"; within ±0.5 dB → "level"; worse by > 0.5 dB → "geometry was not the
+missing piece". Arrays B and C and per antenna reported alongside. Exploratory:
+one site, decided after seeing the earlier results.

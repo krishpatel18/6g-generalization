@@ -5,9 +5,10 @@
 
 - ``"cdl"``: 3GPP TR 38.901 CDL-A..E, drawn uniformly, with random delay spread,
   user speed and base-station heading (Sionna PHY), or
-- ``"rt:<scene>"`` / ``"rtd:<scene>"`` / ``"rt32:<scene>"``: ray-traced paths (specular
-  only / also diffuse scattering and diffraction / specular with rtd's 32 users per
-  base-station site) in a city scene, with a rooftop base
+- ``"rt:<scene>"`` / ``"rtd:<scene>"`` / ``"rt32:<scene>"`` / ``"rtdm:<scene>"``: ray-traced
+  paths (specular only / also diffuse scattering and diffraction / specular with
+  rtd's 32 users per base-station site / as rtd with users at the measured site's
+  distances) in a city scene, with a rooftop base
   station and moving street-level users. ``<scene>`` is one of Sionna RT's
   built-in scenes, or a directory ``data/scenes/<scene>/`` holding a
   ``scene.xml`` (e.g. generated from OpenStreetMap with geo2sigmap).
@@ -34,6 +35,7 @@ FACADE_SECTOR_RAD = np.radians(75)
 USER_HEIGHT_M = 1.5
 RICH_SCATTERING = 0.3
 RICH_USERS_PER_SITE = 32
+MATCHED_USER_RANGE_M = (12.0, 30.0)  # DICHASUS users: median ~19 m, 10-90% 16-32 m
 USERS_PER_SITE = 256
 ROOFTOP_HEIGHT_M = (25.0, 40.0)
 ROOFTOP_RADIUS_M = 250.0
@@ -56,6 +58,8 @@ def generate(source: str, n: int, seed: int, mmap: bool = False) -> np.ndarray:
         h, speed = _raytraced(source[3:], n, seed)
     elif source.startswith("rtd:"):
         h, speed = _raytraced(source[4:], n, seed, rich=True)
+    elif source.startswith("rtdm:"):  # as rtd:, users at the measured site's distances
+        h, speed = _raytraced(source[5:], n, seed, rich=True, user_range_m=MATCHED_USER_RANGE_M)
     elif source.startswith("rt32:"):  # specular, but as many base-station sites per channel as rtd:
         h, speed = _raytraced(source[5:], n, seed, users_per_site=RICH_USERS_PER_SITE)
     else:
@@ -168,7 +172,8 @@ def _cdl(n: int, seed: int) -> np.ndarray:
 
 
 def _raytraced(scene_name: str, n: int, seed: int, rich: bool = False,
-               users_per_site: int | None = None) -> tuple[np.ndarray, np.ndarray]:
+               users_per_site: int | None = None,
+               user_range_m: tuple[float, float] = FACADE_USER_RANGE_M) -> tuple[np.ndarray, np.ndarray]:
     """`rich`: also diffuse scattering (every material's scattering coefficient set to
     RICH_SCATTERING, Lambertian) and Sionna's wedge diffraction; otherwise specular paths only."""
     import mitsuba as mi
@@ -200,7 +205,7 @@ def _raytraced(scene_name: str, n: int, seed: int, rich: bool = False,
         for name in list(scene.transmitters) + list(scene.receivers):
             scene.remove(name)
         if grid.PLACEMENT == "facade":
-            tx, users = _facade(scene, ground, rng, centre, half, rx_per_tx)
+            tx, users = _facade(scene, ground, rng, centre, half, rx_per_tx, user_range_m)
         else:
             tx, users = _rooftop(rng, centre, half, rx_per_tx)
         scene.add(rt.Transmitter("tx", **tx))
@@ -237,7 +242,7 @@ def _rooftop(rng, centre, half, count):
     return tx, users
 
 
-def _facade(scene, ground_scene, rng, centre, half, count):
+def _facade(scene, ground_scene, rng, centre, half, count, user_range_m=FACADE_USER_RANGE_M):
     """Base station FACADE_HEIGHT_M above the local ground and above any roof there, random
     heading, downtilted; static users USER_HEIGHT_M above open ground in front of it
     (FACADE_USER_RANGE_M, within FACADE_SECTOR_RAD). Heights follow terrain."""
@@ -249,7 +254,7 @@ def _facade(scene, ground_scene, rng, centre, half, count):
     yaw = rng.uniform(0, 2 * np.pi)
     tx = dict(position=[*map(float, tx_xy), float(ground[0] + FACADE_HEIGHT_M)],
               orientation=[float(yaw), grid.DOWNTILT_RAD, 0.0])
-    lo, hi = FACADE_USER_RANGE_M
+    lo, hi = user_range_m
     users = []
     while len(users) < count:
         r = np.sqrt(rng.uniform(lo**2, hi**2, 4 * count))
