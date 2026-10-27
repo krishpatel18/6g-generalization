@@ -3,9 +3,16 @@
 Readable summary of the pilot. The lab notebook, with every pre-registration
 and raw result in order, is `docs/PLAN.md`.
 
-## The answer
+## The answer, in two parts
 
-For a new site with **no channel measurements**, a covariance prior pooled from
+**On measured channels (one site), the simulation result did not hold.** With
+no site data, the pooled ray-traced prior was 3.2–4.1 dB worse than 3GPP CDL
+on the full array (0.5–1.3 dB per antenna); an exploratory rerun with diffuse
+scattering and diffraction in the ray tracer brought it within 0.3–0.5 dB of
+CDL — a match, not a win. See "Sim-to-real" below.
+
+**In simulation (ray-traced test sites),** for a new site with **no channel
+measurements**, a covariance prior pooled from
 many ray-traced cities sits about 0.6 dB from an estimator trained on that site,
 which is about what the standard 3GPP CDL prior reaches once it is blended with 50 site
 measurements (0.47–0.73 dB across four draws of those 50). Pooling many
@@ -15,8 +22,8 @@ CDL are comparable on built-up sites (pooled ahead by ~0.1 dB on average). In
 everyday terms: **a pooled ray-traced prior is insurance that saves the first
 ~50 site measurements; it is not an accuracy win once you have them.**
 
-Limits: simulation-to-simulation only (the test channels come from the same ray
-tracer as the priors); a linear estimator (LMMSE, built from channel
+Limits of the simulation part: simulation-to-simulation (the test channels come
+from the same ray tracer as the priors); a linear estimator (LMMSE, built from channel
 covariance); one array (8-antenna ULA); 3.5 GHz; 14 cities, 10 of them in New
 York State. "Gap to ceiling" means NMSE at 10 dB SNR minus that of an LMMSE
 fitted on 12k channels from the target itself. The ceiling is itself an
@@ -70,12 +77,13 @@ dense downtown.
 
 ## Recommendation
 
-If a deployment must start with no site measurements, start from a covariance
-prior pooled over many ray-traced cities rather than CDL or any single city,
-then blend in site measurements as they arrive (5-fold cross-validated
-shrinkage). Don't try to pick one best source city from a few measurements
-when there are many candidates. Whether any of this survives contact with
-measured channels is untested.
+On the one measured site tested, start from CDL, not from ray-traced cities
+at default solver settings, then blend in site measurements as they arrive
+(5-fold cross-validated shrinkage). Ray-traced priors need diffuse scattering
+and diffraction switched on to be competitive, and even then only matched CDL
+there. In simulation, pooling many cities is still the safer choice than any
+single city, and picking one best source city from a few measurements
+overfits when there are many candidates.
 
 Novelty against the literature is **unverified** and needs a proper
 related-work pass before any claim is made.
@@ -97,32 +105,39 @@ Pre-registered before results (with one amendment, also before results); see
 `docs/PLAN.md`, "Prediction experiment".
 
 Post-hoc follow-up (2026-10-27): a CNN trained to correct the tone
-prediction adds 0.3–0.6 dB at 2–10 ms in Munich, Étoile and Florence (two
-seeds agree within 0.2 dB) and costs 0.8–1.1 dB at 5–10 ms in San Francisco.
+prediction adds ~0.3–0.6 dB at 2–10 ms in Munich, Étoile and Florence (cells
+0.26–0.65; two seeds agree within ~0.2 dB) and costs 0.8–1.2 dB at 5–10 ms in
+San Francisco.
 Re-weighting the original CNNs' loss toward the predictable horizons does not
 help (still 2–13 dB behind tone). See `docs/PLAN.md`, "Fairer learned
 predictors".
 
-## Sim-to-real: finding A on measured channels (falsified)
+## Sim-to-real: the pooled-prior result on measured channels (falsified)
 
 On the DICHASUS outdoor measurements (Univ. Stuttgart; one building, three
 2×8 arrays, a transmitter on the street, 1.272 GHz), with all 14 cities
 re-simulated in the same setup and every source through one processing
 chain, the pooled ray-traced prior is **worse than 3GPP CDL** with no site
-data: by 3.1–4.1 dB on the full array × frequency grid and 0.5–1.3 dB per
+data: by 3.2–4.1 dB on the full array × frequency grid and 0.5–1.3 dB per
 antenna, on all three arrays. With 50 site measurements CDL still leads by
-1.2–1.7 dB (full grid). Pooling still shrinks the worst single-city case
-(5 of 6 checks), but around a level below CDL. The simulated channels are
-cleaner than the measured street (first 160 ns tap: 95–100% of energy for
-most cities vs 85% measured). Pre-registered; see `docs/PLAN.md`,
-"Sim-to-real".
+1.2–1.7 dB (full grid); per antenna both reach the site-trained level.
+Pooling still shrinks the worst single-city case (5 of 6 checks), but around a
+level below CDL. The simulated channels are cleaner in delay than the measured
+street (first 160 ns tap: 88–100% of energy across the 14 cities vs 79–84%
+measured). The simulated users were also placed farther away and at a
+shallower angle than the real ones (median 46 m / 10° below the array vs
+18–20 m / 24–26°). Pre-registered, though not blind: a pilot had already
+scored CDL on the test data, and a dry run preceded the full run. See
+`docs/PLAN.md`, "Sim-to-real".
 
 Exploratory follow-up (added after a dry run): with diffuse scattering
 (coefficient 0.3) and diffraction on, 7 cities at 2000 channels, the pooled
 ray-traced prior comes within 0.3–0.5 dB of CDL on the full grid and ties or
-slightly beats it per antenna (−0.0 to +0.3 dB). The same 7 cities without
-scattering are 3.1 dB (full grid) and 0.9 dB (per antenna) worse, so the
-solver settings, not the city set, caused the gap.
+slightly beats it per antenna (−0.0 to +0.3 dB). On array A, the same 7 cities
+specular-only score 2.8 dB (full grid) and 0.9 dB (per antenna) worse than
+with scattering at the same number of base-station sites; the extra sites
+alone account for ~0.2 dB. This suggests the solver settings drove most of
+the gap; it is one site and one scattering value.
 
 ## Reproduce
 
@@ -140,7 +155,7 @@ Channels are cached under `data/a8_sc128/`; seed 1 = 12k pre-training, seed 2 =
 | follow-up (+50 blends, selection) | `scripts/library_followup.py 8` | `runs/library_followup_a8.log` |
 | other site-pool draws | `scripts/pool_draws.py 8` | `runs/pool_draws_a8.log` |
 | prediction | `scripts/make_tracks.py 8`, then `scripts/predict.py 8 0`; follow-up `scripts/predict_fair.py 8 0` | `runs/a8_sc32_track/predict_seed0.csv`, `predict_fair_seed*.csv` |
-| measured channels | `scripts/dichasus_convert.py` (TensorFlow) on DaRUS files, then `scripts/dichasus_test.py` | `runs/a16_sc128_dichasus/dichasus_test.csv` |
+| measured channels | `scripts/dichasus_convert.py` (TensorFlow) on DaRUS files, then `scripts/dichasus_test.py`; exploratory `scripts/dichasus_rich.py`, `scripts/dichasus_diagnostics.py` | `runs/a16_sc128_dichasus/dichasus_test.csv`, `dichasus_rich.csv`, `runs/dichasus_diagnostics.log` |
 
 Stack: Sionna 2.2 / Sionna RT 2.2 on Apple M4 (Metal), scenes from geo2sigmap
 (pinned commit, buildings read from a local OpenStreetMap extract).

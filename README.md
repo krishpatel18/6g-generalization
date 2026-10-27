@@ -11,13 +11,15 @@ Findings 1–3 come from simulation (14 ray-traced city scenes, an 8-antenna
 base station at 3.5 GHz, 5G NR-like OFDM); finding 4 tests finding 1 on real
 measured channels — and reverses it. The four main experiments (4-city,
 14-city, prediction, measured channels) had their expected outcome and
-pass/fail bar written down before they ran; follow-up checks are labelled
-post-hoc in the [lab notebook](docs/PLAN.md).
+pass/fail bar written down before they ran (for the measured-channel test, a
+pilot had already scored the 3GPP baseline on the test data); follow-up
+checks are labelled post-hoc in the [lab notebook](docs/PLAN.md).
 
 **In short:** in simulation, pooling many simulated cities looked like a good
 starting point for a new site. On real measurements from one site it was worse
-than 3GPP's generic models, because the simulated channels were too clean;
-with scattering switched on in the ray tracer, it roughly matched them.
+than 3GPP's generic models — the simulated channels were too clean; an
+exploratory rerun with scattering switched on in the ray tracer roughly
+matched them.
 Learned models never beat the classical methods; at best they refined them.
 
 ## Findings
@@ -48,7 +50,7 @@ dB with no site data. The pre-registered test for "learning has room here" faile
 
 A follow-up check, added after these results and labelled as such: a CNN
 trained to *correct* the classical method's prediction, rather than replace
-it, adds a small but repeatable 0.3–0.6 dB at 2–10 ms in three of four cities
+it, adds a small but repeatable ~0.3–0.6 dB at 2–10 ms in three of four cities
 (same result on two training seeds), and costs about 1 dB in San Francisco,
 where the classical method is already near-exact. Retraining the original
 CNNs with a loss focused on the predictable horizons did not close the gap.
@@ -66,19 +68,21 @@ arrays on one building, a transmitter pulled along the street, 1.27 GHz. All
 14 cities were re-simulated with the same array and a matching placement, and
 every source went through one processing chain. With no site measurements,
 the pooled simulated prior was 3–4 dB *worse* than the 3GPP CDL model on the
-full array (0.5–1.3 dB worse per antenna), and no single city beat CDL either;
-with 50 measurements, CDL still led by 1.2–1.7 dB. Pooling still shrank the
-worst case, but around a worse level. The simulated channels were cleaner
-than the real street (95–100% of energy in the first 160 ns for most cities,
-85% measured), so finding 1 held only on simulated ground — the caveat stated
-before the first run.
+full array (0.5–1.3 dB worse per antenna), and on the full array no single
+city beat CDL either; with 50 measurements, CDL still led by 1.2–1.7 dB on the
+full array (per antenna the two tied). Pooling still shrank the worst case,
+but around a worse level. The simulated channels were cleaner in delay than
+the real street (88–100% of energy in the first 160 ns across the 14 cities,
+79–84% measured), and the simulated users sat farther away and at a shallower
+angle than the real ones. Finding 1 held only on simulated ground — the
+caveat stated before the first run.
 
-The cause was the ray tracer's settings, inherited from the simulation study:
-specular reflections only, no scattering off rough surfaces, no diffraction.
-An exploratory rerun with scattering and diffraction switched on (7 cities,
-added after a dry run, labelled as such) brought the simulated prior to within
-0.3–0.5 dB of CDL on the full array and level with it per antenna — a match,
-not a win. One site, one band.
+An exploratory rerun suggests the ray tracer's settings, inherited from the
+simulation study, drove most of the gap: with scattering off rough surfaces
+and diffraction switched on (7 cities, added after a dry run, labelled as
+such), the simulated prior came within 0.3–0.5 dB of CDL on the full array
+and level with it per antenna (slightly ahead on two arrays) — a match, not a
+win. One site, one band, one scattering value.
 
 ## How it was done
 
@@ -100,12 +104,13 @@ not a win. One site, one band.
 - Findings 1–3 are simulation-to-simulation: test channels come from the same
   ray tracer as the priors. The one measured-data test (finding 4) is a single
   site at 1.27 GHz, mostly line-of-sight, and it reversed finding 1.
-- One linear estimator family, one array (8-antenna ULA), one band (3.5 GHz);
-  10 of 14 cities from one US state.
+- One linear estimator family. Findings 1–3: one array (8-antenna ULA), one
+  band (3.5 GHz); 10 of 14 cities from one US state.
 - Most randomly placed users receive no ray-traced paths and are dropped, so
   the remaining users skew toward simpler, line-of-sight-like links.
-- The CNNs used one random seed. The prediction CNNs were trained on the whole
-  track, which under-weights the near horizons where prediction is possible.
+- The estimation CNNs used one random seed. The original prediction CNNs were
+  trained on the whole track; the follow-up reweighted that loss (it did not
+  help) and ran the tone-correcting CNN on two seeds.
 - Sionna RT's path solver is non-deterministic by default; the prediction
   re-trace check was rerun with `deterministic=True` and its conclusion held.
 
@@ -141,7 +146,7 @@ tables are in `runs/`.
 | New York scenes | `scripts/build_library.sh <new-york-latest.osm.pbf>` (needs `osmium-tool`, `libusb`), then `scripts/make_library.py 8` |
 | 14-city library | `scripts/library.py 8`, `scripts/library_followup.py 8`, `scripts/pool_draws.py 8` |
 | prediction | `scripts/make_tracks.py 8`, `scripts/predict.py 8 0`, `scripts/predict_fair.py 8 0` |
-| measured channels (DICHASUS) | download `dxxx-complete` from [DaRUS](https://doi.org/10.18419/DARUS-3153) into `data/dichasus/raw/`, convert with `scripts/dichasus_convert.py` (needs TensorFlow), then `scripts/dichasus_test.py` |
+| measured channels (DICHASUS) | download `dxxx-complete` from [DaRUS](https://doi.org/10.18419/DARUS-3153) into `data/dichasus/raw/`, convert with `scripts/dichasus_convert.py` (needs TensorFlow), then `scripts/dichasus_test.py`; exploratory `scripts/dichasus_rich.py`, `scripts/dichasus_diagnostics.py` |
 | figures | `scripts/figures.py` |
 
 A results summary with every number is in [docs/RESULT.md](docs/RESULT.md).

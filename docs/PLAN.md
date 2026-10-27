@@ -867,7 +867,7 @@ Arm minus tone at 10 dB (negative = arm better), horizons 2 / 5 / 10 ms:
 
 - **Bar met, narrowly, by the tone residual:** tone_res_ad beats tone by
   ≥ 0.5 dB in 4/4 cities (0.52–0.65 dB; at 10 ms in three, 2 ms in San
-  Francisco); tone_res_ant in 3/4 (Étoile at 0.50 exactly). It is ahead of
+  Francisco); tone_res_ant in 2/4 (Étoile −0.499, just under the bar). It is ahead of
   tone by 0.3–0.6 dB at every horizon ≥ 2 ms in Munich, Étoile and Florence,
   and worse than tone by 0.8–1.2 dB at 5–10 ms in San Francisco, where tone is
   already very good.
@@ -877,12 +877,14 @@ Arm minus tone at 10 dB (negative = arm better), horizons 2 / 5 / 10 ms:
 - As written beforehand: a second seed of the tone-residual arms runs before
   any change to the README (`scripts/predict_fair.py 8 1 tone_res`).
 - **Seed 1 (`runs/predict_fair_seed1_a8.log`) reproduces seed 0 within
-  0.05–0.2 dB:** tone_res_ad −0.61 / −0.52 / −0.60 dB at 10 ms (Munich,
-  Étoile, Florence), −0.61 at 2 ms in San Francisco; tone_res_ant passes in
-  3/4 again. Finding 3 is restated: the classical tone predictor beats
+  ~0.2 dB (largest difference 0.21, San Francisco 2 ms):** tone_res_ad
+  −0.61 / −0.52 / −0.60 dB at 10 ms (Munich, Étoile, Florence), −0.61 at 2 ms
+  in San Francisco (4/4); tone_res_ant 3/4 (Florence −0.501). Finding 3 is restated: the classical tone predictor beats
   learned models trained alone by 2–13 dB, but a learned correction on top of
-  it adds a small, repeatable 0.3–0.6 dB at 2–10 ms — except where tone is
-  already near-exact (San Francisco, where it costs 0.8–1.1 dB at 5–10 ms).
+  it adds a small, repeatable ~0.3–0.6 dB at 2–10 ms (cells 0.26–0.65) —
+  except where tone is already near-exact (San Francisco, where it costs
+  0.8–1.2 dB at 5–10 ms). The horizon weights were computed on the first 2000
+  pool tracks, i.e. one of the three source cities.
 
 - **Implementation note (sim-to-real, before results):** "positions inside
   buildings rejected" is implemented relative to each scene's ground mesh, so
@@ -906,74 +908,112 @@ diffraction) for the 4 built-in cities and wall_street, midtown, park_slope,
 A first look on Munich suggests scattering adds little energy (first-tap share
 90% → 89%), so a large change is not expected.
 
-### Sim-to-real experiment — results (2026-10-27)
+### Sim-to-real experiment — results (2026-10-27, corrected after review)
 
 `scripts/dichasus_test.py`, `runs/dichasus_test.log`,
-`runs/a16_sc128_dichasus/dichasus_test.csv`. All three arrays pass the
-coherence bar (A 0.81, B 0.59, C 0.63 on the calibration files); test sets
-620 / 754 / 391 datapoints. NMSE at 10 dB SNR:
+`runs/a16_sc128_dichasus/dichasus_test.csv`. **Rerun after a review found a
+bug:** the facade placement cached each scene's ground mesh by `id(scene)`,
+which Python reused, so in the first 14-city run park_slope and bayside placed
+users using another scene's ground (`runs/dichasus_regen_check.log`: 4–28% of
+their cached channels matched a fresh regeneration, vs 78–100% for the other
+cities). Fixed, those caches regenerated, everything rerun; reported numbers
+moved by ≤ 0.02 dB. All three arrays pass the coherence bar (A 0.80, B 0.58,
+C 0.62 with the reference antenna excluded; the registered check used the
+metric including it: 0.81 / 0.59 / 0.63). Test sets 620 / 754 / 391
+datapoints. NMSE at 10 dB SNR:
 
-| array, variant | LS | ceiling | CDL | 14-city RT pool | best / worst single city | CDL + 50 | pool + 50 |
+| array, grid | LS | ceiling | CDL | 14-city RT pool | best / worst single city | CDL + 50 | pool + 50 |
 |---|---|---|---|---|---|---|---|
-| A, array × freq | −11.2 | −20.5 | **−17.9** | −14.8 | −15.3 / −10.2 | **−18.8** | −17.2 |
+| A, array × freq | −11.2 | −20.5 | **−17.9** | −14.7 | −15.3 / −10.2 | **−18.8** | −17.2 |
 | B, array × freq | −11.2 | −20.2 | **−17.5** | −13.4 | −13.9 / −8.9 | **−18.6** | −16.9 |
 | C, array × freq | −11.2 | −20.4 | **−17.9** | −14.4 | −14.8 / −9.7 | **−19.0** | −17.8 |
 | A, per antenna | −11.2 | −20.0 | **−19.3** | −18.0 | −19.2 / −10.9 | −19.9 | −19.9 |
-| B, per antenna | −11.2 | −20.1 | **−19.3** | −18.6 | −19.5 / −10.9 | −20.0 | −20.0 |
-| C, per antenna | −11.2 | −20.2 | **−19.3** | −18.8 | −19.7 / −11.9 | −20.2 | −20.2 |
+| B, per antenna | −11.2 | −20.1 | −19.3 | −18.6 | **−19.5** / −10.9 | −20.0 | −20.0 |
+| C, per antenna | −11.2 | −20.2 | −19.3 | −18.8 | **−19.7** / −11.9 | −20.2 | −20.2 |
 
-- **P1 falsified on every array:** on measured channels the pooled
-  ray-traced prior is worse than CDL with no site data — by 3.1–4.1 dB on the
-  full array × frequency grid, 0.5–1.3 dB per antenna. No single city beats
-  CDL on the full grid either (best city 2.7–3.6 dB behind).
-- **P2 (insurance):** holds on A and C (worst single city vs worst 8-city
-  pool: 8.4 → 6.1 and 7.5 → 6.4 dB from the ceiling) and per antenna on all
-  three (6.1 → 2.5, 5.1 → 1.8, 4.7 → 1.7); fails narrowly on B's full grid
-  (8.2 → 7.3, 0.98 dB). Pooling still protects against the worst city — but
-  around a level well below CDL.
+- **P1 falsified on every array:** with no site data the pooled ray-traced
+  prior is worse than CDL — by 3.2–4.1 dB on the full array × frequency grid,
+  0.5–1.3 dB per antenna. On the full grid no single city beats CDL either
+  (best city 2.7–3.5 dB behind); per antenna the best of 14 cities, picked
+  after the fact, edges CDL on B and C (0.2 / 0.4 dB).
+- **P2 (insurance), as registered** (worst of 8 one-city draws vs worst of 8
+  eight-city pools): holds on A and C (8.4 → 6.1, 7.5 → 6.4 dB from the
+  ceiling) and per antenna on all three (6.1 → 2.5, 5.2 → 1.8, 4.8 → 1.7);
+  fails narrowly on B's full grid (8.2 → 7.3, 0.97 dB) — 5 of 6 checks.
+  Pooling protects against the worst city, but around a level below CDL.
 - **P3 falsified:** the pool is 5.8–6.8 dB from the ceiling on the full grid
   (1.4–2.0 per antenna), vs ~0.6 in simulation.
-- **P4:** with 50 site measurements, CDL + 50 beats pool + 50 by 1.2–1.7 dB on
-  the full grid; per antenna both reach the ceiling.
-- **Reading:** the simulation result was a home-ground effect, as the caveat
-  written before run 1 warned ("RT prior vs CDL prior for an RT target"). CDL
-  is fitted to measurements; ray tracing at the original settings (specular,
-  3 bounces, no scattering) produces channels cleaner than the measured street
-  — the delay profile check above — and, on the array, spatially more
-  concentrated. Every ray-traced candidate is biased the same way, so pooling
-  cannot insure against it. The gap is largest on the spatial dimension, where
-  geometry (array height, placement, the real building) matters most.
+- **P4:** with 50 site measurements, CDL + 50 beats pool + 50 by 1.2–1.7 dB
+  on the full grid; per antenna both reach the ceiling.
+- **How blind this was:** the pilot, committed with the pre-registration,
+  had already scored CDL on the same array-A test data (−17.9), and a
+  300-per-city dry run touched the test data before the full run (its cached
+  channels for hilly scenes were also affected by the bug above). The
+  registered script and claims were not changed afterwards.
+- **Reading:** the simulation result did not transfer; the caveat written
+  before run 1 ("RT prior vs CDL prior for an RT target") applies. The
+  simulated channels are cleaner in delay than the measured street (first
+  160 ns tap: 88–100% of energy across the 14 cities vs 79–84% measured, CDL
+  76%; `runs/dichasus_diagnostics.log`). Spatial concentration is not clearly
+  different (top-3 spatial eigenvalues 41–53% simulated, 40–51% measured).
+  Every ray-traced candidate is biased the same way, so pooling cannot insure
+  against it.
+- **Placement is not matched to the real users** (fixed before results, not
+  tuned): simulated users sit at a median 46 m and ~10° below the array, the
+  measured ones at ~18–20 m and 24–26° below. Per-array downtilts are 20.4 /
+  21.0 / 24.1°; 20.4° was used for all. Either could add to the gap; a
+  matched-placement rerun is listed as a follow-up.
+- **Smaller asymmetries, bounded:** measured channels sit ~10–20 ns later
+  after alignment than simulated ones (a fractional timing offset the
+  first-arrival rule can't remove); adding a random 0–20 ns delay to the
+  simulated channels moved CDL by −0.26 and the pool by +0.21 dB on array A
+  (reviewer's check), so at most ~0.5 dB of the CDL-vs-pool gap. Observed and
+  unexplained: the correlation between the two antenna rows is 0.40–0.48 in
+  magnitude measured vs ~0.9 simulated (multipath, or calibration error that
+  varies across frequency).
+- **CDL reproducibility:** the cached CDL set was generated before Sionna's
+  own generator was seeded (fixed after review). Regenerated sets score
+  −17.90 / −17.86 vs the cached −17.94 on array A: statistically, not
+  bitwise, equivalent.
 - Limits: one site (one street, one building, three arrays on its facade),
   1.272 GHz, mostly line-of-sight; LMMSE only.
 
-### Scattering variant — results (exploratory, 2026-10-27)
+### Scattering variant — results (exploratory, 2026-10-27, corrected after review)
 
 `scripts/dichasus_rich.py`, `runs/dichasus_rich.log`,
-`runs/a16_sc128_dichasus/dichasus_rich.csv`. 7 cities × 2000 `rtd:` channels
-(scattering 0.3, diffraction). NMSE at 10 dB:
+`runs/a16_sc128_dichasus/dichasus_rich.csv`, control and diagnostics in
+`runs/dichasus_diagnostics.log`. 7 cities × 2000 `rtd:` channels (scattering
+0.3, diffraction, 32 users per base-station site). Rerun after the review fix
+(park_slope regenerated; `runs/dichasus_regen_check_rtd.log` confirms the
+other six). NMSE at 10 dB:
 
 | array | grid | CDL | rtd pool | CDL + 50 | rtd pool + 50 |
 |---|---|---|---|---|---|
-| A | array × freq | −17.9 | −17.7 | −18.8 | −18.5 |
+| A | array × freq | −17.9 | −17.6 | −18.8 | −18.5 |
 | B | array × freq | −17.5 | −17.0 | −18.6 | −18.1 |
 | C | array × freq | −17.9 | −17.5 | −19.0 | −19.0 |
 | A / B / C | per antenna | −19.3 / −19.3 / −19.3 | −19.2 / −19.6 / −19.7 | −19.9 / −20.0 / −20.2 | same |
 
-- **Scattering closes most of the gap:** the ray-traced pool goes from
-  3.1–4.1 dB behind CDL (full grid, specular only) to 0.3–0.5 dB behind, and
-  per antenna from 0.5–1.3 dB behind to −0.0 / +0.3 / +0.3 dB (ties or
-  slightly ahead). With 50 site measurements: 0.0–0.5 dB behind on the full
-  grid.
-- **The gain is the scattering, not the smaller setup:** the same 7 cities at
-  2000 each, specular only, score −14.6 (full grid) and −18.3 (per antenna)
-  on array A, against −17.7 and −19.2 with scattering (`scratch/rich_confound.py`).
-  Scattering mostly spreads the spatial structure (top-3 spatial eigenvalues
-  44–51% → 42–43% of power) and adds some delay spread (first tap 88–93% →
-  86–91%).
-- **My first look was wrong:** the Munich-only tap-share check before the run
-  (90% → 89%) suggested little change; the spatial effect was the larger one.
-- **Still not a win:** with the more realistic solver settings, ray-traced
-  cities roughly match CDL on measured channels; they do not beat it. Pooling
-  still insures (worst single city vs worst 4-city pool: 5.5 → 3.3 dB on A).
-  Exploratory: chosen after the dry run, one scattering value (0.3, not
-  tuned), 7 cities, one site.
+- **With scattering the gap mostly closes:** the ray-traced pool goes from
+  3.2–4.1 dB behind CDL (full grid, specular only) to 0.3–0.5 dB behind, and
+  per antenna from 0.5–1.3 dB behind to −0.0 / +0.3 / +0.3 dB (A slightly
+  behind, B and C slightly ahead). With 50 site measurements: 0.1–0.5 dB
+  behind on the full grid, level per antenna.
+- **Control (array A):** the same 7 cities, 2000 each, specular only, score
+  −14.6 (256 users per site) and −14.8 (32 per site, as many sites as rtd)
+  on the full grid, vs −17.6 with scattering; per antenna −18.3 / −18.4 vs
+  −19.2. So ~0.2 dB comes from the extra base-station sites and ~2.8 dB from
+  scattering and diffraction.
+- **What scattering changes:** delay spread (first-tap share 88–96% → 84–94%
+  across the 7 cities) and spatial spread (top-3 eigenvalues 42–53% →
+  40–44%).
+- **My first look was wrong:** the Munich-only first-tap check before the run
+  (90% → 89%) suggested little change.
+- **Insurance:** on the full grid, pooling 4 cities still shrinks the worst
+  case (A 5.5 → 3.3, B 6.3 → 3.6, C 5.6 → 3.3 dB from the ceiling); per
+  antenna the drop is under 1 dB (1.8 → 1.1, 1.4 → 0.8, 1.2 → 0.7). (Only 7
+  cities, so k = 4, not the registered 8.)
+- **Still not a win:** with these solver settings, ray-traced cities roughly
+  match CDL on measured channels; they do not beat it. Exploratory: chosen
+  after the dry run, one scattering value (0.3, not tuned), 7 cities, one
+  site.

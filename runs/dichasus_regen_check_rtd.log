@@ -1,0 +1,9 @@
+munich               within 1e-3:   94%  within 1e-1:   98%  median 1.1e-06
+etoile               within 1e-3:  100%  within 1e-1:  100%  median 1.2e-05
+florence             within 1e-3:   84%  within 1e-1:   88%  median 7.8e-10
+san_francisco        within 1e-3:   92%  within 1e-1:   98%  median 3.6e-07
+wall_street          within 1e-3:   97%  within 1e-1:   98%  median 5.1e-07
+midtown              within 1e-3:   94%  within 1e-1:  100%  median 4.6e-08
+park_slope           within 1e-3:   89%  within 1e-1:   94%  median 3.4e-06
+ALL DONE
+EXIT 0

@@ -1,43 +1,43 @@
 AGX: exceeded compiled variants footprint limit
-array A: coherence 0.809 (counts); calibration/ceiling 10531, site pool 194, test 620
+array A: coherence 0.804 (counts); calibration/ceiling 10531, site pool 194, test 620
   A spatial: done
   A freq_only: done
-array B: coherence 0.589 (counts); calibration/ceiling 9382, site pool 275, test 754
+array B: coherence 0.577 (counts); calibration/ceiling 9382, site pool 275, test 754
   B spatial: done
   B freq_only: done
-array C: coherence 0.630 (counts); calibration/ceiling 7656, site pool 165, test 391
+array C: coherence 0.623 (counts); calibration/ceiling 7656, site pool 165, test 391
   C spatial: done
   C freq_only: done
 
-array A: coherence 0.809 (counts); calibration/ceiling 10531, site pool 194, test 620
-array B: coherence 0.589 (counts); calibration/ceiling 9382, site pool 275, test 754
-array C: coherence 0.630 (counts); calibration/ceiling 7656, site pool 165, test 391
+array A: coherence 0.804 (counts); calibration/ceiling 10531, site pool 194, test 620
+array B: coherence 0.577 (counts); calibration/ceiling 9382, site pool 275, test 754
+array C: coherence 0.623 (counts); calibration/ceiling 7656, site pool 165, test 391
 
 [spatial] NMSE dB at 10 dB SNR (gap to ceiling in brackets)
-  array A: ls -11.23 | ceiling -20.52 | cdl -17.93 [+2.58] | pool_all -14.75 [+5.77] | best city -15.26 | worst city -10.22
-           worst-draw gap k=1..8: 8.40 7.47 6.68 6.07 | mean-draw gap: 6.46 6.43 6.21 5.79
+  array A: ls -11.23 | ceiling -20.52 | cdl -17.93 [+2.58] | pool_all -14.74 [+5.77] | best city -15.26 | worst city -10.22
+           worst-draw gap k=(1, 2, 4, 8): 8.42 7.47 6.68 6.08 | mean-draw gap: 6.46 6.43 6.21 5.79
            +50 (mean of 4 draws): own -11.26 | cdl+50 -18.79 | pool+50 -17.15
            P1 pool beats CDL: False | P2 insurance >= 1 dB: True | P3 pool within 1 dB of ceiling: False
-  array B: ls -11.23 | ceiling -20.19 | cdl -17.46 [+2.73] | pool_all -13.41 [+6.78] | best city -13.92 | worst city -8.87
-           worst-draw gap k=1..8: 8.23 8.82 8.20 7.25 | mean-draw gap: 7.12 7.38 7.33 6.80
+  array B: ls -11.23 | ceiling -20.19 | cdl -17.46 [+2.73] | pool_all -13.40 [+6.79] | best city -13.92 | worst city -8.87
+           worst-draw gap k=(1, 2, 4, 8): 8.23 8.82 8.20 7.26 | mean-draw gap: 7.12 7.38 7.33 6.81
            +50 (mean of 4 draws): own -12.19 | cdl+50 -18.62 | pool+50 -16.89
            P1 pool beats CDL: False | P2 insurance >= 1 dB: False | P3 pool within 1 dB of ceiling: False
-  array C: ls -11.23 | ceiling -20.44 | cdl -17.89 [+2.55] | pool_all -14.43 [+6.01] | best city -14.83 | worst city -9.73
-           worst-draw gap k=1..8: 7.52 7.90 7.20 6.37 | mean-draw gap: 6.40 6.60 6.48 6.02
+  array C: ls -11.23 | ceiling -20.44 | cdl -17.89 [+2.55] | pool_all -14.43 [+6.02] | best city -14.83 | worst city -9.73
+           worst-draw gap k=(1, 2, 4, 8): 7.53 7.90 7.20 6.38 | mean-draw gap: 6.40 6.60 6.49 6.03
            +50 (mean of 4 draws): own -12.23 | cdl+50 -19.03 | pool+50 -17.82
            P1 pool beats CDL: False | P2 insurance >= 1 dB: True | P3 pool within 1 dB of ceiling: False
 
 [freq_only] NMSE dB at 10 dB SNR (gap to ceiling in brackets)
   array A: ls -11.23 | ceiling -20.03 | cdl -19.25 [+0.78] | pool_all -17.99 [+2.04] | best city -19.20 | worst city -10.90
-           worst-draw gap k=1..8: 6.07 4.94 3.42 2.46 | mean-draw gap: 2.40 2.68 2.59 2.02
+           worst-draw gap k=(1, 2, 4, 8): 6.08 4.94 3.42 2.46 | mean-draw gap: 2.40 2.68 2.59 2.03
            +50 (mean of 4 draws): own -19.91 | cdl+50 -19.91 | pool+50 -19.90
            P1 pool beats CDL: False | P2 insurance >= 1 dB: True | P3 pool within 1 dB of ceiling: False
   array B: ls -11.23 | ceiling -20.12 | cdl -19.28 [+0.84] | pool_all -18.64 [+1.48] | best city -19.45 | worst city -10.89
-           worst-draw gap k=1..8: 5.14 4.12 2.64 1.76 | mean-draw gap: 1.89 2.08 1.95 1.46
+           worst-draw gap k=(1, 2, 4, 8): 5.15 4.12 2.64 1.76 | mean-draw gap: 1.89 2.08 1.95 1.46
            +50 (mean of 4 draws): own -19.97 | cdl+50 -19.97 | pool+50 -19.97
            P1 pool beats CDL: False | P2 insurance >= 1 dB: True | P3 pool within 1 dB of ceiling: False
   array C: ls -11.23 | ceiling -20.19 | cdl -19.33 [+0.86] | pool_all -18.84 [+1.35] | best city -19.70 | worst city -11.90
-           worst-draw gap k=1..8: 4.74 3.81 2.46 1.67 | mean-draw gap: 1.72 1.92 1.78 1.34
+           worst-draw gap k=(1, 2, 4, 8): 4.75 3.81 2.46 1.67 | mean-draw gap: 1.72 1.92 1.78 1.34
            +50 (mean of 4 draws): own -20.16 | cdl+50 -20.16 | pool+50 -20.17
            P1 pool beats CDL: False | P2 insurance >= 1 dB: True | P3 pool within 1 dB of ceiling: False
 ALL DONE
