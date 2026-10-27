@@ -67,11 +67,21 @@ def tone(h, snr_db, rng, chunk: int = 200):
     factor), then extrapolated to the target times.
     """
     x, noise_var = noisy_history(h, snr_db, rng)
+    return _tone_extrapolate(x, noise_var, chunk)
+
+
+def tone_track(h, snr_db, rng):
+    """The noisy history followed by tone's extrapolation: a full track, usable as a front end."""
+    x, noise_var = noisy_history(h, snr_db, rng)
+    return np.concatenate([x, _tone_extrapolate(x, noise_var)], axis=2)
+
+
+def _tone_extrapolate(x: np.ndarray, noise_var: np.ndarray, chunk: int = 200) -> np.ndarray:
     t_hist, t_tgt = history_times_s(), target_times_s()
     freqs = np.arange(-MAX_DOPPLER_HZ, MAX_DOPPLER_HZ + 1, 5.0)
     steer = np.exp(-2j * np.pi * np.outer(t_hist, freqs)) / len(t_hist)  # [T, f]
-    out = np.empty((len(h), grid.NUM_ANTENNAS, len(t_tgt), grid.NUM_SUBCARRIERS), dtype=np.complex64)
-    for i in range(0, len(h), chunk):
+    out = np.empty((len(x), grid.NUM_ANTENNAS, len(t_tgt), grid.NUM_SUBCARRIERS), dtype=np.complex64)
+    for i in range(0, len(x), chunk):
         y = np.fft.ifft(np.fft.fft(x[i:i + chunk], axis=1, norm="ortho"), axis=3, norm="ortho")
         y = np.moveaxis(y, 2, -1)  # [n, A, F, T]
         proj = y @ steer  # [n, A, F, f]: amplitude of each candidate tone

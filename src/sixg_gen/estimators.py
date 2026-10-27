@@ -50,9 +50,14 @@ def _from_planes(x: torch.Tensor) -> np.ndarray:
 
 
 def train(model: Refiner, front: linear.LMMSE, h: np.ndarray, steps: int, lr: float, seed: int,
-          batch: int = 128) -> Refiner:
-    """Train on channels `h` with fresh pilot noise and SNR drawn every step."""
+          batch: int = 128, time_weight: np.ndarray | None = None) -> Refiner:
+    """Train on channels `h` with fresh pilot noise and SNR drawn every step.
+
+    `time_weight` (one value per symbol) weights the squared error along the
+    time axis; by default every grid point counts equally.
+    """
     rng = np.random.default_rng(seed)
+    w = 1.0 if time_weight is None else torch.tensor(time_weight, dtype=torch.float32, device=DEVICE)[:, None]
     model.to(DEVICE).train()
     opt = torch.optim.AdamW(model.parameters(), lr=lr, weight_decay=1e-4)
     sched = torch.optim.lr_scheduler.CosineAnnealingLR(opt, steps)
@@ -62,7 +67,7 @@ def train(model: Refiner, front: linear.LMMSE, h: np.ndarray, steps: int, lr: fl
         snr = rng.uniform(*TRAIN_SNR_DB, size=len(idx))
         lin = front.estimate(target, snr, rng)
         pred = model(_to_planes(lin).to(DEVICE), torch.tensor(snr, dtype=torch.float32, device=DEVICE))
-        loss = torch.mean((pred - _to_planes(target).to(DEVICE)) ** 2)
+        loss = torch.mean(w * (pred - _to_planes(target).to(DEVICE)) ** 2)
         opt.zero_grad()
         loss.backward()
         opt.step()

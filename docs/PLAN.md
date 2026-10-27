@@ -782,3 +782,10 @@ one seed.
   ≥ 2 ms, in ≥ 3 of 4 cities → restate as "learning helps on top of the
   classical method" (tone_res) or "the training loss was the handicap"
   (wiener_w). Otherwise finding 3 stands, strengthened.
+- **Amendment before running:** the tone front = the raw noisy history
+  (same draw) + tone's extrapolation at the targets, so the residual can see
+  what the tone fit removed. Weights are rescaled to sum to 13 (the uniform
+  loss's total) and computed per city and front on 2000 pool tracks at 10 dB.
+  Four arms × three horizons × four cities against a 0.5 dB bar is the most
+  favourable reading for learning; a pass needs a second seed before any
+  change to the README.
