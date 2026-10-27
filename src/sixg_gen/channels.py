@@ -19,11 +19,15 @@ from pathlib import Path
 
 import numpy as np
 
-from . import grid
+from . import grid, wideband
 
 DATA_DIR = Path(__file__).resolve().parents[2] / "data"
 SCENES_DIR = DATA_DIR / "scenes"
 MAX_SPEED_MPS = 30.0
+FACADE_HEIGHT_M = 10.0
+FACADE_USER_RANGE_M = (10.0, 65.0)
+FACADE_SECTOR_RAD = np.radians(75)
+USER_HEIGHT_M = 1.5
 RT_SCENES = ("munich", "etoile", "florence", "san_francisco")
 
 
@@ -61,8 +65,18 @@ def _num_steps() -> int:
 
 
 def _sample_times(h: np.ndarray) -> np.ndarray:
-    """Keep the track's time points (track mode); one slot is kept whole."""
-    return h[:, :, list(grid.TRACK_TIMES)] if grid.TRACK_TIMES else h
+    """Keep the track's time points (track mode); one slot is kept whole. In wideband
+    mode, reduce the band to the grid the same way measured channels are reduced."""
+    h = h[:, :, list(grid.TRACK_TIMES)] if grid.TRACK_TIMES else h
+    return wideband.to_grid(h) if grid.WIDEBAND_SUBCARRIERS else h
+
+
+def _num_freqs() -> int:
+    return len(grid.subcarrier_offsets_hz())
+
+
+def _cdl_pattern() -> str:
+    return {"iso": "omni", "tr38901": "38.901"}[grid.ANTENNA_PATTERN]
 
 
 def _cdl(n: int, seed: int) -> np.ndarray:
@@ -72,8 +86,7 @@ def _cdl(n: int, seed: int) -> np.ndarray:
 
     torch.manual_seed(seed)
     rng = np.random.default_rng(seed)
-    ant = dict(num_rows=1, polarization="single", polarization_type="V",
-               antenna_pattern="omni", carrier_frequency=grid.CARRIER_HZ)
+    ant = dict(polarization="single", polarization_type="V", carrier_frequency=grid.CARRIER_HZ)
     freqs = torch.tensor(grid.subcarrier_offsets_hz(), dtype=torch.float32)
     out, batch = [], 64
     for start in range(0, n, batch):
@@ -82,14 +95,21 @@ def _cdl(n: int, seed: int) -> np.ndarray:
         delay_spread = float(rng.uniform(30e-9, 300e-9))
         # CDL clusters have fixed angles; a random base-station heading per sample
         # spreads users around the array, as the ray-traced placement does.
+        # On a facade, users are only in front: headings within the placement sector.
         heading = torch.zeros(b, 3)
-        heading[:, 0] = torch.from_numpy(rng.uniform(0, 2 * np.pi, b))
-        cdl = CDL(model, delay_spread, grid.CARRIER_HZ, ut_array=AntennaArray(num_cols=1, **ant),
-                  bs_array=AntennaArray(num_cols=grid.NUM_ANTENNAS, **ant), direction="uplink",
+        if grid.PLACEMENT == "facade":
+            heading[:, 0] = torch.from_numpy(rng.uniform(-FACADE_SECTOR_RAD, FACADE_SECTOR_RAD, b))
+        else:
+            heading[:, 0] = torch.from_numpy(rng.uniform(0, 2 * np.pi, b))
+        heading[:, 1] = grid.DOWNTILT_RAD
+        cdl = CDL(model, delay_spread, grid.CARRIER_HZ,
+                  ut_array=AntennaArray(num_rows=1, num_cols=1, antenna_pattern="omni", **ant),
+                  bs_array=AntennaArray(num_rows=grid.ARRAY_ROWS, num_cols=grid.NUM_ANTENNAS // grid.ARRAY_ROWS,
+                                        antenna_pattern=_cdl_pattern(), **ant), direction="uplink",
                   bs_orientation=heading, min_speed=0.0, max_speed=MAX_SPEED_MPS, device="cpu")
         a, tau = cdl(b, _num_steps(), 1.0 / grid.SYMBOL_PERIOD_S)
         h = cir_to_ofdm_channel(freqs, a, tau)  # [b, rx, rx_ant (BS), tx, tx_ant, sym, sc]
-        h = h.reshape(b, grid.NUM_ANTENNAS, _num_steps(), grid.NUM_SUBCARRIERS).numpy()
+        h = h.reshape(b, grid.NUM_ANTENNAS, _num_steps(), _num_freqs()).numpy()
         out.append(_sample_times(h))
     return np.concatenate(out)
 
@@ -105,10 +125,10 @@ def _raytraced(scene_name: str, n: int, seed: int) -> tuple[np.ndarray, np.ndarr
     external = SCENES_DIR / scene_name / "scene.xml"
     scene = rt.load_scene(str(external) if external.exists() else getattr(rt.scene, scene_name))
     scene.frequency = grid.CARRIER_HZ
-    iso = dict(num_rows=1, vertical_spacing=0.5, horizontal_spacing=0.5,
-               pattern="iso", polarization="V")
-    scene.tx_array = rt.PlanarArray(num_cols=grid.NUM_ANTENNAS, **iso)  # base station
-    scene.rx_array = rt.PlanarArray(num_cols=1, **iso)
+    half_wave = dict(vertical_spacing=0.5, horizontal_spacing=0.5, polarization="V")
+    scene.tx_array = rt.PlanarArray(num_rows=grid.ARRAY_ROWS, num_cols=grid.NUM_ANTENNAS // grid.ARRAY_ROWS,
+                                    pattern=grid.ANTENNA_PATTERN, **half_wave)  # base station
+    scene.rx_array = rt.PlanarArray(num_rows=1, num_cols=1, pattern="iso", **half_wave)
     bb = scene.mi_scene.bbox()
     lo, hi = np.array(bb.min)[:2], np.array(bb.max)[:2]
     centre, half = (lo + hi) / 2, 0.3 * (hi - lo)
@@ -117,24 +137,22 @@ def _raytraced(scene_name: str, n: int, seed: int) -> tuple[np.ndarray, np.ndarr
     while have < n:
         for name in list(scene.transmitters) + list(scene.receivers):
             scene.remove(name)
-        tx_xy = centre + rng.uniform(-1, 1, 2) * half
-        scene.add(rt.Transmitter("tx", position=[*map(float, tx_xy), float(rng.uniform(25, 40))]))
+        if grid.PLACEMENT == "facade":
+            tx, users = _facade(scene, rng, centre, half, rx_per_tx)
+        else:
+            tx, users = _rooftop(rng, centre, half, rx_per_tx)
+        scene.add(rt.Transmitter("tx", **tx))
         batch_speed = []
-        for i in range(rx_per_tx):
-            r, phi = 250 * np.sqrt(rng.uniform()), rng.uniform(0, 2 * np.pi)
-            heading, speed = rng.uniform(0, 2 * np.pi), rng.uniform(0, MAX_SPEED_MPS)
-            batch_speed.append(speed)
-            scene.add(rt.Receiver(
-                f"rx{i}",
-                position=[float(tx_xy[0] + r * np.cos(phi)), float(tx_xy[1] + r * np.sin(phi)), 1.5],
-                velocity=[float(speed * np.cos(heading)), float(speed * np.sin(heading)), 0.0]))
+        for i, (pos, vel) in enumerate(users):
+            batch_speed.append(float(np.linalg.norm(vel)))
+            scene.add(rt.Receiver(f"rx{i}", position=[*map(float, pos)], velocity=[*map(float, vel)]))
         paths = solver(scene, max_depth=3, samples_per_src=10**5, synthetic_array=True,
                        diffuse_reflection=False)
-        h = paths.cfr(frequencies=mi.Float(grid.subcarrier_offsets_hz()),
+        h = paths.cfr(frequencies=mi.Float(grid.subcarrier_offsets_hz().astype(np.float32)),
                       sampling_frequency=1.0 / grid.SYMBOL_PERIOD_S,
                       num_time_steps=_num_steps(), normalize_delays=True, out_type="numpy")
         # [rx, rx_ant=1, tx=1, tx_ant (BS), time, freq]
-        h = _sample_times(h.reshape(rx_per_tx, grid.NUM_ANTENNAS, _num_steps(), grid.NUM_SUBCARRIERS))
+        h = _sample_times(h.reshape(rx_per_tx, grid.NUM_ANTENNAS, _num_steps(), _num_freqs()))
         has_paths = np.mean(np.abs(h) ** 2, axis=(1, 2, 3)) > 0
         h = h[has_paths]
         out.append(h)
@@ -142,3 +160,80 @@ def _raytraced(scene_name: str, n: int, seed: int) -> tuple[np.ndarray, np.ndarr
         have += len(h)
         print(f"  {scene_name}: {have}/{n} channels", flush=True)
     return np.concatenate(out)[:n], np.concatenate(speed_out)[:n]
+
+
+def _rooftop(rng, centre, half, count):
+    """Base station 25-40 m up in the central area; users anywhere within 250 m, moving."""
+    tx_xy = centre + rng.uniform(-1, 1, 2) * half
+    tx = dict(position=[*map(float, tx_xy), float(rng.uniform(25, 40))])
+    users = []
+    for _ in range(count):
+        r, phi = 250 * np.sqrt(rng.uniform()), rng.uniform(0, 2 * np.pi)
+        heading, speed = rng.uniform(0, 2 * np.pi), rng.uniform(0, MAX_SPEED_MPS)
+        users.append(((tx_xy[0] + r * np.cos(phi), tx_xy[1] + r * np.sin(phi), USER_HEIGHT_M),
+                      (speed * np.cos(heading), speed * np.sin(heading), 0.0)))
+    return tx, users
+
+
+def _facade(scene, rng, centre, half, count):
+    """Base station FACADE_HEIGHT_M above the local ground and above any roof there, random
+    heading, downtilted; static users USER_HEIGHT_M above open ground in front of it
+    (FACADE_USER_RANGE_M, within FACADE_SECTOR_RAD). Heights follow terrain."""
+    while True:
+        tx_xy = centre + rng.uniform(-1, 1, 2) * half
+        top, ground = _heights(scene, tx_xy[None])
+        if top[0] < ground[0] + FACADE_HEIGHT_M:
+            break
+    yaw = rng.uniform(0, 2 * np.pi)
+    tx = dict(position=[*map(float, tx_xy), float(ground[0] + FACADE_HEIGHT_M)],
+              orientation=[float(yaw), grid.DOWNTILT_RAD, 0.0])
+    lo, hi = FACADE_USER_RANGE_M
+    users = []
+    while len(users) < count:
+        r = np.sqrt(rng.uniform(lo**2, hi**2, 4 * count))
+        az = yaw + rng.uniform(-FACADE_SECTOR_RAD, FACADE_SECTOR_RAD, 4 * count)
+        xy = tx_xy + np.stack([r * np.cos(az), r * np.sin(az)], axis=1)
+        top, ground = _heights(scene, xy)
+        outdoors = np.isfinite(ground) & (top < ground + 0.5)
+        users += [((x, y, g + USER_HEIGHT_M), (0.0, 0.0, 0.0)) for (x, y), g in zip(xy[outdoors], ground[outdoors])]
+    return tx, users[:count]
+
+
+_GROUND_SCENES: dict[int, object] = {}
+
+
+def _heights(scene, xy: np.ndarray) -> tuple[np.ndarray, np.ndarray]:
+    """For each (x, y): height of the first surface seen from above, and of the ground there."""
+    import mitsuba as mi
+
+    key = id(scene)
+    if key not in _GROUND_SCENES:
+        _GROUND_SCENES.clear()
+        _GROUND_SCENES[key] = mi.load_dict({"type": "scene", "ground": _ground_object(scene).mi_mesh})
+    return _first_hit(scene.mi_scene, xy), _first_hit(_GROUND_SCENES[key], xy)
+
+
+def _ground_object(scene):
+    """The scene's ground or terrain: named so, else the flattest of the widest objects."""
+    objs = list(scene.objects.values())
+    named = [o for o in objs if any(k in o.name.lower() for k in ("terrain", "ground", "plane"))]
+    if named:
+        return named[0]
+
+    def extent(o):
+        b = o.mi_mesh.bbox()
+        lo, hi = np.array(b.min), np.array(b.max)
+        return (hi - lo)[0] * (hi - lo)[1], (hi - lo)[2]
+
+    widest = max(extent(o)[0] for o in objs)
+    return min((o for o in objs if extent(o)[0] > 0.5 * widest), key=lambda o: extent(o)[1])
+
+
+def _first_hit(mi_scene, xy: np.ndarray) -> np.ndarray:
+    import mitsuba as mi
+
+    n = len(xy)
+    origin = mi.Point3f(mi.Float(xy[:, 0].astype(np.float32)), mi.Float(xy[:, 1].astype(np.float32)),
+                        mi.Float(np.full(n, 1000.0, np.float32)))
+    hit = mi_scene.ray_intersect(mi.Ray3f(origin, mi.Vector3f(0, 0, -1)))
+    return np.where(np.array(hit.is_valid()), np.array(hit.p.z), -np.inf)

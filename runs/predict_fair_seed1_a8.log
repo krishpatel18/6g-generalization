@@ -1,0 +1,29 @@
+== target munich
+  tone_res weights (targets): 6.18 3.44 1.91 0.91 0.56
+  tone_res_ant (185s) 10dB 0.5ms:-14.49  1ms:-11.14  2ms: -7.84  5ms: -4.48  10ms: -3.10
+  tone_res_ad  (189s) 10dB 0.5ms:-13.46  1ms:-10.60  2ms: -7.83  5ms: -4.54  10ms: -3.19
+== target etoile
+  tone_res weights (targets): 6.23 3.42 1.85 0.91 0.59
+  tone_res_ant (165s) 10dB 0.5ms:-16.06  1ms:-13.28  2ms:-10.13  5ms: -6.51  10ms: -4.53
+  tone_res_ad  (180s) 10dB 0.5ms:-15.53  1ms:-12.76  2ms: -9.95  5ms: -6.52  10ms: -4.66
+== target florence
+  tone_res weights (targets): 6.23 3.42 1.85 0.91 0.59
+  tone_res_ant (150s) 10dB 0.5ms:-15.00  1ms:-11.77  2ms: -8.72  5ms: -5.29  10ms: -3.58
+  tone_res_ad  (160s) 10dB 0.5ms:-13.96  1ms:-11.17  2ms: -8.68  5ms: -5.37  10ms: -3.68
+== target san_francisco
+  tone_res weights (targets): 6.23 3.42 1.85 0.91 0.59
+  tone_res_ant (155s) 10dB 0.5ms:-20.22  1ms:-19.22  2ms:-17.15  5ms:-13.49  10ms: -9.69
+  tone_res_ad  (164s) 10dB 0.5ms:-22.87  1ms:-21.27  2ms:-18.36  5ms:-13.65  10ms: -9.63
+
+10 dB, all speeds, dB, negative = new arm better.
+Each cell: arm minus tone [arm minus best original learned arm]
+  tone_res_ad  munich         2ms: -0.35 [ -2.92]  5ms: -0.41 [ -2.17]  10ms: -0.61 [ -2.79]
+  tone_res_ad  etoile         2ms: -0.36 [ -3.87]  5ms: -0.37 [ -3.62]  10ms: -0.52 [ -3.94]
+  tone_res_ad  florence       2ms: -0.33 [ -3.77]  5ms: -0.45 [ -3.25]  10ms: -0.60 [ -3.38]
+  tone_res_ad  san_francisco  2ms: -0.61 [-10.49]  5ms:  0.83 [ -9.32]  10ms:  1.10 [ -8.13]
+  tone_res_ant munich         2ms: -0.36 [ -2.93]  5ms: -0.35 [ -2.11]  10ms: -0.52 [ -2.70]
+  tone_res_ant etoile         2ms: -0.54 [ -4.05]  5ms: -0.37 [ -3.62]  10ms: -0.38 [ -3.80]
+  tone_res_ant florence       2ms: -0.37 [ -3.82]  5ms: -0.37 [ -3.17]  10ms: -0.50 [ -3.28]
+  tone_res_ant san_francisco  2ms:  0.59 [ -9.28]  5ms:  0.99 [ -9.16]  10ms:  1.03 [ -8.20]
+ALL DONE
+EXIT 0

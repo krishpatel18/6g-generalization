@@ -22,6 +22,17 @@ SYMBOL_PERIOD_S = (1 + 144 / 2048) / SUBCARRIER_SPACING_HZ
 PILOT_SYMBOLS = (2, 11)
 PILOT_SUBCARRIERS = np.arange(0, NUM_SUBCARRIERS, 2)
 
+# Deployment the simulated channels mimic (see `use_dichasus`): array rows (the
+# antennas form a ARRAY_ROWS x NUM_ANTENNAS/ARRAY_ROWS planar array), element
+# pattern, downtilt, and where base stations and users are placed.
+ARRAY_ROWS = 1
+ANTENNA_PATTERN = "iso"       # or "tr38901" (directional, 3GPP 38.901)
+DOWNTILT_RAD = 0.0
+PLACEMENT = "rooftop"         # or "facade"
+# Wideband mode: channels are generated on WIDEBAND_SUBCARRIERS and reduced to
+# the grid by `wideband.to_grid`, the same chain measured channels go through.
+WIDEBAND_SUBCARRIERS: int | None = None
+
 
 # Track mode (channel prediction): instead of one slot, each sample is the
 # channel at TRACK_TIMES (symbol indices from the start of slot 0) on every 4th
@@ -48,6 +59,23 @@ def use_tracks() -> None:
     PILOT_SUBCARRIERS = np.arange(NUM_SUBCARRIERS)
 
 
+def use_dichasus() -> None:
+    """The DICHASUS outdoor setup: 1.272 GHz, 2 x 8 array on a facade tilted ~20 deg down,
+    50 MHz / 1024 subcarriers reduced to one snapshot of 128 subcarriers (6.25 MHz)."""
+    global CARRIER_HZ, SUBCARRIER_SPACING_HZ, NUM_ANTENNAS, NUM_SYMBOLS, NUM_SUBCARRIERS, \
+        PILOT_SYMBOLS, PILOT_SUBCARRIERS, ARRAY_ROWS, ANTENNA_PATTERN, DOWNTILT_RAD, PLACEMENT, \
+        WIDEBAND_SUBCARRIERS
+    if WIDEBAND_SUBCARRIERS:
+        return
+    CARRIER_HZ = 1.272e9
+    WIDEBAND_SUBCARRIERS = 1024
+    SUBCARRIER_SPACING_HZ = 50e6 / WIDEBAND_SUBCARRIERS
+    NUM_ANTENNAS, ARRAY_ROWS = 16, 2
+    NUM_SYMBOLS, NUM_SUBCARRIERS = 1, 128
+    PILOT_SYMBOLS, PILOT_SUBCARRIERS = (0,), np.arange(0, NUM_SUBCARRIERS, 2)
+    ANTENNA_PATTERN, DOWNTILT_RAD, PLACEMENT = "tr38901", float(np.arcsin(0.349)), "facade"
+
+
 def target_index(horizon_slots: int) -> int:
     """Time index in a track of the target `horizon_slots` after the last observed slot."""
     return len(PILOT_SYMBOLS) + HORIZON_SLOTS.index(horizon_slots)
@@ -55,11 +83,15 @@ def target_index(horizon_slots: int) -> int:
 
 def config_tag() -> str:
     """Names the settings that change a channel array, for cache keys."""
-    return f"a{NUM_ANTENNAS}_sc{NUM_SUBCARRIERS}" + ("_track" if TRACK_TIMES else "")
+    return (f"a{NUM_ANTENNAS}_sc{NUM_SUBCARRIERS}" + ("_track" if TRACK_TIMES else "")
+            + ("_dichasus" if WIDEBAND_SUBCARRIERS else ""))
 
 
 def subcarrier_offsets_hz() -> np.ndarray:
-    """Baseband frequency of each subcarrier, centred on the carrier."""
+    """Baseband frequency of each generated subcarrier, centred on the carrier, ascending
+    (in wideband mode: the whole band, before `wideband.to_grid`)."""
+    if WIDEBAND_SUBCARRIERS:
+        return (np.arange(WIDEBAND_SUBCARRIERS) - WIDEBAND_SUBCARRIERS // 2) * SUBCARRIER_SPACING_HZ
     step = TRACK_SUBCARRIER_STEP if TRACK_TIMES else 1
     n = NUM_SUBCARRIERS * step
     return (np.arange(0, n, step) - n // 2) * SUBCARRIER_SPACING_HZ
@@ -93,6 +125,8 @@ def ls_estimate(h: np.ndarray, snr_db: np.ndarray, rng: np.random.Generator) -> 
     freq_interp[..., 1:-1:2] = (pilots[..., :-1] + pilots[..., 1:]) / 2
     freq_interp[..., -1] = pilots[..., -1]
 
+    if len(sym) == 1:  # one pilot symbol: held across the slot
+        return np.broadcast_to(freq_interp, freq_interp.shape[:-2] + (NUM_SYMBOLS, NUM_SUBCARRIERS)).astype(np.complex64)
     t = np.arange(NUM_SYMBOLS)
     w = np.clip((t - sym[0]) / (sym[1] - sym[0]), 0.0, 1.0)[:, None]
     return ((1 - w) * freq_interp[..., :1, :] + w * freq_interp[..., 1:, :]).astype(np.complex64)

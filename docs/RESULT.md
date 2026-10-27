@@ -96,6 +96,13 @@ channels it would do worse, by an amount this simulator cannot measure.
 Pre-registered before results (with one amendment, also before results); see
 `docs/PLAN.md`, "Prediction experiment".
 
+Post-hoc follow-up (2026-10-27): a CNN trained to correct the tone
+prediction adds 0.3–0.6 dB at 2–10 ms in Munich, Étoile and Florence (two
+seeds agree within 0.2 dB) and costs 0.8–1.1 dB at 5–10 ms in San Francisco.
+Re-weighting the original CNNs' loss toward the predictable horizons does not
+help (still 2–13 dB behind tone). See `docs/PLAN.md`, "Fairer learned
+predictors".
+
 ## Reproduce
 
 All scripts take the base-station antenna count as their first argument (`8`).

@@ -876,3 +876,15 @@ Arm minus tone at 10 dB (negative = arm better), horizons 2 / 5 / 10 ms:
   still 2–13 dB behind tone.
 - As written beforehand: a second seed of the tone-residual arms runs before
   any change to the README (`scripts/predict_fair.py 8 1 tone_res`).
+- **Seed 1 (`runs/predict_fair_seed1_a8.log`) reproduces seed 0 within
+  0.05–0.2 dB:** tone_res_ad −0.61 / −0.52 / −0.60 dB at 10 ms (Munich,
+  Étoile, Florence), −0.61 at 2 ms in San Francisco; tone_res_ant passes in
+  3/4 again. Finding 3 is restated: the classical tone predictor beats
+  learned models trained alone by 2–13 dB, but a learned correction on top of
+  it adds a small, repeatable 0.3–0.6 dB at 2–10 ms — except where tone is
+  already near-exact (San Francisco, where it costs 0.8–1.1 dB at 5–10 ms).
+
+- **Implementation note (sim-to-real, before results):** "positions inside
+  buildings rejected" is implemented relative to each scene's ground mesh, so
+  heights follow terrain (San Francisco's ground spans 2–79 m); a spot counts
+  as outdoors if the first surface above it is within 0.5 m of the ground.

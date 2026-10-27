@@ -39,6 +39,14 @@ dB with no site data. The pre-registered test for "learning has room here" faile
 
 ![Prediction error vs horizon](docs/figures/prediction.png)
 
+A follow-up check, added after these results and labelled as such: a CNN
+trained to *correct* the classical method's prediction, rather than replace
+it, adds a small but repeatable 0.3–0.6 dB at 2–10 ms in three of four cities
+(same result on two training seeds), and costs about 1 dB in San Francisco,
+where the classical method is already near-exact. Retraining the original
+CNNs with a loss focused on the predictable horizons did not close the gap.
+So: classical first, learning as a refinement on top.
+
 The obvious objection, stated up front: Sionna moves users by rotating the
 phases of a fixed set of paths, which is exactly the tone model. A separate
 check (re-tracing each user at its moved position) showed this matches the full
@@ -104,7 +112,7 @@ tables are in `runs/`.
 | fresh-site recheck | `scripts/fresh_sites.py 8` |
 | New York scenes | `scripts/build_library.sh <new-york-latest.osm.pbf>` (needs `osmium-tool`, `libusb`), then `scripts/make_library.py 8` |
 | 14-city library | `scripts/library.py 8`, `scripts/library_followup.py 8`, `scripts/pool_draws.py 8` |
-| prediction | `scripts/make_tracks.py 8`, `scripts/predict.py 8 0` |
+| prediction | `scripts/make_tracks.py 8`, `scripts/predict.py 8 0`, `scripts/predict_fair.py 8 0` |
 | figures | `scripts/figures.py` |
 
 A results summary with every number is in [docs/RESULT.md](docs/RESULT.md).
