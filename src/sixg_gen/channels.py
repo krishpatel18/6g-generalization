@@ -5,7 +5,8 @@
 
 - ``"cdl"``: 3GPP TR 38.901 CDL-A..E, drawn uniformly, with random delay spread,
   user speed and base-station heading (Sionna PHY), or
-- ``"rt:<scene>"``: ray-traced paths in a city scene, with a rooftop base
+- ``"rt:<scene>"`` / ``"rtd:<scene>"``: ray-traced paths (specular only / also diffuse
+  scattering and diffraction) in a city scene, with a rooftop base
   station and moving street-level users. ``<scene>`` is one of Sionna RT's
   built-in scenes, or a directory ``data/scenes/<scene>/`` holding a
   ``scene.xml`` (e.g. generated from OpenStreetMap with geo2sigmap).
@@ -28,6 +29,7 @@ FACADE_HEIGHT_M = 10.0
 FACADE_USER_RANGE_M = (10.0, 65.0)
 FACADE_SECTOR_RAD = np.radians(75)
 USER_HEIGHT_M = 1.5
+RICH_SCATTERING = 0.3
 RT_SCENES = ("munich", "etoile", "florence", "san_francisco")
 
 
@@ -40,6 +42,8 @@ def generate(source: str, n: int, seed: int, mmap: bool = False) -> np.ndarray:
         h, speed = _cdl(n, seed), np.full(n, np.nan)
     elif source.startswith("rt:"):
         h, speed = _raytraced(source[3:], n, seed)
+    elif source.startswith("rtd:"):
+        h, speed = _raytraced(source[4:], n, seed, rich=True)
     else:
         raise ValueError(f"unknown channel source {source!r}")
     h = grid.normalize_power(h)
@@ -114,7 +118,9 @@ def _cdl(n: int, seed: int) -> np.ndarray:
     return np.concatenate(out)
 
 
-def _raytraced(scene_name: str, n: int, seed: int) -> tuple[np.ndarray, np.ndarray]:
+def _raytraced(scene_name: str, n: int, seed: int, rich: bool = False) -> tuple[np.ndarray, np.ndarray]:
+    """`rich`: also diffuse scattering (every material's scattering coefficient set to
+    RICH_SCATTERING, Lambertian) and edge diffraction; otherwise specular paths only."""
     import mitsuba as mi
 
     if mi.variant() is None:
@@ -125,6 +131,9 @@ def _raytraced(scene_name: str, n: int, seed: int) -> tuple[np.ndarray, np.ndarr
     external = SCENES_DIR / scene_name / "scene.xml"
     scene = rt.load_scene(str(external) if external.exists() else getattr(rt.scene, scene_name))
     scene.frequency = grid.CARRIER_HZ
+    if rich:
+        for material in scene.radio_materials.values():
+            material.scattering_coefficient = RICH_SCATTERING
     half_wave = dict(vertical_spacing=0.5, horizontal_spacing=0.5, polarization="V")
     scene.tx_array = rt.PlanarArray(num_rows=grid.ARRAY_ROWS, num_cols=grid.NUM_ANTENNAS // grid.ARRAY_ROWS,
                                     pattern=grid.ANTENNA_PATTERN, **half_wave)  # base station
@@ -133,7 +142,8 @@ def _raytraced(scene_name: str, n: int, seed: int) -> tuple[np.ndarray, np.ndarr
     lo, hi = np.array(bb.min)[:2], np.array(bb.max)[:2]
     centre, half = (lo + hi) / 2, 0.3 * (hi - lo)
     solver = rt.PathSolver()
-    rx_per_tx, out, speed_out, have = 256, [], [], 0
+    # Diffuse scattering multiplies the path count; smaller batches keep cfr under Dr.Jit's 2^32 limit.
+    rx_per_tx, out, speed_out, have = (32 if rich else 256), [], [], 0
     while have < n:
         for name in list(scene.transmitters) + list(scene.receivers):
             scene.remove(name)
@@ -147,7 +157,7 @@ def _raytraced(scene_name: str, n: int, seed: int) -> tuple[np.ndarray, np.ndarr
             batch_speed.append(float(np.linalg.norm(vel)))
             scene.add(rt.Receiver(f"rx{i}", position=[*map(float, pos)], velocity=[*map(float, vel)]))
         paths = solver(scene, max_depth=3, samples_per_src=10**5, synthetic_array=True,
-                       diffuse_reflection=False)
+                       diffuse_reflection=rich, diffraction=rich)
         h = paths.cfr(frequencies=mi.Float(grid.subcarrier_offsets_hz().astype(np.float32)),
                       sampling_frequency=1.0 / grid.SYMBOL_PERIOD_S,
                       num_time_steps=_num_steps(), normalize_delays=True, out_type="numpy")

@@ -888,3 +888,20 @@ Arm minus tone at 10 dB (negative = arm better), horizons 2 / 5 / 10 ms:
   buildings rejected" is implemented relative to each scene's ground mesh, so
   heights follow terrain (San Francisco's ground spans 2–79 m); a spot counts
   as outdoors if the first surface above it is within 0.5 m of the ground.
+
+### Scattering variant — exploratory (2026-10-27, after the dry run, before the full run's results)
+
+A 300-per-city dry run of the registered test (which touched the test data)
+showed the ray-traced priors far behind CDL. Diagnosis on that run: the
+ray-traced channels are cleaner than the measured ones — 95–100% of energy in
+the first 160 ns tap for most cities vs 85% measured (75% for the weaker,
+farther datapoints, 94% for the strongest; measurement noise explains ~1%).
+The registered experiment inherits the original study's solver settings:
+`max_depth=3`, specular reflection and refraction only, no diffuse scattering,
+no diffraction, and every material's scattering coefficient is 0 by default.
+It runs unchanged. In addition, exploratory and labelled so: `rtd:` sources
+(scattering coefficient 0.3 on all materials, Lambertian, plus edge
+diffraction) for the 4 built-in cities and wall_street, midtown, park_slope,
+2000 channels each, through the same test (`scripts/dichasus_rich.py`).
+A first look on Munich suggests scattering adds little energy (first-tap share
+90% → 89%), so a large change is not expected.

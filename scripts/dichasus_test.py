@@ -48,7 +48,7 @@ def nmse(estimate, test: np.ndarray) -> dict[float, float]:
     return out
 
 
-def run_variant(array, variant, sims, fit, site, test, rows, rows_per_datapoint=1) -> None:
+def run_variant(array, variant, sims, fit, site, test, rows, rows_per_datapoint=1, breadth=BREADTH_K) -> None:
     """`rows_per_datapoint`: samples per measured datapoint (16 in freq_only), so 50 site
     measurements are 50 datapoints in both variants."""
     def record(estimator, detail, draw, scores):
@@ -65,7 +65,7 @@ def run_variant(array, variant, sims, fit, site, test, rows, rows_per_datapoint=
     pool = pooled([stats[c] for c in cities])
     record("pool_all", "", 0, lmmse(pool))
     rng = np.random.default_rng(0)
-    for k in BREADTH_K:
+    for k in breadth:
         for d in range(DRAWS):
             pick = list(rng.choice(cities, k, replace=False))
             record(f"pool_k{k}", "+".join(pick), d, lmmse(pooled([stats[c] for c in pick])))
@@ -99,7 +99,10 @@ def main(per_city: int) -> None:
         run_variant(name, "spatial", sims, fit, site, test, rows)
         run_variant(name, "freq_only", {k: per_antenna(v) for k, v in sims.items()},
                     per_antenna(fit), per_antenna(site), per_antenna(test), rows, grid.NUM_ANTENNAS)
-        with open(RUNS / grid.config_tag() / "dichasus_test.csv", "w", newline="") as f:
+        out_dir = RUNS / grid.config_tag()
+        out_dir.mkdir(parents=True, exist_ok=True)
+        suffix = "" if per_city == 6000 else f"_n{per_city}"
+        with open(out_dir / f"dichasus_test{suffix}.csv", "w", newline="") as f:
             out = csv.writer(f)
             out.writerow(("array", "variant", "estimator", "detail", "draw", "snr_db", "nmse_db"))
             out.writerows(rows)
@@ -107,7 +110,7 @@ def main(per_city: int) -> None:
     print("ALL DONE", flush=True)
 
 
-def summary(rows, notes) -> None:
+def summary(rows, notes, breadth=BREADTH_K) -> None:
     print("\n" + "\n".join(notes))
     v = {}
     for a, var, est, detail, draw, snr, x in rows:
@@ -123,12 +126,12 @@ def summary(rows, notes) -> None:
             print(f"  array {a}: ls {g('ls_interp'):.2f} | ceiling {ceil:.2f} | cdl {g('cdl'):.2f} [{g('cdl')-ceil:+.2f}] | "
                   f"pool_all {g('pool_all'):.2f} [{g('pool_all')-ceil:+.2f}] | best city {min(x for _, x in v[(a, var, 'city', 10.0)]):.2f} | "
                   f"worst city {worst('city'):.2f}")
-            print(f"           worst-draw gap k=1..8: " + " ".join(f"{worst(f'pool_k{k}')-ceil:.2f}" for k in BREADTH_K) +
-                  " | mean-draw gap: " + " ".join(f"{g(f'pool_k{k}')-ceil:.2f}" for k in BREADTH_K))
+            print(f"           worst-draw gap k={breadth}: " + " ".join(f"{worst(f'pool_k{k}')-ceil:.2f}" for k in breadth) +
+                  " | mean-draw gap: " + " ".join(f"{g(f'pool_k{k}')-ceil:.2f}" for k in breadth))
             print(f"           +50 (mean of {SITE_DRAWS} draws): own {g('own_50'):.2f} | cdl+50 {g('cdl+50'):.2f} | "
                   f"pool+50 {g('pool_all+50'):.2f}")
             p1 = g("pool_all") < g("cdl")
-            p2 = (worst("pool_k1") - worst("pool_k8")) >= 1.0
+            p2 = (worst("pool_k1") - worst(f"pool_k{breadth[-1]}")) >= 1.0
             p3 = g("pool_all") - ceil <= 1.0
             print(f"           P1 pool beats CDL: {p1} | P2 insurance >= 1 dB: {p2} | P3 pool within 1 dB of ceiling: {p3}")
 
