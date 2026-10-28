@@ -220,9 +220,11 @@ def _raytraced(scene_name: str, n: int, seed: int, rich: bool = False,
             scene.add(rt.Receiver(f"rx{i}", position=[*map(float, pos)], velocity=[*map(float, vel)]))
         paths = solver(scene, max_depth=RT_MAX_DEPTH, samples_per_src=RT_SAMPLES_PER_SRC, synthetic_array=True,
                        diffuse_reflection=rich, diffraction=rich)
-        h = paths.cfr(frequencies=mi.Float(grid.subcarrier_offsets_hz().astype(np.float32)),
-                      sampling_frequency=1.0 / grid.SYMBOL_PERIOD_S,
-                      num_time_steps=_num_steps(), normalize_delays=True, out_type="numpy")
+        # In frequency chunks: many diffuse paths x 1024 subcarriers can exceed Dr.Jit's 2^32 limit.
+        freqs = grid.subcarrier_offsets_hz().astype(np.float32)
+        h = np.concatenate([paths.cfr(frequencies=mi.Float(freqs[i:i + 256]), sampling_frequency=1.0 / grid.SYMBOL_PERIOD_S,
+                                      num_time_steps=_num_steps(), normalize_delays=True, out_type="numpy")
+                            for i in range(0, len(freqs), 256)], axis=-1)
         # [rx, rx_ant=1, tx=1, tx_ant (BS), time, freq]
         h = _sample_times(h.reshape(rx_per_tx, grid.NUM_ANTENNAS, _num_steps(), _num_freqs()))
         has_paths = np.mean(np.abs(h) ** 2, axis=(1, 2, 3)) > 0
