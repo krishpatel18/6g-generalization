@@ -1204,3 +1204,59 @@ distances, 7 cities:
   buildings does not add. That points to the levers in the related work —
   objects the map-built scenes lack (vehicles, poles, trees), or 3GPP-style
   random clusters on top of the ray-traced paths.
+
+## Wrap-up (2026-10-28)
+
+Project stopped here by decision. Matching CDL would not be useful (CDL is
+free and needs no maps, simulation or tuning), and the one measured site is
+not one where CDL fails. The paper (`docs/paper/paper.pdf`) and a plain
+version (`docs/PLAIN.md`) are the final write-ups.
+
+## Follow-on proposal: where does CDL fail? (2026-10-28, not started)
+
+**Question.** A ray-traced or site-specific prior is only worth its cost at
+sites the 3GPP models describe badly. How large is the CDL-prior gap (CDL
+LMMSE vs a site-trained LMMSE) across environments, and which measurable
+channel properties predict it?
+
+**Related work (subagent search; abstracts spot-checked where noted).**
+- 3GPP parameters miss in specific places: InF (factory) K-factors 5–10 dB
+  higher than measured at 10–12 GHz (Runtti et al., arXiv:2503.10046); TDL
+  "fails to capture the spatial propagation characteristics" of a commercial
+  deployment (arXiv:2603.01843, abstract only); Rel-19 added near-field,
+  spatial non-stationarity and variable cluster counts (arXiv:2507.19266).
+- Receiver-level evidence that 3GPP training is often nearly enough:
+  estimator trained on synthetic data performs "comparable" to others on
+  measured data (Baur et al., WSA 2024, arXiv:2312.03450; abstract checked;
+  full-text details — Nokia Stuttgart, QuaDRiGa UMi, +6.3% from fine-tuning —
+  via the subagent); fine-tuning a TDL-trained receiver on measured macro-cell
+  data gains 1.85 dB (arXiv:2410.19565); randomised 38.901 training
+  generalises over the air (arXiv:2408.04182). Transfer between stochastic
+  and ray-traced data fails both ways for prediction and compression (Morais
+  et al., arXiv:2512.12449).
+- No measured comparison of MIMO rank/conditioning against 38.901 was found.
+
+**Data (public, same sounder family, so the environment is the main
+variable).** DICHASUS: outdoor street (`dxxx`, done); indoor lab room
+(`0d5x`, DARUS-2218, 43 GB, 7 files); factory with distributed 4×8 arrays,
+LoS + NLoS (`cf0x`, DARUS-2854, 47 GB, 6 files of 3.6–15.6 GB). Also KU
+Leuven ultra-dense indoor (64 antennas, URA LoS vs NLoS, same room — a
+single-factor contrast; IEEE DataPort, login needed).
+
+**Design (cheapest first).**
+1. Run the existing pipeline unchanged (calibration, one processing chain,
+   CDL prior, site-trained ceiling, 50-measurement blend) on one or two files
+   each of `0d5x` and `cf0x`; report the CDL-prior gap per environment and
+   LoS/NLoS. Mostly reuse; ~15–30 GB download. Watch: indoor sets may ship
+   reference-transmitter offsets (use them instead of the line-of-sight fit),
+   and distributed arrays need per-array processing.
+2. Sweep CDL profile (A–E) and delay spread per site: does a better-chosen
+   CDL close the gap? If yes, "pick the CDL profile from 50 measurements" is
+   a cheap, useful recipe.
+3. Per site, measure delay spread, first-tap share, angular spread, K-factor
+   and covariance eigen-spread; relate them to the CDL gap. Output: a rule
+   for when a site-specific prior would pay off.
+
+**Stop rule written now.** If the CDL gap stays under ~1 dB everywhere
+(including NLoS factory), conclude that 3GPP priors are good enough for
+LMMSE estimation at these sites and stop.
