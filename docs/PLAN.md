@@ -1265,3 +1265,41 @@ LMMSE estimation at these sites and stop.
 **Correction (2026-10-28):** the prediction history spans pilot symbols 2 to
 53 (slots 0–3), i.e. ~1.8 ms, not the 1.4 ms written in the pre-registration
 above; the experiment itself is unchanged. Write-ups corrected.
+
+## Follow-on: where does CDL fail? — pre-registered (2026-10-28, before results)
+
+`scripts/cdl_gap.py`. Same estimator, grid and processing chain as the
+measured-channel test (LMMSE, one snapshot, 128 subcarriers around 1.272 GHz,
+pilots on every other subcarrier, `wideband.to_grid`, unit power), on three
+environments recorded with the same sounder:
+
+| environment | dataset | arrays | fit + ceiling + site | test |
+|---|---|---|---|---|
+| street, outdoor, mostly LoS | `dxxx` (done) | A, B, C: 2×8, 20° downtilt | d006–d010, d014; site d012 | d011, d013 |
+| lab room, indoor, mostly LoS | `0d5x` (DARUS-2218) | 2 arrays, 2×8, no tilt | `0d54` (first 80% in time; site = last 20%) | `0d56` |
+| factory, indoor, LoS + NLoS | `cf0x` (DARUS-2854) | 4 arrays, 2×4, no tilt | `cf02` (first 80%; site = last 20%) | `cf06` |
+
+- **Calibration:** per array, the line-of-sight phase + delay fit as before;
+  an array counts only if its coherence on the fit file is ≥ 0.5 (in the
+  factory, NLoS points lower it).
+- **Priors:** generic CDL (A–E, delay spread 30–300 ns, heading within ±75°,
+  38.901 element pattern), re-simulated per array geometry (2×8 or 2×4) and
+  tilt (20° street, 0° indoors); 12k channels. Profile sweep: each of CDL-A..E
+  at delay spreads 30 / 100 / 300 ns (15 priors, 4000 channels each).
+- **Measures, 10 dB SNR, full grid and per antenna:** CDL gap = generic-CDL
+  NMSE minus site-trained ceiling; CDL + 50 gap; best single profile on the
+  test file (oracle) and the profile picked by 50 site measurements (4 draws).
+  Channel statistics per array: first-tap energy share, RMS delay spread,
+  top-3 spatial eigenvalue share.
+- **Claims:**
+  - G1: the generic-CDL gap is larger in the factory than on the street
+    (full grid, mean over arrays). Falsified if not.
+  - G2 (stop rule, as written before): if the generic-CDL gap is < 1 dB in
+    every environment (full grid), conclude 3GPP priors are good enough here.
+  - G3: a profile picked from 50 site measurements closes at least half of
+    the generic-CDL gap, in any environment where that gap is ≥ 1 dB.
+  - Reported alongside, no bar: how the gap relates to the channel
+    statistics.
+- Caveats now: different hardware layouts and arrays per environment; one
+  recording for test per environment; the street numbers come from the earlier
+  run (same code path for CDL and ceiling).
