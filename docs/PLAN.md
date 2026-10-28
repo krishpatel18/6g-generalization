@@ -1138,3 +1138,37 @@ pooled prior scores best on those 50 (LMMSE NMSE on their own noisy pilots,
   enough". Note the tuned pool uses 50 site measurements (for selection) and
   CDL zero-shot uses none, so the fair comparison for the recipe is also
   reported against CDL + 50. B, C and per antenna alongside.
+
+### Direction 1: related work (2026-10-28; subagent search, abstracts spot-checked)
+
+- **Per-site calibration is the norm, and calibrated values absorb geometry
+  errors.** Hoydis et al. (arXiv:2311.18558) learn permittivity, scattering
+  coefficient and cross-polarisation by gradient descent against DICHASUS
+  *indoor* data (dc01, 3.438 GHz); no transfer to other scenes; per-location
+  "neural materials" generalise poorly (full-text claims via the subagent).
+  mmDiff (arXiv:2605.26406) calibrates from sparse mmWave measurements and
+  generalises to unseen poses in the same scene. Bakirtzis et al.
+  (arXiv:2509.19337; abstract checked: differentiable ray tracers "struggle to
+  generalize from real-world data at a large scale"); per the subagent's
+  full-text reading, per-scene material values did not transfer across 13
+  UK areas.
+- **Plain ray tracing underpredicts street multipath; clutter is the usual
+  fix.** Diffuse scatter ~20% of received power at 28 GHz with separate
+  models for buildings, vehicles, foliage (Gentile et al., IEEE TVT 2020; not
+  verified); plain RT overpredicts LoS street power by > 20 dB at 300 m until
+  clutter scatter is added (Chizhik et al., ~2022; not verified); tree trunks,
+  lamp posts and vehicles as simple shapes improve agreement (Göktepe et al.,
+  2016); persistent scattering points in Sionna RT match measured delay
+  spread better at 5.9 GHz (arXiv:2610.20387; not verified).
+- **Standard hybrid:** 3GPP TR 38.901 §8 map-based hybrid model adds random
+  clusters (and an optional random-small-object scattering term) to
+  deterministic paths; 3GPP notes it is not calibrated.
+- **Looks open (medium confidence):** whether a few *global* settings
+  (scattering level, clutter density) tuned at one site transfer to other
+  cities; calibrating without a site 3D model by matching statistics (first-tap
+  share, delay spread, covariance eigen-spread) rather than paths.
+- **Next levers if the scattering knob is not enough:** (a) random clutter in
+  the scenes (cylinders for poles/trunks, boxes for vehicles along OSM streets,
+  density as the one knob); (b) a §8-style hybrid that adds random clusters
+  with power and count as knobs; (c) tune by matching statistics rather than
+  estimator score.
