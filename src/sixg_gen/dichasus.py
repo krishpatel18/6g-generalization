@@ -76,13 +76,17 @@ class Raw:
     usable: np.ndarray  # [n] bool
 
 
-def load(array: Array, files: list[str], dataset: str = "dxxx") -> Raw:
+def load(array: Array, files: list[str], dataset: str = "dxxx", tx_height_m: float = 0.0) -> Raw:
+    """`tx_height_m`: transmitter height for datasets whose positions are 2D (lidar)."""
     parts = [np.load(_file(dataset, f)) for f in files]
     csi = np.concatenate([z["csi"][:, array.order] for z in parts])
     snr = np.concatenate([z["snr"][:, array.order] for z in parts])
     age = np.concatenate([z["interp_age"] for z in parts])
     usable = (snr.mean(axis=1) >= MIN_SNR_DB) & (age < MAX_INTERP_AGE_S)
-    return Raw(np.fft.fftshift(csi, axes=-1)[:, :, None, :], np.concatenate([z["pos"] for z in parts]), usable)
+    pos = np.concatenate([z["pos"] for z in parts])
+    if pos.shape[1] == 2:
+        pos = np.c_[pos, np.full(len(pos), tx_height_m)]
+    return Raw(np.fft.fftshift(csi, axes=-1)[:, :, None, :], pos, usable)
 
 
 def part(raw: Raw, start: float, stop: float) -> Raw:

@@ -26,11 +26,12 @@ from select_prior import pool_score  # noqa: E402
 PROFILES = [f"cdl-{m}-{ds}" for m in "ABCDE" for ds in (30, 100, 300)]
 MIN_COHERENCE = 0.5
 ENVS = {
-    # dataset, array names, (rows, cols, downtilt), fit files, site files (or None: last 20% of fit), test files
+    # dataset, array names, (rows, cols, downtilt), fit files, site files (or None: last 20% of fit), test files,
+    # transmitter height for 2D positions (lab: fitted by calibration coherence before results)
     "street": ("dxxx", ["A", "B", "C"], (2, 8, grid.STREET_DOWNTILT_RAD),
-               ["d006", "d007", "d008", "d009", "d010", "d014"], ["d012"], ["d011", "d013"]),
-    "lab": ("0d5x", None, (2, 8, 0.0), ["0d54"], None, ["0d56"]),
-    "factory": ("cf0x", None, (2, 4, 0.0), ["cf02"], None, ["cf06"]),
+               ["d006", "d007", "d008", "d009", "d010", "d014"], ["d012"], ["d011", "d013"], 0.0),
+    "lab": ("0d5x", None, (2, 8, 0.0), ["0d54"], None, ["0d56"], -0.5),
+    "factory": ("cf0x", None, (2, 4, 0.0), ["cf02"], None, ["cf06"], 0.0),
 }
 FIT_FRACTION = 0.8
 
@@ -70,7 +71,7 @@ def run(env, array, variant, priors, fit, site, test, rows, per_datapoint) -> No
 
 
 def main(env: str) -> None:
-    dataset, names, (rows_, cols_, tilt), fit_files, site_files, test_files = ENVS[env]
+    dataset, names, (rows_, cols_, tilt), fit_files, site_files, test_files, tx_z = ENVS[env]
     grid.use_dichasus(rows_, cols_, tilt)
     names = names or dichasus.array_names(dataset)
     priors = {"cdl": channels.generate("cdl", 12000, 1, mmap=True),
@@ -78,14 +79,14 @@ def main(env: str) -> None:
     rows, stat_rows = [], []
     for name in names:
         arr = dichasus.Array.named(name, dataset)
-        fit_raw = dichasus.load(arr, fit_files, dataset)
+        fit_raw = dichasus.load(arr, fit_files, dataset, tx_z)
         if site_files is None:
             fit_raw, site_raw = dichasus.part(fit_raw, 0, FIT_FRACTION), dichasus.part(fit_raw, FIT_FRACTION, 1)
         else:
-            site_raw = dichasus.load(arr, site_files, dataset)
+            site_raw = dichasus.load(arr, site_files, dataset, tx_z)
         cal, coherence = dichasus.fit_calibration(arr, fit_raw)
         fit, site = dichasus.measured(fit_raw, cal), dichasus.measured(site_raw, cal)
-        test = dichasus.measured(dichasus.load(arr, test_files, dataset), cal)
+        test = dichasus.measured(dichasus.load(arr, test_files, dataset, tx_z), cal)
         counts = f"fit {len(fit)}, site {len(site)}, test {len(test)}"
         if coherence < MIN_COHERENCE:
             print(f"  {env} {name}: coherence {coherence:.3f} < {MIN_COHERENCE}, excluded ({counts})", flush=True)

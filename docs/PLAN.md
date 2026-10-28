@@ -1303,3 +1303,8 @@ environments recorded with the same sounder:
 - Caveats now: different hardware layouts and arrays per environment; one
   recording for test per environment; the street numbers come from the earlier
   run (same code path for CDL and ceiling).
+- **Amendment before results (lab):** `0d5x` positions are 2D (lidar). The
+  transmitter height in the dataset frame was set to −0.5 m from calibration
+  coherence alone on the first 6000 fit datapoints (near wall: best −0.6 to
+  −0.8, 0.76; near window: best −0.4, 0.83; flat within ~0.02 over ±0.3 m),
+  i.e. before any estimation result.
