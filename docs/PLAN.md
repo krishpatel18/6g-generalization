@@ -1344,3 +1344,22 @@ coherence bar (lab 0.71 / 0.81, factory 0.85–0.91).
 - Caveats: different arrays per environment (2×4 in the factory); one test
   recording each; the factory's first-tap share depends on the alignment rule
   (first tap within 10 dB of the peak) in very dense multipath.
+- **Post-hoc (after the factory result): longer delay spreads.** Adding
+  CDL-A..E at 600 / 1000 / 2000 ns (`scripts/cdl_gap.py factory
+  600,1000,2000`, `runs/cdl_gap_factory_long.log`): the 50 measurements pick
+  CDL-B at 1000 ns in every draw, also the best on the test file. It improves
+  on the 300 ns profiles but leaves large gaps: 9.3–10.4 dB on the full grid
+  (vs 10.2–11.8 generic), ~6 dB per antenna (vs ~10). So the factory's misfit
+  is in the shape of its multipath (clusters, angles), not only its length;
+  blending in site measurements remains the fix (per antenna ≤ 0.8 dB).
+
+**Follow-on conclusion.** CDL as a starting prior is close on an open street
+(2.6 dB full grid, 0.8 per antenna), poor in a small clean room (4.7 / 4.3)
+and far off in a dense factory hall (10–12 / ~10), failing in both
+directions. Choosing a CDL profile from 50 site measurements fixes the clean
+room per antenna, but not the factory or the full array anywhere; blending the
+50 measurements into the prior is what works everywhere per antenna, and
+roughly halves the full-grid gap. So the sites where a better prior would pay
+off are the ones least like CDL's typical outdoor channel — dense,
+reflective indoor spaces — which is also where map-built ray tracing is
+weakest (no machinery, shelving or clutter in the maps).

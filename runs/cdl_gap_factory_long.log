@@ -1,0 +1,18 @@
+  factory Antenna Array A: coherence 0.851; fit 10339, site 3715, test 5715; first_tap_pct 11.7, rms_delay_taps 4.5, top3_spatial_pct 87.4
+  factory Antenna Array B: coherence 0.860; fit 13993, site 686, test 13614; first_tap_pct 12.0, rms_delay_taps 4.4, top3_spatial_pct 81.3
+  factory Antenna Array C: coherence 0.912; fit 8167, site 3644, test 2738; first_tap_pct 11.5, rms_delay_taps 4.5, top3_spatial_pct 87.7
+  factory Antenna Array D: coherence 0.857; fit 14450, site 1568, test 13610; first_tap_pct 11.9, rms_delay_taps 4.4, top3_spatial_pct 81.2
+
+[spatial] 10 dB, dB above the site-trained ceiling (lower = closer)
+  Antenna Array A              cdl 10.91 | cdl+50  5.64 | best profile cdl-B-1000 10.00 | picked 10.00 (cdl-B-1000, cdl-B-1000, cdl-B-1000, cdl-B-1000)
+  Antenna Array B              cdl 10.59 | cdl+50  4.85 | best profile cdl-B-1000  9.25 | picked  9.25 (cdl-B-1000, cdl-B-1000, cdl-B-1000, cdl-B-1000)
+  Antenna Array C              cdl 10.22 | cdl+50  6.30 | best profile cdl-B-1000  9.53 | picked  9.53 (cdl-B-1000, cdl-B-1000, cdl-B-1000, cdl-B-1000)
+  Antenna Array D              cdl 11.80 | cdl+50  5.82 | best profile cdl-B-1000 10.41 | picked 10.41 (cdl-B-1000, cdl-B-1000, cdl-B-1000, cdl-B-1000)
+
+[freq_only] 10 dB, dB above the site-trained ceiling (lower = closer)
+  Antenna Array A              cdl  9.97 | cdl+50  0.65 | best profile cdl-B-1000  5.99 | picked  5.99 (cdl-B-1000, cdl-B-1000, cdl-B-1000, cdl-B-1000)
+  Antenna Array B              cdl 10.14 | cdl+50  0.12 | best profile cdl-B-1000  6.14 | picked  6.14 (cdl-B-1000, cdl-B-1000, cdl-B-1000, cdl-B-1000)
+  Antenna Array C              cdl  9.95 | cdl+50  0.77 | best profile cdl-B-1000  5.95 | picked  5.95 (cdl-B-1000, cdl-B-1000, cdl-B-1000, cdl-B-1000)
+  Antenna Array D              cdl 10.13 | cdl+50  0.09 | best profile cdl-B-1000  6.14 | picked  6.14 (cdl-B-1000, cdl-B-1000, cdl-B-1000, cdl-B-1000)
+ALL DONE
+EXIT 0

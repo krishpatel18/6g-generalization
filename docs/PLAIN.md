@@ -114,3 +114,27 @@ Rough cost: 15–30 GB of downloads, a day or two of work, laptop only. If the
 textbook models are within ~1 dB everywhere, the honest conclusion is "they're
 good enough here" and that's the end of it. The full plan is in
 `docs/PLAN.md` under "Follow-on proposal".
+
+## Follow-on result: where the textbook models fail (done)
+
+We reran the whole pipeline on two more real sites recorded with the same
+equipment in Stuttgart, and measured how far the free textbook models are
+from the best possible at each:
+
+| site | how echoey | textbook models' gap |
+|---|---|---|
+| open street | moderate | 2.6 dB |
+| small lab room | very clean | 4.7 dB |
+| factory hall | extremely echoey | 10–12 dB (about 10× the error) |
+
+- The textbook models fail in *both* directions: when a site is much cleaner
+  than typical, and much more so when it's far more echoey.
+- Letting 50 measurements pick the best-fitting textbook profile fixes the
+  clean room, but not the factory, even with longer-echo profiles.
+- What works everywhere is mixing those 50 real measurements into the
+  starting point: per antenna it gets close to the best possible at every
+  site.
+
+**So:** the places where a site-specific model would really pay off are dense,
+reflective indoor spaces like factories. They're also where map-based
+simulation is weakest, because maps don't contain machinery or shelving.
