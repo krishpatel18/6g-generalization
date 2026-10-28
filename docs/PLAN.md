@@ -1096,3 +1096,22 @@ data:
 - So the 0.3–0.5 dB match of the scattering variant came partly from placing
   users farther than the real ones, which added multipath the scene was
   otherwise missing.
+
+### Directions (2026-10-28)
+
+1. **Tune the simulator from site measurements, then simulate other cities**
+   (no 3D model of the target site). The gap is set by global simulator
+   settings and missing scene content, not by which cities are pooled. Cheap
+   first test: grid over the scattering coefficient {0, 0.15, 0.3, 0.5, 0.7}
+   (and optionally a random-clutter model), pick by the 50 site measurements,
+   evaluate on the test files; ~1 h of laptop time per 4 values at 7 cities.
+   Closest prior work tunes one fully modelled site (Hoydis et al.,
+   arXiv:2311.18558; mmDiff, arXiv:2605.26406, not read in full).
+2. **More measured sites.** One street can't settle a question about unseen
+   sites; no public outdoor dataset with several sites and a planar array was
+   found (survey 2026-10-22).
+3. **Prediction on measured channels.** Needs ms-spaced moving-user
+   measurements: Argos (2 ms) is offline; DICHASUS (~48 ms) and CAEZ (20 ms)
+   are too coarse for fast users.
+4. **Publish the write-up** (README + docs/paper/paper.pdf) — the repo
+   visibility is Krish's call.
