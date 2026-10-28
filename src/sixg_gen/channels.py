@@ -19,6 +19,7 @@ Results are cached under ``data/`` keyed by grid settings, source, n and seed.
 """
 
 import json
+import re
 import warnings
 from pathlib import Path
 
@@ -59,8 +60,10 @@ def generate(source: str, n: int, seed: int, mmap: bool = False) -> np.ndarray:
         h, speed = _raytraced(source[3:], n, seed)
     elif source.startswith("rtd:"):
         h, speed = _raytraced(source[4:], n, seed, rich=True)
-    elif source.startswith("rtdm:"):  # as rtd:, users at the measured site's distances
-        h, speed = _raytraced(source[5:], n, seed, rich=True, user_range_m=MATCHED_USER_RANGE_M)
+    elif re.match(r"rtdm(\d\d)?:", source):  # as rtd:, users at the measured site's distances;
+        level, scene = source[4:].split(":", 1)  # "rtdmNN:" sets the scattering coefficient to NN/100
+        h, speed = _raytraced(scene, n, seed, rich=True, user_range_m=MATCHED_USER_RANGE_M,
+                              scattering=int(level) / 100 if level else RICH_SCATTERING)
     elif source.startswith("rt32:"):  # specular, but as many base-station sites per channel as rtd:
         h, speed = _raytraced(source[5:], n, seed, users_per_site=RICH_USERS_PER_SITE)
     else:
@@ -174,7 +177,8 @@ def _cdl(n: int, seed: int) -> np.ndarray:
 
 def _raytraced(scene_name: str, n: int, seed: int, rich: bool = False,
                users_per_site: int | None = None,
-               user_range_m: tuple[float, float] = FACADE_USER_RANGE_M) -> tuple[np.ndarray, np.ndarray]:
+               user_range_m: tuple[float, float] = FACADE_USER_RANGE_M,
+               scattering: float = RICH_SCATTERING) -> tuple[np.ndarray, np.ndarray]:
     """`rich`: also diffuse scattering (every material's scattering coefficient set to
     RICH_SCATTERING, Lambertian) and Sionna's wedge diffraction; otherwise specular paths only."""
     import mitsuba as mi
@@ -189,7 +193,7 @@ def _raytraced(scene_name: str, n: int, seed: int, rich: bool = False,
     scene.frequency = grid.CARRIER_HZ
     if rich:
         for material in scene.radio_materials.values():
-            material.scattering_coefficient = RICH_SCATTERING
+            material.scattering_coefficient = scattering
     half_wave = dict(vertical_spacing=0.5, horizontal_spacing=0.5, polarization="V")
     scene.tx_array = rt.PlanarArray(num_rows=grid.ARRAY_ROWS, num_cols=grid.NUM_ANTENNAS // grid.ARRAY_ROWS,
                                     pattern=grid.ANTENNA_PATTERN, **half_wave)  # base station

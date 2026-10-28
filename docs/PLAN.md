@@ -1115,3 +1115,26 @@ data:
    are too coarse for fast users.
 4. **Publish the write-up** (README + docs/paper/paper.pdf) — the repo
    visibility is Krish's call.
+
+### Direction 1: tune the simulator from site measurements — written before running (2026-10-28, exploratory)
+
+Users at the measured distances (12–30 m, as `rtdm:`), scattering + diffraction
+on, the same 7 cities × 2000, at five diffuse-scattering coefficients
+s ∈ {0, 0.15, 0.3, 0.5, 0.7} (s = 0 keeps diffraction only). For each of the
+4 draws of 50 site measurements (the same draws as before), pick the s whose
+pooled prior scores best on those 50 (LMMSE NMSE on their own noisy pilots,
+0/10/20 dB), then score that prior on the test files.
+`scripts/dichasus_tune.py`.
+
+- **Q1 (is there a good setting?):** best s on the test files vs CDL,
+  array A, full grid, 10 dB, no site data.
+- **Q2 (can 50 measurements find it?):** regret of the selected s vs the best
+  s, on the test files.
+- **Q3 (the recipe):** selected-s pool, no blend, vs CDL zero-shot; and
+  selected-s pool + 50 (blend) vs CDL + 50.
+- **Bar (array A, full grid, 10 dB):** the tuned pool (selected s, no blend)
+  beats CDL zero-shot by ≥ 0.5 dB → "tuning the simulator is promising";
+  within ±0.5 dB → "level"; worse by > 0.5 dB → "a scattering knob is not
+  enough". Note the tuned pool uses 50 site measurements (for selection) and
+  CDL zero-shot uses none, so the fair comparison for the recipe is also
+  reported against CDL + 50. B, C and per antenna alongside.
