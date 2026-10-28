@@ -1085,7 +1085,8 @@ data:
 
 - **Bar: worse by > 0.5 dB on array A (−2.9 dB vs CDL) → "geometry was not
   the missing piece."** Matching the users' distance made the ray-traced
-  prior worse on every array and grid, by 2.1–2.6 dB against the farther
+  prior worse on every array and grid, by 2.4–2.6 dB (full grid) and
+  1.5–2.2 dB (per antenna) against the farther
   placement.
 - **Why:** closer simulated users are more line-of-sight dominated — first-tap
   share 89–97% vs 85–94% for the farther placement, against 79–84% for the
@@ -1260,3 +1261,7 @@ single-factor contrast; IEEE DataPort, login needed).
 **Stop rule written now.** If the CDL gap stays under ~1 dB everywhere
 (including NLoS factory), conclude that 3GPP priors are good enough for
 LMMSE estimation at these sites and stop.
+
+**Correction (2026-10-28):** the prediction history spans pilot symbols 2 to
+53 (slots 0–3), i.e. ~1.8 ms, not the 1.4 ms written in the pre-registration
+above; the experiment itself is unchanged. Write-ups corrected.

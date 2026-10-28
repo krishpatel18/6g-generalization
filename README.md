@@ -42,7 +42,7 @@ city from 50 measurements worked with 3 candidates but overfit with 15.
 at most 0.65 dB. The statistics did the work.
 
 **3. Predicting the channel ahead: a classical method beat the neural
-networks.** Predicting 0.5–10 ms ahead from 1.4 ms of noisy history, a simple
+networks.** Predicting 0.5–10 ms ahead from ~1.8 ms of noisy history, a simple
 per-user method — fit one Doppler tone per angle-delay bin, extrapolate — beat
 both CNN predictors at every horizon from 2 ms in all four cities, by 1.8–12
 dB with no site data. The pre-registered test for "learning has room here" failed.

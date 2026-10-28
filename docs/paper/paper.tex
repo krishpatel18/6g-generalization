@@ -29,13 +29,13 @@ about 0.6\,dB from a site-trained estimator with no site measurements---about
 what CDL reaches after 50 measurements---and protects against a badly matched
 source city. Learned models added little: at most 0.65\,dB in estimation, and
 in channel prediction a simple per-user classical method beat CNN predictors
-by 1.8--12\,dB beyond 2\,ms. On measured channels from the DICHASUS outdoor
+by 1.8--12\,dB from 2\,ms ahead. On measured channels from the DICHASUS outdoor
 dataset (1.272\,GHz, three 2$\times$8 arrays on one building) the result
 reversed: the pooled ray-traced prior was 3.2--4.1\,dB \emph{worse} than CDL.
-The simulated channels were too clean. Enabling diffuse scattering narrowed
-the gap only while simulated users stood farther away than the real ones;
-with users at the real distances, even a scattering level tuned from 50 site
-measurements left the prior about 2\,dB behind CDL. The map-built scenes miss
+The simulated channels were too clean. Enabling diffuse scattering nearly
+closed the gap (to 0.3--0.5\,dB) only while simulated users stood farther away
+than the real ones; with users at the real distances, even a scattering level
+tuned from 50 site measurements left the prior about 2\,dB behind CDL. The map-built scenes miss
 multipath the real street has. All measured results come from one site and
 one band.
 \end{abstract}
@@ -73,8 +73,8 @@ ray-traced and 3GPP priors across 14 cities, showing pooling as insurance in
 simulation; (2) evidence that, on this simulator, classical estimators and
 predictors match or beat learned ones; (3) a test of the simulation finding on
 measured channels with one processing chain for every source, which reverses
-it; and (4) a diagnosis: the gap comes from multipath the map-built scenes
-lack, which neither more cities, scattering, nor a tuned scattering level
+it; and (4) a diagnosis consistent with the data: the gap comes from
+multipath the map-built scenes lack, which neither more cities, scattering, nor a tuned scattering level
 recovers.
 
 \section{Setup}
@@ -84,7 +84,8 @@ recovers.
 pilots on every other subcarrier of symbols 2 and 11, and an 8-antenna
 half-wavelength uniform linear array at the base station. Channels are
 normalised to unit power per sample. The estimator is LMMSE from a covariance
-prior $(R_{hp}, R_{pp})$ estimated from 12k simulated channels. With $N$ site
+prior $(R_{hp}, R_{pp})$ estimated from simulated channels (12k per source in
+simulation; 6000 per city on measured data, 2000 in the exploratory runs). With $N$ site
 measurements, the prior is shrunk toward their sample covariance with a weight
 chosen by 5-fold cross-validation. A residual CNN (zero-initialised last layer,
 so it starts at its LMMSE front end) tests whether anything beyond second-order
@@ -124,9 +125,9 @@ source city (the worst single-city cases, 6--7\,dB, all used a nearly empty
 open-area scene as the source for a dense downtown). The all-cities pool beat
 CDL in 11 of 14 targets by 0.29\,dB on average. With no site data it sat
 0.59\,dB from the ceiling, about where CDL lands after 50 site measurements
-(0.47--0.73\,dB across four draws of those 50). Once 50 measurements are
-blended in, the two are comparable (pooled ahead by $\sim$0.1\,dB on built-up
-sites). Choosing a single best source city from 50 measurements worked with 3
+(0.47--0.73\,dB across four draws of those 50; post-hoc). Once 50
+measurements are blended in, the two are comparable (pooled ahead by
+$\sim$0.1\,dB on built-up sites; post-hoc). Choosing a single best source city from 50 measurements worked with 3
 candidates (mean regret 0.05\,dB) but overfit with 15 (0.48\,dB, against a
 pre-registered bar of 0.3).
 
@@ -145,7 +146,7 @@ cell (one seed). The covariance did almost all of the work.
 
 \section{Learning where it should have room: channel prediction}
 
-Predicting the channel 0.5--10\,ms ahead from 1.4\,ms of noisy pilot history
+Predicting the channel 0.5--10\,ms ahead from $\sim$1.8\,ms of noisy pilot history
 (8 observations over 4 slots) is a task where per-user adaptation matters: a
 covariance pooled over users cannot know each user's Doppler. Sionna RT
 evolves a moving user by rotating the phases of a fixed set of paths; we
@@ -154,14 +155,15 @@ for nearly all users at 3.5\,GHz (with the solver's deterministic mode), so we
 restricted horizons to 10\,ms.
 
 On 3GPP-compliant simulated channels, learned predictors have been reported to
-beat a Prony-based angle--delay baseline~\cite{wifo}. We compared repeating the last observation, space-time Wiener prediction from
+beat a Prony-based angle--delay baseline~\cite{wifo}; neural predictors
+have also been compared on the 3GPP TDL model~\cite{stenhammar2023}. We compared repeating the last observation, space-time Wiener prediction from
 covariance priors, a classical per-user method (``tone'': in the angle--delay
 domain, fit one Doppler tone per bin to the history and extrapolate), and CNN
 predictors in the antenna and angle--delay domains. The pre-registered test for
 ``learning has room'' failed: tone beat both CNN arms at every horizon from
 2\,ms in every city, by 1.8--4.7\,dB in Munich, \'Etoile and Florence and by
 $\sim$9--12\,dB in San Francisco (Fig.~\ref{fig:pred}). The CNNs did beat
-covariance-based prediction by 2--6\,dB at 2\,ms; learning was competitive only
+covariance-based prediction by 3--6\,dB at 2\,ms; learning was competitive only
 one slot (0.5\,ms) ahead.
 
 A post-hoc follow-up trained a CNN to \emph{correct} tone's prediction, with a
@@ -233,7 +235,7 @@ C & $-$11.2 & $-$14.4 & $-$17.5 & $-$16.0 & $-$17.9 & $-$20.4 \\
 16-antenna $\times$ 128-subcarrier grid. Specular: 14-city pool, users
 10--65\,m. Scattering, far users: 7 cities, scattering 0.3, users 10--65\,m.
 Tuned, real distances: 7 cities, users 12--30\,m, scattering level picked by
-50 site measurements (the only column that uses site data). The last two are
+50 site measurements (the only prior column that uses site data). The last two are
 exploratory.}
 \label{tab:measured}
 \end{table}
@@ -255,7 +257,7 @@ every material's scattering coefficient zero. In an exploratory rerun, added
 after a dry run and labelled as such, we enabled diffuse scattering
 (coefficient 0.3, Lambertian) and Sionna's wedge diffraction for 7 cities.
 The pooled prior came within 0.3--0.5\,dB of CDL on the full grid and level
-with it per antenna. A control with the same cities and the same number of
+with it per antenna (0.3\,dB ahead on arrays B and C). A control with the same cities and the same number of
 base-station sites but no scattering attributes $\sim$2.8\,dB of the
 $\sim$3\,dB improvement on array A to scattering and diffraction and
 $\sim$0.2\,dB to the extra sites.
@@ -263,8 +265,9 @@ $\sim$0.2\,dB to the extra sites.
 \paragraph{Matching the users' distance made it worse.} The simulated users
 sat farther from the array than the real ones (median 46\,m vs 18--20\,m). In a
 second exploratory probe, with scattering on and users placed 12--30\,m away,
-the ray-traced prior fell to 2.9\,dB behind CDL on array A (2.1--2.6\,dB worse
-than the farther placement on every array and grid). Closer simulated users
+the ray-traced prior fell to 2.9\,dB behind CDL on array A (2.4--2.6\,dB worse
+than the farther placement on the full grid of every array, 1.5--2.2\,dB per
+antenna). Closer simulated users
 are more line-of-sight dominated (first-tap share 89--97\%), while the real
 users at those distances show 79--84\%: the measured street has multipath
 the map-built scenes do not produce, plausibly from objects they lack
@@ -275,10 +278,11 @@ the real ones.
 \paragraph{Tuning the scattering level from 50 site measurements.} With users at
 the measured distances, we simulated the 7 cities at diffuse-scattering
 coefficients 0, 0.15, 0.3, 0.5 and 0.7 and let each draw of 50 site
-measurements pick the level whose pooled prior scored best on them. The
-measurements always picked 0.7, which was also best on the test data, but the
+measurements pick the level whose pooled prior scored best on them. On the
+full grid the measurements always picked 0.7, which was also best on the test
+data, but the
 tuned prior stayed 1.9--2.0\,dB behind CDL on the full grid of every array
-(0.8--1.4\,dB behind CDL\,+\,50 once the 50 measurements were blended in), and
+(0.9--1.5\,dB behind CDL\,+\,50 once the 50 measurements were blended in), and
 per antenna the scattering level made no difference (1.2--2.3\,dB behind
 CDL). Diffuse scattering off the modelled buildings does not supply the delay
 spread the street has at short range; the related work points to street
@@ -288,8 +292,8 @@ the ray-traced paths~\cite{tr38901}.
 
 \section{Discussion and limitations}
 
-The simulation finding was a home-ground effect, as the caveat written before
-the first run anticipated: test channels came from the same ray tracer as the
+The reversal is consistent with a home-ground effect, which the caveat written
+before the first run anticipated: test channels came from the same ray tracer as the
 priors. CDL is fitted to measurements; ray tracing at default settings encodes
 geometry but, at this site, misses multipath the real street has, and every
 ray-traced candidate is biased the same way, so pooling cannot insure against
@@ -364,6 +368,7 @@ public under CC BY 4.0~\cite{dichasusdata}.
 \bibitem{sifo2026} C.-J.~Zhao \emph{et al.}, ``SiFo: Wireless foundation model for low-overhead site-specific CSI feedback,'' arXiv:2605.16141, 2026.
 \bibitem{wifo} B.~Liu \emph{et al.}, ``WiFo: Wireless foundation model for channel prediction,'' arXiv:2412.08908, 2024.
 \bibitem{hoydis2023learning} J.~Hoydis, F.~A\"it~Aoudia, S.~Cammerer, F.~Euchner, M.~Nimier-David, S.~ten~Brink, A.~Keller, ``Learning radio environments by differentiable ray tracing,'' arXiv:2311.18558, 2023.
+\bibitem{stenhammar2023} O.~Stenhammar, G.~Fodor, C.~Fischione, ``A comparison of neural networks for wireless channel prediction,'' arXiv:2308.14020, 2023.
 \bibitem{morais2025} J.~Morais, A.~Malhotra, S.~Hamidi-Rad, A.~Alkhateeb, ``Comparing stochastic and ray-tracing datasets in machine learning for wireless applications,'' arXiv:2512.12449, 2025.
 \end{thebibliography}
 

@@ -90,7 +90,7 @@ related-work pass before any claim is made.
 
 ## Follow-up: predicting the channel ahead (falsified)
 
-The same question for prediction (0.5–10 ms ahead from 1.4 ms of noisy
+The same question for prediction (0.5–10 ms ahead from ~1.8 ms of noisy
 history): does a learned predictor beat classical ones? **No, on this
 simulator.** A simple classical method (one Doppler tone per angle-delay bin,
 fitted per user, no training data) beat both learned models at every horizon
