@@ -1067,3 +1067,32 @@ site data: the matched pool beats CDL by ≥ 0.5 dB → "a site-matched simulato
 helps"; within ±0.5 dB → "level"; worse by > 0.5 dB → "geometry was not the
 missing piece". Arrays B and C and per antenna reported alongside. Exploratory:
 one site, decided after seeing the earlier results.
+
+### Matched-placement probe — results (exploratory, 2026-10-28)
+
+`scripts/dichasus_matched.py`, `runs/dichasus_matched.log`,
+`runs/a16_sc128_dichasus/dichasus_matched.csv`; cleanliness in
+`runs/dichasus_matched_cleanliness.log`. (The first launch hung on
+wall_street: with users only 12–30 m away, a base station facing a wall had no
+outdoor spots in range and the placement loop never redrew it; fixed in
+96f6bcd, which leaves every earlier set unchanged.) NMSE at 10 dB, no site
+data:
+
+| array | grid | CDL | rtd pool (users 10–65 m) | rtdm pool (users 12–30 m) |
+|---|---|---|---|---|
+| A / B / C | full | −17.9 / −17.5 / −17.9 | −17.6 / −17.0 / −17.5 | −15.0 / −14.4 / −15.0 |
+| A / B / C | per antenna | −19.3 / −19.3 / −19.3 | −19.2 / −19.6 / −19.7 | −17.0 / −17.9 / −18.2 |
+
+- **Bar: worse by > 0.5 dB on array A (−2.9 dB vs CDL) → "geometry was not
+  the missing piece."** Matching the users' distance made the ray-traced
+  prior worse on every array and grid, by 2.1–2.6 dB against the farther
+  placement.
+- **Why:** closer simulated users are more line-of-sight dominated — first-tap
+  share 89–97% vs 85–94% for the farther placement, against 79–84% for the
+  real users at those distances. The measured street has delay spread the
+  scenes do not produce even with scattering on; plausible sources are objects
+  the OpenStreetMap-built scenes lack (vehicles, trees, street furniture,
+  facade detail). Inferred, not tested.
+- So the 0.3–0.5 dB match of the scattering variant came partly from placing
+  users farther than the real ones, which added multipath the scene was
+  otherwise missing.

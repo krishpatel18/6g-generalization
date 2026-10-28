@@ -39,8 +39,10 @@ pooled ray-traced prior was 3.2--4.1\,dB \emph{worse} than CDL on the full
 array with no site data. The simulated channels were cleaner in delay than the
 measured street; an exploratory rerun with diffuse scattering and diffraction
 enabled in the ray tracer brought the ray-traced prior to within 0.3--0.5\,dB
-of CDL---a match, not a win. All results are from one measured site and one
-band.
+of CDL, but placing the simulated users at the real users' distances undid
+most of that (2.9\,dB behind CDL): the measured street carries multipath the
+map-built scenes do not produce. All results are from one measured site and
+one band.
 \end{abstract}
 
 \section{Introduction}
@@ -250,6 +252,18 @@ base-station sites but no scattering attributes $\sim$2.8\,dB of the
 $\sim$3\,dB improvement on array A to scattering and diffraction and
 $\sim$0.2\,dB to the extra sites.
 
+\paragraph{Matching the users' distance made it worse.} The simulated users
+sat farther from the array than the real ones (median 46\,m vs 18--20\,m). In a
+second exploratory probe, with scattering on and users placed 12--30\,m away,
+the ray-traced prior fell to 2.9\,dB behind CDL on array A (2.1--2.6\,dB worse
+than the farther placement on every array and grid). Closer simulated users
+are more line-of-sight dominated (first-tap share 89--97\%), while the real
+users at those distances show 79--84\%: the measured street has multipath
+the map-built scenes do not produce, plausibly from objects they lack
+(vehicles, trees, street furniture, facade detail). The near-match of the
+scattering variant therefore came partly from placing users farther away than
+the real ones.
+
 
 \section{Discussion and limitations}
 
@@ -274,7 +288,8 @@ the same way, so pooling cannot insure against it. Several limits apply.
 \item Most randomly placed users in the rooftop simulations received no paths
   and were dropped, so simulated users skew toward simpler links.
 \item The scattering result uses one scattering value and 7 cities, and was
-  chosen after seeing the dry run.
+  chosen after seeing the dry run; matching the users' distance undid most of
+  it.
 \end{itemize}
 A code review during the measured-channel work found a cache keyed on object
 identity that could hand a scene another scene's ground mesh; it was fixed and
@@ -286,10 +301,25 @@ In simulation, a covariance prior pooled over many ray-traced cities looked
 like a good starting point for an unseen site and a safer one than any single
 city. On measured channels from one site, it was worse than the 3GPP CDL
 models, because the simulated channels were too clean; with diffuse scattering
-and diffraction enabled it roughly matched CDL. Learned models never beat the
+and diffraction enabled it roughly matched CDL, but only with users placed
+farther away than the real ones. Learned models never beat the
 classical methods; at best they refined them. For a ray-traced prior to be
 useful at a real site, the simulator's settings matter at least as much as the
 number of cities.
+
+\paragraph{Where next.} Three directions follow from the results.
+(i) \emph{Tune the simulator, not the covariance, from site measurements:}
+the gap is driven by global simulator settings and missing scene content, so a
+few site measurements could set the scattering level (or a clutter model) that
+is then used to simulate other cities, with no 3D model of the target site.
+Existing calibration work tunes a single, fully modelled site
+\cite{hoydis2023learning}; a coarse grid over the scattering coefficient,
+scored on 50 site measurements, is a cheap first test. (ii) \emph{More
+measured sites}, since one street cannot settle a question about unseen
+sites; we found no public outdoor dataset with several sites and a planar
+array. (iii) \emph{Prediction on measured channels}, where the classical
+method's advantage rests on a simulator that matches its own model; this needs
+millisecond-spaced measurements of moving users.
 
 \paragraph{Reproducibility.} Code, the lab notebook with every
 pre-registration and result in order, logs and result tables accompany the
@@ -308,6 +338,7 @@ public under CC BY 4.0~\cite{dichasusdata}.
 \bibitem{abouamer2024} M.~S.~Abouamer \emph{et al.}, ``Prediction of wireless channel statistics with ray tracing and uncalibrated digital twin,'' arXiv:2411.13360, 2024.
 \bibitem{sifo2026} C.-J.~Zhao \emph{et al.}, ``SiFo: Wireless foundation model for low-overhead site-specific CSI feedback,'' arXiv:2605.16141, 2026.
 \bibitem{wifo} B.~Liu \emph{et al.}, ``WiFo: Wireless foundation model for channel prediction,'' arXiv:2412.08908, 2024.
+\bibitem{hoydis2023learning} J.~Hoydis, F.~A\"it~Aoudia, S.~Cammerer, F.~Euchner, M.~Nimier-David, S.~ten~Brink, A.~Keller, ``Learning radio environments by differentiable ray tracing,'' arXiv:2311.18558, 2023.
 \bibitem{morais2025} J.~Morais, A.~Malhotra, S.~Hamidi-Rad, A.~Alkhateeb, ``Comparing stochastic and ray-tracing datasets in machine learning for wireless applications,'' arXiv:2512.12449, 2025.
 \end{thebibliography}
 

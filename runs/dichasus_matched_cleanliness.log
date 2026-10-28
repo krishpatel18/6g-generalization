@@ -1,0 +1,8 @@
+first-tap energy %, top-3 spatial eigenvalues %: rtd (users 10-65 m) vs rtdm (users 12-30 m)
+  munich           rtd  87.7  41.1   rtdm  91.4  42.6
+  etoile           rtd  89.0  39.6   rtdm  95.4  42.4
+  florence         rtd  86.4  41.4   rtdm  91.1  41.6
+  san_francisco    rtd  84.7  38.7   rtdm  89.1  40.1
+  wall_street      rtd  90.7  40.4   rtdm  94.6  40.6
+  midtown          rtd  93.5  42.1   rtdm  97.2  45.6
+  park_slope       rtd  87.9  39.1   rtdm  93.8  40.9

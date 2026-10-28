@@ -83,7 +83,12 @@ simulation study, drove most of the gap: with scattering off rough surfaces
 and wedge diffraction switched on (7 cities, added after a dry run, labelled as
 such), the simulated prior came within 0.3–0.5 dB of CDL on the full array
 and level with it per antenna (slightly ahead on two arrays) — a match, not a
-win. One site, one band, one scattering value.
+win. A second exploratory probe placed the simulated users at the real users'
+distances and the gap reopened (2.9 dB behind CDL): closer simulated users are
+even more line-of-sight dominated, while the real street has extra multipath
+the map-built scenes lack. One site, one band, one scattering value.
+
+A paper-style write-up is in [docs/paper/paper.pdf](docs/paper/paper.pdf).
 
 ## How it was done
 

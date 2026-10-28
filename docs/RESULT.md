@@ -137,7 +137,12 @@ slightly beats it per antenna (−0.0 to +0.3 dB). On array A, the same 7 cities
 specular-only score 2.8 dB (full grid) and 0.9 dB (per antenna) worse than
 with scattering at the same number of base-station sites; the extra sites
 alone account for ~0.2 dB. This suggests the solver settings drove most of
-the gap; it is one site and one scattering value.
+the gap; it is one site and one scattering value. A second exploratory probe
+placed the simulated users at the real users' distances (12–30 m instead of
+10–65 m): the gap reopened to 2.9 dB behind CDL on array A, because closer
+simulated users are more line-of-sight dominated (first-tap share 89–97%)
+than real ones at the same distance (79–84%). See `docs/PLAN.md`,
+"Matched-placement probe".
 
 ## Reproduce
 
