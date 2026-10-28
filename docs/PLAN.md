@@ -1172,3 +1172,35 @@ pooled prior scores best on those 50 (LMMSE NMSE on their own noisy pilots,
   density as the one knob); (b) a §8-style hybrid that adds random clusters
   with power and count as knobs; (c) tune by matching statistics rather than
   estimator score.
+
+### Direction 1 — results (exploratory, 2026-10-28)
+
+`scripts/dichasus_tune.py`, `runs/dichasus_tune.log`,
+`runs/a16_sc128_dichasus/dichasus_tune.csv`. (Two crashes on the way: the
+frequency response hit Dr.Jit's 2^32-element limit with many diffuse paths at
+short range; now computed in 64-subcarrier chunks, outputs unchanged —
+`scratch/cfr_chunk_check.py`.) NMSE at 10 dB, users at the measured
+distances, 7 cities:
+
+| array, grid | CDL | s = 0 | 0.15 | 0.3 | 0.5 | 0.7 | tuned (picked by 50) | tuned + 50 | CDL + 50 |
+|---|---|---|---|---|---|---|---|---|---|
+| A, full | −17.9 | −14.5 | −14.8 | −15.0 | −15.5 | −16.0 | −16.0 (s 0.7 ×4) | −17.6 | −18.8 |
+| B, full | −17.5 | −13.5 | −14.0 | −14.4 | −14.9 | −15.5 | −15.5 (0.7 ×4) | −17.2 | −18.6 |
+| C, full | −17.9 | −14.3 | −14.8 | −15.0 | −15.5 | −16.0 | −16.0 (0.7 ×4) | −18.2 | −19.0 |
+| A / B / C, per antenna | −19.3 | −17.1 / −18.0 / −18.2 | | | | −17.0 / −17.8 / −18.2 | −17.0 / −17.9 / −18.2 | −19.9 / −20.0 / −20.2 | same |
+
+- **Bar: worse than CDL by > 0.5 dB (array A −1.9 dB) → "a scattering knob
+  is not enough."** More diffuse scattering helps steadily on the full grid
+  (+1.5 dB from 0 to 0.7) but leaves the pool 1.9–2.0 dB behind CDL on every
+  array; with 50 measurements blended in, still 0.8–1.4 dB behind CDL + 50.
+- **Selection works but sits at the edge of the grid:** 50 measurements
+  picked s = 0.7 in every draw, which is also the best on the test files
+  (regret 0). The optimum may lie above 0.7 (the coefficient's maximum is 1);
+  extrapolating the trend (~+0.5 dB per 0.2) would not close a ~2 dB gap.
+  Not tested.
+- **Per antenna (frequency only), scattering does nothing** (within 0.2 dB
+  across s; 1.2–2.3 dB behind CDL): what the street has and the scenes lack
+  is delay spread at short range, which diffuse scattering off the modelled
+  buildings does not add. That points to the levers in the related work —
+  objects the map-built scenes lack (vehicles, poles, trees), or 3GPP-style
+  random clusters on top of the ray-traced paths.

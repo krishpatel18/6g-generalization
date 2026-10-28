@@ -1,0 +1,24 @@
+  A spatial: done
+  A freq_only: done
+  B spatial: done
+  B freq_only: done
+  C spatial: done
+  C freq_only: done
+
+[spatial] NMSE dB at 10 dB SNR
+  array A: cdl -17.93 | pools s=0.0:-14.49 s=0.15:-14.77 s=0.3:-14.98 s=0.5:-15.50 s=0.7:-16.00
+           picked s per draw [0.7, 0.7, 0.7, 0.7] | tuned -16.00 (regret 0.00) | tuned+50 -17.58 | cdl+50 -18.79 | tuned - cdl +1.93
+  array B: cdl -17.46 | pools s=0.0:-13.45 s=0.15:-14.00 s=0.3:-14.38 s=0.5:-14.91 s=0.7:-15.46
+           picked s per draw [0.7, 0.7, 0.7, 0.7] | tuned -15.46 (regret 0.00) | tuned+50 -17.17 | cdl+50 -18.62 | tuned - cdl +2.00
+  array C: cdl -17.89 | pools s=0.0:-14.30 s=0.15:-14.75 s=0.3:-15.04 s=0.5:-15.50 s=0.7:-15.99
+           picked s per draw [0.7, 0.7, 0.7, 0.7] | tuned -15.99 (regret 0.00) | tuned+50 -18.18 | cdl+50 -19.03 | tuned - cdl +1.90
+
+[freq_only] NMSE dB at 10 dB SNR
+  array A: cdl -19.25 | pools s=0.0:-17.08 s=0.15:-17.04 s=0.3:-17.03 s=0.5:-17.00 s=0.7:-16.97
+           picked s per draw [0.5, 0.7, 0.7, 0.7] | tuned -16.98 (regret 0.10) | tuned+50 -19.90 | cdl+50 -19.91 | tuned - cdl +2.27
+  array B: cdl -19.28 | pools s=0.0:-17.98 s=0.15:-17.94 s=0.3:-17.92 s=0.5:-17.86 s=0.7:-17.75
+           picked s per draw [0.3, 0.3, 0.3, 0.3] | tuned -17.92 (regret 0.06) | tuned+50 -19.97 | cdl+50 -19.97 | tuned - cdl +1.37
+  array C: cdl -19.33 | pools s=0.0:-18.23 s=0.15:-18.20 s=0.3:-18.19 s=0.5:-18.18 s=0.7:-18.18
+           picked s per draw [0.7, 0.7, 0.7, 0.7] | tuned -18.18 (regret 0.06) | tuned+50 -20.17 | cdl+50 -20.16 | tuned - cdl +1.15
+ALL DONE
+EXIT 0
