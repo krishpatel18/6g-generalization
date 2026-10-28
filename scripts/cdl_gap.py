@@ -1,7 +1,7 @@
 """Follow-on: where does CDL fail? The CDL-prior gap across environments (docs/PLAN.md,
 "Follow-on: where does CDL fail?").
 
-usage: cdl_gap.py <street|lab|factory>
+usage: cdl_gap.py <street|lab|factory> [extra delay spreads in ns, comma-separated: post-hoc]
 
 Per array: calibrate on the fit recording, then on the test recording score LMMSE from the
 generic CDL prior, the site-trained ceiling, CDL + 50 site measurements (4 draws), each of
@@ -70,7 +70,10 @@ def run(env, array, variant, priors, fit, site, test, rows, per_datapoint) -> No
         record("picked", picked, d, lmmse(stats_of[picked]))
 
 
-def main(env: str) -> None:
+def main(env: str, extra_ds: list[int]) -> None:
+    global PROFILES
+    PROFILES = PROFILES + [f"cdl-{m}-{ds}" for m in "ABCDE" for ds in extra_ds]
+    suffix = "_long" if extra_ds else ""
     dataset, names, (rows_, cols_, tilt), fit_files, site_files, test_files, tx_z = ENVS[env]
     grid.use_dichasus(rows_, cols_, tilt)
     names = names or dichasus.array_names(dataset)
@@ -98,11 +101,11 @@ def main(env: str) -> None:
         run(env, name, "spatial", priors, fit, site, test, rows, 1)
         run(env, name, "freq_only", {k: per_antenna(v) for k, v in priors.items()},
             per_antenna(fit), per_antenna(site), per_antenna(test), rows, grid.NUM_ANTENNAS)
-    with open(RUNS / f"cdl_gap_{env}.csv", "w", newline="") as f:
+    with open(RUNS / f"cdl_gap_{env}{suffix}.csv", "w", newline="") as f:
         out = csv.writer(f)
         out.writerow(("env", "array", "variant", "estimator", "detail", "draw", "snr_db", "nmse_db"))
         out.writerows(rows)
-    with open(RUNS / f"cdl_gap_{env}_stats.csv", "w", newline="") as f:
+    with open(RUNS / f"cdl_gap_{env}{suffix}_stats.csv", "w", newline="") as f:
         out = csv.writer(f)
         out.writerow(("env", "array", "coherence", "first_tap_pct", "rms_delay_taps", "top3_spatial_pct"))
         out.writerows(stat_rows)
@@ -127,4 +130,4 @@ def summary(rows) -> None:
 
 
 if __name__ == "__main__":
-    main(sys.argv[1])
+    main(sys.argv[1], [int(x) for x in sys.argv[2].split(",")] if len(sys.argv) > 2 else [])

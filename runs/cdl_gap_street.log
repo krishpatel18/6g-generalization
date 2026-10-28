@@ -1,0 +1,15 @@
+  street A: coherence 0.804; fit 10531, site 194, test 620; first_tap_pct 84.3, rms_delay_taps 1.9, top3_spatial_pct 50.5
+  street B: coherence 0.577; fit 9382, site 275, test 754; first_tap_pct 79.1, rms_delay_taps 2.4, top3_spatial_pct 39.6
+  street C: coherence 0.623; fit 7656, site 165, test 391; first_tap_pct 83.7, rms_delay_taps 2.1, top3_spatial_pct 43.5
+
+[spatial] 10 dB, dB above the site-trained ceiling (lower = closer)
+  A                            cdl  2.58 | cdl+50  1.73 | best profile cdl-B-100  5.61 | picked  5.61 (cdl-B-100, cdl-B-100, cdl-B-100, cdl-B-100)
+  B                            cdl  2.73 | cdl+50  1.57 | best profile cdl-B-100  5.14 | picked  5.14 (cdl-B-100, cdl-B-100, cdl-B-100, cdl-B-100)
+  C                            cdl  2.55 | cdl+50  1.41 | best profile cdl-B-100  4.82 | picked  4.82 (cdl-B-100, cdl-B-100, cdl-B-100, cdl-B-100)
+
+[freq_only] 10 dB, dB above the site-trained ceiling (lower = closer)
+  A                            cdl  0.78 | cdl+50  0.11 | best profile cdl-C-100  0.58 | picked  0.58 (cdl-C-100, cdl-C-100, cdl-C-100, cdl-C-100)
+  B                            cdl  0.84 | cdl+50  0.15 | best profile cdl-C-100  0.27 | picked  0.27 (cdl-C-100, cdl-C-100, cdl-C-100, cdl-C-100)
+  C                            cdl  0.86 | cdl+50  0.03 | best profile cdl-C-100  0.47 | picked  0.47 (cdl-C-100, cdl-C-100, cdl-C-100, cdl-C-100)
+ALL DONE
+EXIT 0

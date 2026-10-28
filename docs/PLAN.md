@@ -1308,3 +1308,39 @@ environments recorded with the same sounder:
   coherence alone on the first 6000 fit datapoints (near wall: best −0.6 to
   −0.8, 0.76; near window: best −0.4, 0.83; flat within ~0.02 over ±0.3 m),
   i.e. before any estimation result.
+
+### Follow-on — results (2026-10-28)
+
+`scripts/cdl_gap.py <env>`, `runs/cdl_gap_{street,lab,factory}.log/.csv`,
+per-array statistics in `runs/cdl_gap_*_stats.csv`. dB above each array's
+site-trained ceiling at 10 dB SNR (lower = closer):
+
+| environment (arrays) | first-tap share | RMS delay | generic CDL, full / per antenna | CDL + 50, full / per antenna | picked profile, full / per antenna |
+|---|---|---|---|---|---|
+| street (A, B, C; 2×8) | 79–84% | 1.9–2.4 taps | 2.6–2.7 / 0.8–0.9 | 1.4–1.7 / 0.0–0.2 | 4.8–5.6 / 0.3–0.6 (B-100, C-100) |
+| lab room (2 arrays; 2×8) | 95–96% | 1.3–1.4 taps | 4.7 / 4.3 | 1.5–2.5 / 0.0 | 2.4–2.5 / 0.4 (A-30, B-30) |
+| factory (A–D; 2×4) | 11–12% | 4.4–4.5 taps | 10.2–11.8 / 9.9–10.1 | 4.9–6.3 / 0.1–0.8 | 11.7–12.9 / 7.1–7.4 (B-300, C-300) |
+
+(taps are 160 ns; CDL's own first-tap share is ~79%.) All arrays passed the
+coherence bar (lab 0.71 / 0.81, factory 0.85–0.91).
+
+- **G1 supported:** the generic-CDL gap is about 4× larger in the factory
+  (10–12 dB) than on the street (2.6–2.7 dB).
+- **G2 (stop rule) not triggered:** the gap is ≥ 1 dB in every environment
+  on the full grid, and in the lab and factory per antenna too.
+- **G3 mixed:** a profile picked from 50 site measurements closed at least half
+  of the gap only in the lab per antenna (4.3 → 0.4 dB) and on the lab's
+  near-window array (4.7 → 2.4); not on the near-wall array (47%), not on the
+  street (a single profile is worse than the generic mixture on the full grid),
+  and not in the factory (picked profiles are worse on the full grid; per
+  antenna 10 → 7 dB). The 50 measurements picked the test-best profile in 18
+  of 24 draws.
+- **Pattern:** CDL fails in *both* directions — the lab is far cleaner than
+  CDL (95% first tap), the factory far richer (12%, ~700 ns RMS delay, beyond
+  the swept 300 ns) — and the gap grows with the distance from CDL's own
+  statistics. Blending in 50 measurements (CDL + 50) is the robust fix:
+  per antenna it reaches the ceiling everywhere (≤ 0.8 dB); on the full grid
+  it still leaves 1.4–6.3 dB, largest in the factory.
+- Caveats: different arrays per environment (2×4 in the factory); one test
+  recording each; the factory's first-tap share depends on the alignment rule
+  (first tap within 10 dB of the peak) in very dense multipath.
