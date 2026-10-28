@@ -142,7 +142,11 @@ placed the simulated users at the real users' distances (12–30 m instead of
 10–65 m): the gap reopened to 2.9 dB behind CDL on array A, because closer
 simulated users are more line-of-sight dominated (first-tap share 89–97%)
 than real ones at the same distance (79–84%). See `docs/PLAN.md`,
-"Matched-placement probe".
+"Matched-placement probe". A third exploratory test let 50 site
+measurements pick the ray tracer's diffuse-scattering level (0–0.7) at the
+measured distances: they picked 0.7, the best on the test data, but the
+tuned prior stayed 1.9–2.0 dB behind CDL on the full grid, and per antenna
+the level made no difference. See `docs/PLAN.md`, "Direction 1".
 
 ## Reproduce
 
