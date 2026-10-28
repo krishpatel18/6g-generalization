@@ -1,9 +1,12 @@
-"""Measured channels from the DICHASUS outdoor dataset, on the experiment grid.
+"""Measured channels from DICHASUS datasets, on the experiment grid.
 
 `measured(load(array, files), cal)` returns one array's channels from converted
 files (`scripts/dichasus_convert.py`), calibrated, reduced to the grid by the same
 `wideband.to_grid` chain the simulated channels use, at unit power, keeping
-datapoints with usable SNR and a fresh tachymeter position.
+datapoints with usable SNR and a fresh position fix. Datasets: "dxxx" (outdoor
+street, converted files in data/dichasus/raw), and others under
+data/dichasus/<name>/ (e.g. "0d5x" lab room, "cf0x" factory), each with its
+spec.json.
 
 The receivers carry constant per-antenna phase and sampling-time offsets (the
 dataset authors' calibration tutorial; offset files are not shipped for this
@@ -24,13 +27,25 @@ from . import grid, wideband
 from .channels import DATA_DIR
 
 RAW = DATA_DIR / "dichasus" / "raw"
-SPACING_M = 0.118
+SPACING_M = 0.118  # used when a spec gives no element spacing
 MIN_SNR_DB = 10.0
 MAX_INTERP_AGE_S = 0.1
 
 
-def _spec() -> dict:
-    return json.load(open(RAW / "spec.json"))
+def _dir(dataset: str):
+    return RAW if dataset == "dxxx" else DATA_DIR / "dichasus" / dataset
+
+
+def _file(dataset: str, name: str):
+    return _dir(dataset) / (f"dichasus-{name}-complete.npz" if dataset == "dxxx" else f"dichasus-{name}.npz")
+
+
+def _spec(dataset: str = "dxxx") -> dict:
+    return json.load(open(_dir(dataset) / "spec.json"))
+
+
+def array_names(dataset: str = "dxxx") -> list[str]:
+    return [a["name"] for a in _spec(dataset)["antennas"]]
 
 
 @dataclass
@@ -39,8 +54,9 @@ class Array:
     elements: np.ndarray  # [16, 3] positions in the dataset's frame
 
     @classmethod
-    def named(cls, name: str) -> "Array":
-        a = next(x for x in _spec()["antennas"] if x["name"].endswith(name))
+    def named(cls, name: str, dataset: str = "dxxx") -> "Array":
+        a = next(x for x in _spec(dataset)["antennas"] if x["name"] == name or x["name"].endswith(" " + name))
+        spacing = a.get("spacingX", SPACING_M)
         asg, loc, bore = np.array(a["assignments"]), np.array(a["location"]), np.array(a["direction"])
         horiz = np.cross([0, 0, 1], bore)
         horiz /= np.linalg.norm(horiz)
@@ -48,7 +64,7 @@ class Array:
         up /= np.linalg.norm(up)
         cols, rows = asg.shape[1], asg.shape[0]
         order = [int(asg[r][c]) for c in range(cols) for r in range(rows)]
-        elements = np.array([loc + (c - (cols - 1) / 2) * SPACING_M * horiz + ((rows - 1) / 2 - r) * SPACING_M * up
+        elements = np.array([loc + (c - (cols - 1) / 2) * spacing * horiz + ((rows - 1) / 2 - r) * spacing * up
                              for c in range(cols) for r in range(rows)])
         return cls(order, elements)
 
@@ -60,13 +76,20 @@ class Raw:
     usable: np.ndarray  # [n] bool
 
 
-def load(array: Array, files: list[str]) -> Raw:
-    parts = [np.load(RAW / f"dichasus-{f}-complete.npz") for f in files]
+def load(array: Array, files: list[str], dataset: str = "dxxx") -> Raw:
+    parts = [np.load(_file(dataset, f)) for f in files]
     csi = np.concatenate([z["csi"][:, array.order] for z in parts])
     snr = np.concatenate([z["snr"][:, array.order] for z in parts])
     age = np.concatenate([z["interp_age"] for z in parts])
     usable = (snr.mean(axis=1) >= MIN_SNR_DB) & (age < MAX_INTERP_AGE_S)
     return Raw(np.fft.fftshift(csi, axes=-1)[:, :, None, :], np.concatenate([z["pos"] for z in parts]), usable)
+
+
+def part(raw: Raw, start: float, stop: float) -> Raw:
+    """Datapoints from fraction `start` to `stop` of the recording, in recorded order."""
+    n = len(raw.usable)
+    sl = slice(int(start * n), int(stop * n))
+    return Raw(raw.csi[sl], raw.pos[sl], raw.usable[sl])
 
 
 def _freqs(w: int) -> np.ndarray:

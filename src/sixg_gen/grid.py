@@ -59,9 +59,13 @@ def use_tracks() -> None:
     PILOT_SUBCARRIERS = np.arange(NUM_SUBCARRIERS)
 
 
-def use_dichasus() -> None:
-    """The DICHASUS outdoor setup: 1.272 GHz, 2 x 8 array on a facade tilted ~20 deg down,
-    50 MHz / 1024 subcarriers reduced to one snapshot of 128 subcarriers (6.25 MHz)."""
+STREET_DOWNTILT_RAD = float(np.arcsin(0.349))
+
+
+def use_dichasus(rows: int = 2, cols: int = 8, downtilt_rad: float = STREET_DOWNTILT_RAD) -> None:
+    """A DICHASUS setup: 1.272 GHz, a rows x cols array (default: the outdoor street's 2 x 8 on
+    a facade tilted ~20 deg down), 50 MHz / 1024 subcarriers reduced to one snapshot of 128
+    subcarriers (6.25 MHz)."""
     global CARRIER_HZ, SUBCARRIER_SPACING_HZ, NUM_ANTENNAS, NUM_SYMBOLS, NUM_SUBCARRIERS, \
         PILOT_SYMBOLS, PILOT_SUBCARRIERS, ARRAY_ROWS, ANTENNA_PATTERN, DOWNTILT_RAD, PLACEMENT, \
         WIDEBAND_SUBCARRIERS
@@ -70,10 +74,10 @@ def use_dichasus() -> None:
     CARRIER_HZ = 1.272e9
     WIDEBAND_SUBCARRIERS = 1024
     SUBCARRIER_SPACING_HZ = 50e6 / WIDEBAND_SUBCARRIERS
-    NUM_ANTENNAS, ARRAY_ROWS = 16, 2
+    NUM_ANTENNAS, ARRAY_ROWS = rows * cols, rows
     NUM_SYMBOLS, NUM_SUBCARRIERS = 1, 128
     PILOT_SYMBOLS, PILOT_SUBCARRIERS = (0,), np.arange(0, NUM_SUBCARRIERS, 2)
-    ANTENNA_PATTERN, DOWNTILT_RAD, PLACEMENT = "tr38901", float(np.arcsin(0.349)), "facade"
+    ANTENNA_PATTERN, DOWNTILT_RAD, PLACEMENT = "tr38901", float(downtilt_rad), "facade"
 
 
 def target_index(horizon_slots: int) -> int:
@@ -84,7 +88,9 @@ def target_index(horizon_slots: int) -> int:
 def config_tag() -> str:
     """Names the settings that change a channel array, for cache keys."""
     return (f"a{NUM_ANTENNAS}_sc{NUM_SUBCARRIERS}" + ("_track" if TRACK_TIMES else "")
-            + ("_dichasus" if WIDEBAND_SUBCARRIERS else ""))
+            + ("_dichasus" if WIDEBAND_SUBCARRIERS else "")
+            + (f"_r{ARRAY_ROWS}_t{round(np.degrees(DOWNTILT_RAD))}"
+               if WIDEBAND_SUBCARRIERS and (ARRAY_ROWS, DOWNTILT_RAD) != (2, STREET_DOWNTILT_RAD) else ""))
 
 
 def subcarrier_offsets_hz() -> np.ndarray:

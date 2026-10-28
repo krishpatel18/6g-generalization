@@ -56,6 +56,9 @@ def generate(source: str, n: int, seed: int, mmap: bool = False) -> np.ndarray:
         return np.load(path, mmap_mode="r" if mmap else None)
     if source == "cdl":
         h, speed = _cdl(n, seed), np.full(n, np.nan)
+    elif re.match(r"cdl-[A-E]-\d+$", source):  # one CDL profile at a fixed delay spread (ns)
+        _, model, ds_ns = source.split("-")
+        h, speed = _cdl(n, seed, model=model, delay_spread_s=int(ds_ns) * 1e-9), np.full(n, np.nan)
     elif source.startswith("rt:"):
         h, speed = _raytraced(source[3:], n, seed)
     elif source.startswith("rtd:"):
@@ -138,7 +141,7 @@ def _cdl_pattern() -> str:
     return {"iso": "omni", "tr38901": "38.901"}[grid.ANTENNA_PATTERN]
 
 
-def _cdl(n: int, seed: int) -> np.ndarray:
+def _cdl(n: int, seed: int, model: str | None = None, delay_spread_s: float | None = None) -> np.ndarray:
     import torch
     import sionna.phy
     from sionna.phy.channel import cir_to_ofdm_channel
@@ -152,8 +155,8 @@ def _cdl(n: int, seed: int) -> np.ndarray:
     out, batch = [], CDL_BATCH
     for start in range(0, n, batch):
         b = min(batch, n - start)
-        model = "ABCDE"[rng.integers(5)]
-        delay_spread = float(rng.uniform(*CDL_DELAY_SPREAD_S))
+        model_b = "ABCDE"[rng.integers(5)] if model is None else model
+        delay_spread = float(rng.uniform(*CDL_DELAY_SPREAD_S)) if delay_spread_s is None else delay_spread_s
         # CDL clusters have fixed angles; a random base-station heading per sample
         # spreads users around the array, as the ray-traced placement does.
         # On a facade, users are only in front: headings within the placement sector.
@@ -163,7 +166,7 @@ def _cdl(n: int, seed: int) -> np.ndarray:
         else:
             heading[:, 0] = torch.from_numpy(rng.uniform(0, 2 * np.pi, b))
         heading[:, 1] = grid.DOWNTILT_RAD
-        cdl = CDL(model, delay_spread, grid.CARRIER_HZ,
+        cdl = CDL(model_b, delay_spread, grid.CARRIER_HZ,
                   ut_array=AntennaArray(num_rows=1, num_cols=1, antenna_pattern="omni", **ant),
                   bs_array=AntennaArray(num_rows=grid.ARRAY_ROWS, num_cols=grid.NUM_ANTENNAS // grid.ARRAY_ROWS,
                                         antenna_pattern=_cdl_pattern(), **ant), direction="uplink",
