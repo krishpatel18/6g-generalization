@@ -78,14 +78,19 @@ def measured() -> None:
                 v[(r["array"], r["estimator"])].append(float(r["nmse_db"]))
         return v
     main, rich = load("dichasus_test"), load("dichasus_rich")
+    tuned = defaultdict(list)
+    for r in csv.DictReader(open(ROOT / "runs/a16_sc128_dichasus/dichasus_tune.csv")):
+        if r["snr_db"] == "10.0" and r["variant"] == "spatial" and r["estimator"] == "tuned":
+            tuned[(r["array"], "tuned")].append(float(r["nmse_db"]))
     bars = [("LS interpolation", main, "ls_interp"), ("RT pool, specular (14 cities)", main, "pool_all"),
-            ("RT pool, scattering (7 cities)", rich, "pool_all"), ("3GPP CDL", main, "cdl"),
+            ("RT pool, scattering 0.3, users 10-65 m", rich, "pool_all"),
+            ("RT pool, scattering tuned, users 12-30 m", tuned, "tuned"), ("3GPP CDL", main, "cdl"),
             ("site-trained ceiling", main, "ceiling")]
-    fig, ax = plt.subplots(figsize=(6, 3.8))
-    width = 0.16
+    fig, ax = plt.subplots(figsize=(6.4, 4.2))
+    width = 0.14
     for i, (label, v, est) in enumerate(bars):
         ys = [np.mean(v[(a, est)]) for a in "ABC"]
-        ax.bar(np.arange(3) + (i - 2) * width, ys, width, label=label)
+        ax.bar(np.arange(3) + (i - 2.5) * width, ys, width, label=label)
     ax.set_xticks(range(3), ["array A", "array B", "array C"])
     ax.set_ylabel("NMSE (dB); taller bar = better")
     ax.invert_yaxis()

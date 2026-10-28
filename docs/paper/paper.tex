@@ -17,31 +17,26 @@
 \maketitle
 
 \begin{abstract}
-Channel estimators for a newly deployed base station are usually built from
-3GPP stochastic channel models, which describe no particular street. Ray
-tracers can simulate real city layouts instead. We ask whether a channel prior
-built from many ray-traced cities serves an \emph{unseen} site better than one
-built from 3GPP CDL models, and whether learned estimators are what make the
-difference. Using Sionna RT on 14 city scenes (4 built-in, 10 generated from
-OpenStreetMap), linear MMSE estimation from covariance priors, and
-leave-one-city-out evaluation with outcomes and pass/fail bars written down
-before each main experiment, we find in simulation that a covariance prior
-pooled over many cities sits about 0.6\,dB from a site-trained estimator with
-no site measurements---about what CDL reaches after 50 site measurements---and
-that pooling acts as insurance against a badly matched source city. Learned
-models added little: a CNN refiner gained at most 0.65\,dB in channel
-estimation, and for channel prediction a simple per-user classical method beat
-CNN predictors by 1.8--12\,dB at horizons of 2\,ms and beyond; a CNN trained to
-correct the classical method added a repeatable 0.3--0.6\,dB. We then tested
-the main simulation finding on measured channels from the DICHASUS outdoor
-dataset (1.272\,GHz, three 2$\times$8 arrays on one building). There, the
-pooled ray-traced prior was 3.2--4.1\,dB \emph{worse} than CDL on the full
-array with no site data. The simulated channels were cleaner in delay than the
-measured street; an exploratory rerun with diffuse scattering and diffraction
-enabled in the ray tracer brought the ray-traced prior to within 0.3--0.5\,dB
-of CDL, but placing the simulated users at the real users' distances undid
-most of that (2.9\,dB behind CDL): the measured street carries multipath the
-map-built scenes do not produce. All results are from one measured site and
+Channel estimators at a newly deployed base station usually start from 3GPP
+stochastic channel models, which describe no particular street. Ray tracers
+can simulate real city layouts instead. We ask whether a channel prior pooled
+from many ray-traced cities serves an \emph{unseen} site better than the 3GPP
+CDL models, and whether learned estimators are what make the difference. With
+Sionna RT on 14 city scenes, LMMSE estimation from covariance priors,
+leave-one-city-out evaluation, and outcomes and pass/fail bars written down
+before each main experiment, we find in simulation that the pooled prior sits
+about 0.6\,dB from a site-trained estimator with no site measurements---about
+what CDL reaches after 50 measurements---and protects against a badly matched
+source city. Learned models added little: at most 0.65\,dB in estimation, and
+in channel prediction a simple per-user classical method beat CNN predictors
+by 1.8--12\,dB beyond 2\,ms. On measured channels from the DICHASUS outdoor
+dataset (1.272\,GHz, three 2$\times$8 arrays on one building) the result
+reversed: the pooled ray-traced prior was 3.2--4.1\,dB \emph{worse} than CDL.
+The simulated channels were too clean. Enabling diffuse scattering narrowed
+the gap only while simulated users stood farther away than the real ones;
+with users at the real distances, even a scattering level tuned from 50 site
+measurements left the prior about 2\,dB behind CDL. The map-built scenes miss
+multipath the real street has. All measured results come from one site and
 one band.
 \end{abstract}
 
@@ -72,6 +67,15 @@ channels. Each main experiment's expected outcome and pass/fail bar was
 committed to the lab notebook before it ran; follow-up checks are labelled as
 post-hoc or exploratory. The code, notebook, logs and result tables are
 available with the paper.
+
+Our contributions are: (1) a pre-registered leave-one-city-out comparison of
+ray-traced and 3GPP priors across 14 cities, showing pooling as insurance in
+simulation; (2) evidence that, on this simulator, classical estimators and
+predictors match or beat learned ones; (3) a test of the simulation finding on
+measured channels with one processing chain for every source, which reverses
+it; and (4) a diagnosis: the gap comes from multipath the map-built scenes
+lack, which neither more cities, scattering, nor a tuned scattering level
+recovers.
 
 \section{Setup}
 
@@ -216,25 +220,29 @@ ceiling, against $\sim$0.6\,dB in simulation.
 \begin{table}[t]
 \centering
 \small
-\begin{tabular}{lrrrrr}
+\begin{tabular}{lrrrrrr}
 \toprule
-array & LS interp. & CDL & RT pool (specular) & RT pool (scattering) & ceiling \\
+array & LS interp. & RT specular & RT scatt., far users & RT tuned, real distances & CDL & ceiling \\
 \midrule
-A & $-$11.2 & $-$17.9 & $-$14.7 & $-$17.6 & $-$20.5 \\
-B & $-$11.2 & $-$17.5 & $-$13.4 & $-$17.0 & $-$20.2 \\
-C & $-$11.2 & $-$17.9 & $-$14.4 & $-$17.5 & $-$20.4 \\
+A & $-$11.2 & $-$14.7 & $-$17.6 & $-$16.0 & $-$17.9 & $-$20.5 \\
+B & $-$11.2 & $-$13.4 & $-$17.0 & $-$15.5 & $-$17.5 & $-$20.2 \\
+C & $-$11.2 & $-$14.4 & $-$17.5 & $-$16.0 & $-$17.9 & $-$20.4 \\
 \bottomrule
 \end{tabular}
 \caption{Measured DICHASUS channels: NMSE (dB) at 10\,dB SNR on the full
-16-antenna $\times$ 128-subcarrier grid, no site measurements. Specular pool:
-14 cities; scattering pool: 7 cities (exploratory).}
+16-antenna $\times$ 128-subcarrier grid. Specular: 14-city pool, users
+10--65\,m. Scattering, far users: 7 cities, scattering 0.3, users 10--65\,m.
+Tuned, real distances: 7 cities, users 12--30\,m, scattering level picked by
+50 site measurements (the only column that uses site data). The last two are
+exploratory.}
 \label{tab:measured}
 \end{table}
 
 \begin{figure}[t]
 \centering
 \includegraphics[width=0.68\linewidth]{../figures/measured.png}
-\caption{Measured channels, the same numbers as Table~\ref{tab:measured}.}
+\caption{Measured channels, the same numbers as Table~\ref{tab:measured};
+taller bars are better.}
 \label{fig:measured}
 \end{figure}
 
@@ -283,8 +291,14 @@ the ray-traced paths~\cite{tr38901}.
 The simulation finding was a home-ground effect, as the caveat written before
 the first run anticipated: test channels came from the same ray tracer as the
 priors. CDL is fitted to measurements; ray tracing at default settings encodes
-geometry but misses diffuse multipath, and every ray-traced candidate is biased
-the same way, so pooling cannot insure against it. Several limits apply.
+geometry but, at this site, misses multipath the real street has, and every
+ray-traced candidate is biased the same way, so pooling cannot insure against
+it. Even closing the gap would not, on its own, be useful: CDL is free and
+needs no maps, simulation or tuning, so a ray-traced prior earns its cost only
+where it clearly beats CDL. Our simulation study suggested such sites exist
+(Florence and San Francisco gained 1--1.5\,dB over CDL in simulation), but the
+one measured site, an open and mostly line-of-sight street, is not one.
+Several limits apply.
 \begin{itemize}
 \item One measured site: one street, one building, three arrays on its
   facade, 1.272\,GHz, mostly line-of-sight; LMMSE estimation only.
@@ -300,9 +314,9 @@ the same way, so pooling cannot insure against it. Several limits apply.
   in the measured data than in either model, for reasons not established.
 \item Most randomly placed users in the rooftop simulations received no paths
   and were dropped, so simulated users skew toward simpler links.
-\item The scattering result uses one scattering value and 7 cities, and was
-  chosen after seeing the dry run; matching the users' distance undid most of
-  it.
+\item The scattering, distance and tuning probes are exploratory: 7
+  cities, scattering levels up to 0.7 (the tuned level sat at the top of that
+  range), chosen after seeing earlier results.
 \end{itemize}
 A code review during the measured-channel work found a cache keyed on object
 identity that could hand a scene another scene's ground mesh; it was fixed and
@@ -312,29 +326,25 @@ everything rerun, and reported numbers moved by at most 0.02\,dB.
 
 In simulation, a covariance prior pooled over many ray-traced cities looked
 like a good starting point for an unseen site and a safer one than any single
-city. On measured channels from one site, it was worse than the 3GPP CDL
-models, because the simulated channels were too clean; with diffuse scattering
-and diffraction enabled it roughly matched CDL, but only with users placed
-farther away than the real ones. Learned models never beat the
-classical methods; at best they refined them. For a ray-traced prior to be
-useful at a real site, the simulator's settings matter at least as much as the
-number of cities.
+city. On measured channels from one site it was worse than the 3GPP CDL
+models: the map-built scenes produce cleaner channels than the real street,
+and neither more cities, diffuse scattering, nor a scattering level tuned from
+site measurements closed the gap once users stood at their real distances.
+Learned models never beat the classical methods; at best they refined them.
+The practical reading is that, without scene content the maps lack, a
+ray-traced prior from other cities is not yet a better default than the free
+3GPP models.
 
-\paragraph{Where next.} Three directions follow from the results.
-(i) \emph{Tune the simulator, not the covariance, from site measurements:}
-the gap is driven by global simulator settings and missing scene content, so a
-few site measurements could set a global setting that is then used to
-simulate other cities, with no 3D model of the target site. Existing
-calibration work tunes a single, fully modelled site
-\cite{hoydis2023learning}. Our first test shows a scattering level alone is
-not enough; the next candidates are a street-clutter density (random vehicles,
-poles and trees along the mapped streets) and the power of 3GPP-style random
-clusters added to the ray-traced paths. (ii) \emph{More
-measured sites}, since one street cannot settle a question about unseen
-sites; we found no public outdoor dataset with several sites and a planar
-array. (iii) \emph{Prediction on measured channels}, where the classical
-method's advantage rests on a simulator that matches its own model; this needs
-millisecond-spaced measurements of moving users.
+\paragraph{Open questions.} (i) \emph{Where does CDL fail?} A ray-traced prior
+is only worth its cost at sites the 3GPP models describe badly; measuring
+where that happens would say whether simulation is worth pursuing at all.
+(ii) \emph{Missing scene content:} random street clutter (vehicles, poles,
+trees) or 3GPP-style random clusters on top of the ray-traced
+paths~\cite{tr38901} are the natural next levers; per-site calibration of a
+fully modelled scene is established~\cite{hoydis2023learning}, transfer of
+global settings across sites is not. (iii) \emph{More measured sites and
+prediction on measured channels}, which need multi-site outdoor arrays and
+millisecond-spaced measurements of moving users respectively.
 
 \paragraph{Reproducibility.} Code, the lab notebook with every
 pre-registration and result in order, logs and result tables accompany the
