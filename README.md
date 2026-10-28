@@ -88,7 +88,9 @@ distances and the gap reopened (2.9 dB behind CDL): closer simulated users are
 even more line-of-sight dominated, while the real street has extra multipath
 the map-built scenes lack. One site, one band, one scattering value.
 
-A paper-style write-up is in [docs/paper/paper.pdf](docs/paper/paper.pdf).
+A paper-style write-up is in [docs/paper/paper.pdf](docs/paper/paper.pdf), a plain-language
+version in [docs/PLAIN.md](docs/PLAIN.md), and a 90-second video summary in
+[docs/video/6g-study.mp4](docs/video/6g-study.mp4).
 
 ## How it was done
 
