@@ -88,6 +88,19 @@ distances and the gap reopened (2.9 dB behind CDL): closer simulated users are
 even more line-of-sight dominated, while the real street has extra multipath
 the map-built scenes lack. One site, one band, one scattering value.
 
+**5. Where does CDL fall short? Not clearly anywhere we looked.** A
+pre-registered follow-on reran the measured-channel pipeline on two more
+DICHASUS sites recorded with the same sounder. With no site data, the generic
+CDL prior sat 2.5–2.7 dB from a site-trained estimator on the street, 2.1–2.8
+dB in a factory hall and 4.7 dB in a small lab room, whose delay spread lies
+below the prior's 30–300 ns range (a 30 ns profile fixes it per antenna). The
+expectation that CDL falls further short in a dense factory was not supported.
+Blending 50 site measurements into the prior closed most of the per-antenna
+gap, except on two factory arrays where those measurements came from much
+closer to the array than the test users. A first analysis reported a 10–12 dB factory gap; a review
+found the factory recording's timing offset had defeated the processing chain,
+which was fixed and the factory rerun (street and lab unchanged).
+
 A paper-style write-up is in [docs/paper/paper.pdf](docs/paper/paper.pdf), a plain-language
 version in [docs/PLAIN.md](docs/PLAIN.md), and a 90-second video summary in
 [docs/video/6g-study.mp4](docs/video/6g-study.mp4).

@@ -14,6 +14,13 @@ dataset). `fit_calibration` estimates them, per antenna, as a phase plus a
 delay relative to antenna 0, from the line-of-sight phase the tachymeter
 positions predict, and reports how well that model fits (coherence, 1 = exact).
 
+Recordings can also carry a bulk timing offset common to all antennas of a
+datapoint. In the street and lab sets it stays within a few taps of zero; in the
+factory set (cf0x) it drifts over the whole 1024-tap delay range between
+datapoints, beyond the first-arrival search of `wideband.to_grid`. `measured`
+therefore first shifts each datapoint so its strongest tap sits at delay zero
+(`scripts/check_timing.py` checks the result does not depend on the offset).
+
 Antennas are reordered to Sionna's planar-array order (column-major, top row
 first), with the 8-element axis horizontal, as the data fits best.
 """
@@ -30,6 +37,7 @@ RAW = DATA_DIR / "dichasus" / "raw"
 SPACING_M = 0.118  # used when a spec gives no element spacing
 MIN_SNR_DB = 10.0
 MAX_INTERP_AGE_S = 0.1
+CHUNK = 2000  # datapoints per block when removing the timing offset
 
 
 def _dir(dataset: str):
@@ -121,6 +129,17 @@ def fit_calibration(array: Array, raw: Raw) -> tuple[np.ndarray, float]:
     return corr[:, None, :].astype(np.complex64), coherence
 
 
+def _to_peak(h: np.ndarray) -> np.ndarray:
+    """Shift each datapoint (circularly, whole taps) so its strongest tap is at delay 0."""
+    taps = np.fft.ifft(np.fft.ifftshift(h, axes=-1), axis=-1)
+    peak = np.argmax(np.sum(np.abs(taps) ** 2, axis=(1, 2)), axis=1)
+    rows = (np.arange(h.shape[-1])[None] + peak[:, None]) % h.shape[-1]
+    taps = np.take_along_axis(taps, rows[:, None, None, :], axis=-1)
+    return np.fft.fftshift(np.fft.fft(taps, axis=-1), axes=-1)
+
+
 def measured(raw: Raw, cal: np.ndarray) -> np.ndarray:
     """Usable datapoints, calibrated, on the grid, at unit power: [n, 16, 1, NUM_SUBCARRIERS]."""
-    return grid.normalize_power(wideband.to_grid(raw.csi[raw.usable] * cal[None]))
+    h = raw.csi[raw.usable]
+    return np.concatenate([grid.normalize_power(wideband.to_grid(_to_peak(h[i:i + CHUNK] * cal[None])))
+                           for i in range(0, max(len(h), 1), CHUNK)])

@@ -1311,6 +1311,13 @@ environments recorded with the same sounder:
 
 ### Follow-on — results (2026-10-28)
 
+> **Superseded for the factory (2026-10-29).** The factory row, the factory
+> parts of G1–G3, the "both directions" pattern, the post-hoc longer-delay
+> check and the conclusion below came from a processing error: the factory
+> recording's timing offset fell outside the first-arrival search. See
+> "Follow-on — correction: factory timing offset" below. Street and lab
+> numbers stand (some rounding corrected there).
+
 `scripts/cdl_gap.py <env>`, `runs/cdl_gap_{street,lab,factory}.log/.csv`,
 per-array statistics in `runs/cdl_gap_*_stats.csv`. dB above each array's
 site-trained ceiling at 10 dB SNR (lower = closer):
@@ -1344,7 +1351,7 @@ coherence bar (lab 0.71 / 0.81, factory 0.85–0.91).
 - Caveats: different arrays per environment (2×4 in the factory); one test
   recording each; the factory's first-tap share depends on the alignment rule
   (first tap within 10 dB of the peak) in very dense multipath.
-- **Post-hoc (after the factory result): longer delay spreads.** Adding
+- **Post-hoc (after the factory result): longer delay spreads. Withdrawn 2026-10-29 (fitted the corrupted factory channels).** Adding
   CDL-A..E at 600 / 1000 / 2000 ns (`scripts/cdl_gap.py factory
   600,1000,2000`, `runs/cdl_gap_factory_long.log`): the 50 measurements pick
   CDL-B at 1000 ns in every draw, also the best on the test file. It improves
@@ -1353,7 +1360,7 @@ coherence bar (lab 0.71 / 0.81, factory 0.85–0.91).
   is in the shape of its multipath (clusters, angles), not only its length;
   blending in site measurements remains the fix (per antenna ≤ 0.8 dB).
 
-**Follow-on conclusion.** CDL as a starting prior is close on an open street
+**Follow-on conclusion (superseded 2026-10-29; see the correction below).** CDL as a starting prior is close on an open street
 (2.6 dB full grid, 0.8 per antenna), poor in a small clean room (4.7 / 4.3)
 and far off in a dense factory hall (10–12 / ~10), failing in both
 directions. Choosing a CDL profile from 50 site measurements fixes the clean
@@ -1363,3 +1370,111 @@ roughly halves the full-grid gap. So the sites where a better prior would pay
 off are the ones least like CDL's typical outdoor channel — dense,
 reflective indoor spaces — which is also where map-built ray tracing is
 weakest (no machinery, shelving or clutter in the maps).
+
+### Follow-on — correction: factory timing offset (2026-10-29)
+
+**What was wrong.** A review of the follow-on (three independent reviewers, and
+a separate check, `scratch/timing_offset_check.py`, `runs/timing_offset_check.log`)
+found that the factory recordings (`cf0x`) carry a timing offset, common to all
+antennas of a datapoint, that drifts across the whole 1024-tap delay range
+between datapoints (about 200 taps per second; the strongest tap sits within
+±20 taps of zero for only ~4% of datapoints). `wideband.to_grid` searches the
+first arrival only within ±20 taps (±400 ns) of zero and keeps −200 ns to
+2 µs around it, so for most factory datapoints the kept window held ~10% of
+the energy, mostly leakage and noise, which the unit-power normalisation then
+scaled up. The calibration coherence could not show it: it compares antennas
+with each other, which cancels a delay they share. Street (strongest tap −8 to
++1 taps) and lab (−1 to +2) sit inside the search.
+
+**Fix.** `dichasus.measured` first shifts each datapoint, circularly by whole
+taps, so its strongest tap sits at delay zero, then runs the unchanged chain;
+the chain's own rule then finds the first arrival up to 400 ns before that
+peak. `scripts/check_timing.py` checks that the grid channels do not depend on
+the offset (it failed before the fix for offsets across the whole range and
+passes after). Simulated channels have no such offset; cached channel sets are
+unaffected. Effect elsewhere (`scratch/timing_fix_changed.py`,
+`runs/timing_fix_rerun.log`): no street datapoint (all nine recordings × arrays A–C) and no lab datapoint changed by more than 1e-6, and the street and lab result tables are identical. A tap within 10 dB of the
+strongest more than 20 taps before it, still outside the search, occurs in
+0.00% of factory datapoints (`scratch/early_arrival_check.py`).
+
+**Rerun** (`runs/timing_fix_rerun.log`, `runs/cdl_gap_{street,lab,factory}.csv`,
+summary `scratch/cdl_gap_summary.py`). dB above each array's site-trained
+ceiling at 10 dB SNR, ranges over arrays, full grid / per antenna; street and
+lab are unchanged from the first run:
+
+| environment (arrays) | first-tap share | generic CDL | CDL + 50 | picked profile | best profile on test (oracle) |
+|---|---|---|---|---|---|
+| street (A, B, C; 2×8) | 79–84% | 2.5–2.7 / 0.8–0.9 | 1.4–1.7 / 0.0–0.2 | 4.8–5.6 / 0.3–0.6 | 4.8–5.6 / 0.3–0.6 |
+| lab room (2; 2×8) | 95–96% | 4.7 / 4.3 | 1.5–2.5 / 0.0 | 2.3–2.5 / 0.4 | 2.3–2.5 / 0.4 |
+| factory (A–D; 2×4) | 81–94% | 2.1–2.8 / 0.7–1.4 | 1.0–2.5 / 0.2–1.1 | 3.5–6.8 / 0.5–1.9 | 3.3–4.5 / 0.3–0.5 |
+
+Claims, re-evaluated on the registered basis (full grid, means over arrays):
+
+- **G1 falsified:** the factory gap (2.44 dB) is not larger than the street's
+  (2.62); the same at 0 dB SNR (2.19 vs 2.37). Per antenna it is (1.09 vs
+  0.83), but that is not the registered basis.
+- **G2 not triggered:** the full-grid gap is at least 1 dB in every
+  environment (smallest: factory array B, 2.08).
+- **G3 not met in any environment on the full grid:** the picked profile
+  closed −98% of the gap on the street, 49% in the lab (near-window 50.3%,
+  near-wall 47%) and −107% in the factory (negative: worse than the generic
+  mixture). At 0 dB SNR the lab passes narrowly on the full grid (53%); street
+  and factory still fail. Per antenna, a secondary reading, it was met only in the lab (90%);
+  the factory per-antenna gap (1.09) went to 1.06. On the street the mixture
+  beat every single profile on the full grid, so a single picked profile
+  could not win there by construction.
+- The post-hoc longer-delay check (CDL at 600 / 1000 / 2000 ns) is withdrawn:
+  it fitted the corrupted factory channels. Its files are removed
+  (`cdl_gap_factory_long.*`, in git history).
+
+**Site-block caveat (found on the rerun).** Indoors the 50 site measurements
+come from one contiguous block of the fit recording, not from across the
+environment. On factory arrays A and C that block sits at a median 4.1–4.4 m
+from the array, the test recording at 10.7–12.2 m
+(`scratch/factory_site_positions.py`, `runs/factory_site_positions.log`). There
+the 50 picked a line-of-sight profile (CDL-E) and blending them in helped
+little per antenna (A: 0.84 → 0.69 dB) or hurt (C: 0.71 → 1.10). On arrays B
+and D (block 10.5–12.8 m, test ~5 m) blending worked (1.4 → 0.2).
+
+**Other corrections from the review.**
+- The lab recording `0d54` is stored in reverse time order: "first 80% in
+  time" above should read "first 80% of the stored datapoints" (the latest
+  ~80% in time); the site block is the earliest ~20%. Both are contiguous and
+  disjoint; no number changes.
+- Rounding: street generic CDL, full grid, is 2.5–2.7 (array C 2.548), not
+  2.6–2.7; lab picked profile, full grid, is 2.3–2.5 (near window 2.349).
+- The "RMS delay" statistic of `cdl_gap.py` has a leakage and noise floor and
+  does not track the true delay spread (CDL-A at 30 ns gives 1.5 taps, at
+  100 ns 1.1); the top-3 spatial share is not comparable between 8- and
+  16-antenna arrays. Only the first-tap share is used from here on.
+- CDL's own first-tap share is ~78% (78.3–78.6% over all 12k channels of the
+  generic prior in each of the three array geometries; 78.5% in
+  `runs/dichasus_diagnostics.log`), not 79%.
+- The generic prior draws delay spreads of 30–300 ns (`CDL_DELAY_SPREAD_S`);
+  TR 38.901 (§7.7.3) scales CDL to a scenario's delay spread, with examples
+  from 10 to 1000 ns. Much of the lab gap is that mismatch: a 30 ns profile
+  closes it per antenna (4.3 → 0.4 dB).
+- The "near wall −0.6 to −0.8 / near window −0.4" transmitter-height sweep
+  quoted in the lab amendment had no log; re-run and logged
+  (`scratch/lab_tx_height.py`, `runs/timing_fix_rerun.log`): near wall best
+  −0.7 / −0.6 m (0.758), near window −0.4 m (0.831), within 0.02 of the best
+  over about ±0.3 m: it reproduces the amendment.
+- Ratios of dB gaps ("about 4× larger") are dropped; the numbers are given
+  instead.
+- The proposal's "distributed 4×8 arrays" for `cf0x` is wrong: four 2×4 arrays.
+
+**Corrected conclusion.** At three measured sites, the generic 3GPP CDL prior
+sits 2.1–4.7 dB from a site-trained LMMSE on the full array × frequency grid
+and 0.7–4.3 dB per antenna. The factory hall (2.1–2.8 / 0.7–1.4) is no worse
+than the open street (2.5–2.7 / 0.8–0.9); the outlier is the small lab room
+(4.7 / 4.3), whose delay spread lies below the generic mixture's 30–300 ns,
+and a short-delay profile fixes it per antenna. So the pre-registered
+expectation that CDL fails in dense indoor spaces is not supported here, and
+nothing in these three recordings marks out a kind of site where a
+site-specific prior would clearly pay off. Blending 50 site measurements into
+the generic prior is the robust step: within 0.2 dB of the ceiling per antenna
+on the street and in the lab, ≤1.1 dB in the factory, where the indoor site
+block was unrepresentative for two arrays; on the full grid it leaves
+1.0–2.5 dB. A single CDL profile picked from those measurements is worse than
+the generic mixture on the full grid everywhere except the lab. This does not
+test a ray-traced prior indoors.

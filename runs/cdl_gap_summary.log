@@ -1,0 +1,48 @@
+
+######## 10 dB SNR
+street   spatial   cdl 2.55-2.73 (mean 2.62) | cdl+50 1.41-1.73 (mean 1.57) | picked 4.82-5.61 (mean 5.19) | oracle 4.82-5.61 (mean 5.19)
+                   per array: A: cdl 2.58, cdl+50 1.73, picked 5.61, oracle 5.61; B: cdl 2.73, cdl+50 1.57, picked 5.14, oracle 5.14; C: cdl 2.55, cdl+50 1.41, picked 4.82, oracle 4.82
+street   freq_only cdl 0.78-0.86 (mean 0.83) | cdl+50 0.03-0.15 (mean 0.10) | picked 0.27-0.58 (mean 0.44) | oracle 0.27-0.58 (mean 0.44)
+                   per array: A: cdl 0.78, cdl+50 0.11, picked 0.58, oracle 0.58; B: cdl 0.84, cdl+50 0.15, picked 0.27, oracle 0.27; C: cdl 0.86, cdl+50 0.03, picked 0.47, oracle 0.47
+lab      spatial   cdl 4.73-4.75 (mean 4.74) | cdl+50 1.54-2.51 (mean 2.03) | picked 2.35-2.50 (mean 2.43) | oracle 2.35-2.50 (mean 2.43)
+                   per array: ay near wall: cdl 4.75, cdl+50 2.51, picked 2.50, oracle 2.50;  near window: cdl 4.73, cdl+50 1.54, picked 2.35, oracle 2.35
+lab      freq_only cdl 4.25-4.29 (mean 4.27) | cdl+50 0.02-0.04 (mean 0.03) | picked 0.42-0.43 (mean 0.42) | oracle 0.38-0.43 (mean 0.40)
+                   per array: ay near wall: cdl 4.25, cdl+50 0.04, picked 0.42, oracle 0.38;  near window: cdl 4.29, cdl+50 0.02, picked 0.43, oracle 0.43
+factory  spatial   cdl 2.08-2.84 (mean 2.44) | cdl+50 1.05-2.53 (mean 1.73) | picked 3.50-6.80 (mean 5.05) | oracle 3.32-4.52 (mean 3.90)
+                   per array: enna Array A: cdl 2.84, cdl+50 2.04, picked 6.80, oracle 4.52; enna Array B: cdl 2.08, cdl+50 1.05, picked 3.50, oracle 3.32; enna Array C: cdl 2.68, cdl+50 2.53, picked 6.26, oracle 4.34; enna Array D: cdl 2.15, cdl+50 1.30, picked 3.63, oracle 3.42
+factory  freq_only cdl 0.71-1.41 (mean 1.09) | cdl+50 0.16-1.10 (mean 0.53) | picked 0.50-1.90 (mean 1.06) | oracle 0.32-0.51 (mean 0.41)
+                   per array: enna Array A: cdl 0.84, cdl+50 0.69, picked 1.30, oracle 0.32; enna Array B: cdl 1.41, cdl+50 0.18, picked 0.56, oracle 0.51; enna Array C: cdl 0.71, cdl+50 1.10, picked 1.90, oracle 0.40; enna Array D: cdl 1.39, cdl+50 0.16, picked 0.50, oracle 0.42
+G1 [spatial] factory 2.44 > street 2.62: False
+G2 [spatial] all < 1 dB: False
+G3 [spatial] street: gap 2.62 -> picked 5.19, closed -98% -> not met
+G3 [spatial] lab: gap 4.74 -> picked 2.43, closed 49% -> not met
+G3 [spatial] factory: gap 2.44 -> picked 5.05, closed -107% -> not met
+G1 [freq_only] factory 1.09 > street 0.83: True
+G2 [freq_only] all < 1 dB: False
+G3 [freq_only] street: gap 0.83 < 1 dB, not applicable
+G3 [freq_only] lab: gap 4.27 -> picked 0.42, closed 90% -> met
+G3 [freq_only] factory: gap 1.09 -> picked 1.06, closed 2% -> not met
+
+######## 0 dB SNR
+street   spatial   cdl 2.25-2.55 (mean 2.37) | cdl+50 0.81-1.16 (mean 0.93) | picked 3.49-3.96 (mean 3.67) | oracle 3.49-3.80 (mean 3.61)
+                   per array: A: cdl 2.30, cdl+50 1.16, picked 3.49, oracle 3.49; B: cdl 2.55, cdl+50 0.82, picked 3.96, oracle 3.80; C: cdl 2.25, cdl+50 0.81, picked 3.56, oracle 3.56
+street   freq_only cdl 0.13-0.20 (mean 0.17) | cdl+50 0.03-0.19 (mean 0.11) | picked 0.23-0.57 (mean 0.41) | oracle 0.16-0.39 (mean 0.30)
+                   per array: A: cdl 0.20, cdl+50 0.10, picked 0.57, oracle 0.39; B: cdl 0.13, cdl+50 0.19, picked 0.23, oracle 0.16; C: cdl 0.19, cdl+50 0.03, picked 0.43, oracle 0.36
+lab      spatial   cdl 4.71-4.75 (mean 4.73) | cdl+50 0.69-2.30 (mean 1.49) | picked 2.16-2.25 (mean 2.20) | oracle 2.16-2.25 (mean 2.20)
+                   per array: ay near wall: cdl 4.75, cdl+50 2.30, picked 2.25, oracle 2.25;  near window: cdl 4.71, cdl+50 0.69, picked 2.16, oracle 2.16
+lab      freq_only cdl 2.18-2.24 (mean 2.21) | cdl+50 0.01-0.02 (mean 0.01) | picked 0.34-0.40 (mean 0.37) | oracle 0.28-0.34 (mean 0.31)
+                   per array: ay near wall: cdl 2.18, cdl+50 0.01, picked 0.34, oracle 0.34;  near window: cdl 2.24, cdl+50 0.02, picked 0.40, oracle 0.28
+factory  spatial   cdl 1.82-2.77 (mean 2.19) | cdl+50 0.92-1.95 (mean 1.43) | picked 2.86-4.33 (mean 3.36) | oracle 1.46-2.81 (mean 2.09)
+                   per array: enna Array A: cdl 2.18, cdl+50 1.30, picked 2.86, oracle 2.37; enna Array B: cdl 1.82, cdl+50 0.92, picked 2.87, oracle 1.46; enna Array C: cdl 1.99, cdl+50 1.95, picked 3.39, oracle 2.81; enna Array D: cdl 2.77, cdl+50 1.53, picked 4.33, oracle 1.70
+factory  freq_only cdl 0.12-0.75 (mean 0.43) | cdl+50 0.18-1.27 (mean 0.59) | picked 0.59-0.95 (mean 0.82) | oracle 0.17-0.26 (mean 0.22)
+                   per array: enna Array A: cdl 0.16, cdl+50 0.71, picked 0.59, oracle 0.24; enna Array B: cdl 0.75, cdl+50 0.19, picked 0.92, oracle 0.26; enna Array C: cdl 0.12, cdl+50 1.27, picked 0.95, oracle 0.22; enna Array D: cdl 0.69, cdl+50 0.18, picked 0.81, oracle 0.17
+G1 [spatial] factory 2.19 > street 2.37: False
+G2 [spatial] all < 1 dB: False
+G3 [spatial] street: gap 2.37 -> picked 3.67, closed -55% -> not met
+G3 [spatial] lab: gap 4.73 -> picked 2.20, closed 53% -> met
+G3 [spatial] factory: gap 2.19 -> picked 3.36, closed -53% -> not met
+G1 [freq_only] factory 0.43 > street 0.17: True
+G2 [freq_only] all < 1 dB: False
+G3 [freq_only] street: gap 0.17 < 1 dB, not applicable
+G3 [freq_only] lab: gap 2.21 -> picked 0.37, closed 83% -> met
+G3 [freq_only] factory: gap 0.43 < 1 dB, not applicable

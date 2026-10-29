@@ -1,0 +1,24 @@
+
+Antenna Array A (array at x 2.7, y -13.9)
+  fit   n  10339  x   -7.5..  -0.2  y   -8.8..  -2.8  dist to array median  10.7 m
+  site  n   3715  x   -4.7..   1.1  y  -13.0..  -4.3  dist to array median   4.1 m
+  test  n   5715  x   -9.3..  -3.8  y   -7.4..  -3.6  dist to array median  12.2 m
+  test points within 2 m of a site point: 68%
+
+Antenna Array B (array at x -11.3, y -9.7)
+  fit   n  13993  x  -10.4..  -0.5  y   -8.2..  -3.0  dist to array median   7.5 m
+  site  n    686  x   -6.9..  -0.4  y   -7.9..  -4.1  dist to array median  10.5 m
+  test  n  13614  x  -11.0..  -4.3  y   -8.4..  -3.8  dist to array median   5.0 m
+  test points within 2 m of a site point: 34%
+
+Antenna Array C (array at x -1.5, y -15.1)
+  fit   n   8167  x   -6.1..  -0.1  y   -8.9..  -2.8  dist to array median   9.8 m
+  site  n   3644  x   -3.6..   1.1  y  -13.0..  -4.4  dist to array median   4.4 m
+  test  n   2738  x   -6.6..  -3.2  y   -7.2..  -3.3  dist to array median  10.7 m
+  test points within 2 m of a site point: 77%
+
+Antenna Array D (array at x -12.7, y -4.5)
+  fit   n  14450  x  -10.4..  -0.4  y   -8.6..  -3.0  dist to array median   7.7 m
+  site  n   1568  x   -6.4..   0.7  y  -10.8..  -4.1  dist to array median  12.8 m
+  test  n  13610  x  -11.1..  -4.3  y   -8.4..  -3.8  dist to array median   5.2 m
+  test points within 2 m of a site point: 34%

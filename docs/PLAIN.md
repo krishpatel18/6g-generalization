@@ -115,26 +115,39 @@ textbook models are within ~1 dB everywhere, the honest conclusion is "they're
 good enough here" and that's the end of it. The full plan is in
 `docs/PLAN.md` under "Follow-on proposal".
 
-## Follow-on result: where the textbook models fail (done)
+## Follow-on result: where do the textbook models fall short? (done, corrected)
 
 We reran the whole pipeline on two more real sites recorded with the same
 equipment in Stuttgart, and measured how far the free textbook models are
-from the best possible at each:
+from the best possible at each (gaps on the full set of antennas and
+frequencies; smaller is better):
 
-| site | how echoey | textbook models' gap |
-|---|---|---|
-| open street | moderate | 2.6 dB |
-| small lab room | very clean | 4.7 dB |
-| factory hall | extremely echoey | 10–12 dB (about 10× the error) |
+| site | textbook models' gap |
+|---|---|
+| open street | 2.5–2.7 dB |
+| factory hall | 2.1–2.8 dB |
+| small lab room | 4.7 dB |
 
-- The textbook models fail in *both* directions: when a site is much cleaner
-  than typical, and much more so when it's far more echoey.
-- Letting 50 measurements pick the best-fitting textbook profile fixes the
-  clean room, but not the factory, even with longer-echo profiles.
-- What works everywhere is mixing those 50 real measurements into the
-  starting point: per antenna it gets close to the best possible at every
-  site.
+- **The factory is no worse than the street.** We had expected the textbook
+  models to do much worse in a dense indoor space. They don't, here.
+- **The lab room is the outlier**, and for a fixable reason: almost all of its
+  signal arrives at once, faster than the range of echo lengths our version
+  of the textbook models used. The textbook itself allows shorter settings,
+  and picking a short one fixes most of the lab gap for each antenna on
+  its own (about half of it across the whole panel).
+- **What helps most is mixing a few real measurements into the starting
+  point.** The exception: in the factory, on two of the four antenna panels, the 50 early
+  measurements came from close to the panel while the test users were
+  farther away, and mixing them in helped little or made it slightly worse.
 
-**So:** the places where a site-specific model would really pay off are dense,
-reflective indoor spaces like factories. They're also where map-based
-simulation is weakest, because maps don't contain machinery or shelving.
+**So:** in these three places, nothing marks out a kind of site where a
+custom starting point would clearly pay off. Finding one would take more
+sites, recorded more uniformly.
+
+**A correction.** A first version of this result said the factory was 10–12 dB
+off ("about 10× the error"). That was our mistake: the factory recordings'
+timing drifts, so the signal sat in a different place in each measurement, and
+our processing looked for it in a fixed spot and mostly kept noise. Reviewers
+caught it; we fixed the processing, checked that the street and lab results
+did not change, and reran the factory. The numbers above are the corrected
+ones.

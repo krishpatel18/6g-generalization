@@ -1,0 +1,64 @@
+
+== factory Antenna Array A coh 0.853, n 3000
+  peak tap (20 ns) pct5/50/95 [-462.     1.5  467. ]; earliest>-10dB (global) [-466.   -1.  463.]
+  energy share by signed tap: <-20 48.0%  [-20,0) 1.8%  [0,20) 2.0%  [20,100) 7.3%  >=100 40.9%
+  SEARCH_TAPS=20: first_tap_pct 11.5, rms_delay_taps 4.5, top3_spatial_pct 87.6
+  SEARCH_TAPS=100: first_tap_pct 23.0, rms_delay_taps 4.4, top3_spatial_pct 87.4
+  aligned: energy kept in window 10.3%; mean PDP dB at taps -10,-5,0,5,10,20,40,60,80,99,150,300: -28.3 -28.5 -18.4 -29.8 -31.7 -35.4 -35.6 -29.1 -28.1 -29.5 -31.3 -34.1
+
+== factory Antenna Array B coh 0.860, n 3000
+  peak tap (20 ns) pct5/50/95 [-461.     2.5  460. ]; earliest>-10dB (global) [-462.    2.  459.]
+  energy share by signed tap: <-20 47.7%  [-20,0) 2.0%  [0,20) 2.0%  [20,100) 7.9%  >=100 40.4%
+  SEARCH_TAPS=20: first_tap_pct 12.2, rms_delay_taps 4.4, top3_spatial_pct 81.3
+  SEARCH_TAPS=100: first_tap_pct 25.6, rms_delay_taps 4.4, top3_spatial_pct 81.1
+  aligned: energy kept in window 11.0%; mean PDP dB at taps -10,-5,0,5,10,20,40,60,80,99,150,300: -31.8 -32.2 -16.9 -33.1 -37.8 -33.5 -36.7 -32.7 -30.6 -30.1 -31.2 -30.2
+
+== factory Antenna Array C coh 0.919, n 2738
+  peak tap (20 ns) pct5/50/95 [-464.     6.   464.2]; earliest>-10dB (global) [-467.    3.  462.]
+  energy share by signed tap: <-20 47.7%  [-20,0) 1.9%  [0,20) 1.9%  [20,100) 7.5%  >=100 41.1%
+  SEARCH_TAPS=20: first_tap_pct 11.5, rms_delay_taps 4.5, top3_spatial_pct 87.7
+  SEARCH_TAPS=100: first_tap_pct 22.9, rms_delay_taps 4.5, top3_spatial_pct 87.6
+  aligned: energy kept in window 10.3%; mean PDP dB at taps -10,-5,0,5,10,20,40,60,80,99,150,300: -30.5 -30.9 -18.2 -31.8 -30.2 -34.8 -40.1 -32.0 -32.6 -30.6 -31.1 -30.5
+
+== factory Antenna Array D coh 0.861, n 3000
+  peak tap (20 ns) pct5/50/95 [-462.    2.  459.]; earliest>-10dB (global) [-464.    0.  458.]
+  energy share by signed tap: <-20 47.7%  [-20,0) 2.1%  [0,20) 1.8%  [20,100) 8.0%  >=100 40.4%
+  SEARCH_TAPS=20: first_tap_pct 11.9, rms_delay_taps 4.4, top3_spatial_pct 81.2
+  SEARCH_TAPS=100: first_tap_pct 25.7, rms_delay_taps 4.4, top3_spatial_pct 81.1
+  aligned: energy kept in window 10.8%; mean PDP dB at taps -10,-5,0,5,10,20,40,60,80,99,150,300: -31.0 -31.2 -17.4 -32.2 -36.1 -44.0 -37.5 -31.2 -31.2 -28.7 -35.6 -30.3
+
+== street A coh 0.818, n 261
+  peak tap (20 ns) pct5/50/95 [-4. -2.  1.]; earliest>-10dB (global) [-4. -2.  0.]
+  energy share by signed tap: <-20 0.0%  [-20,0) 62.5%  [0,20) 35.6%  [20,100) 1.8%  >=100 0.0%
+  SEARCH_TAPS=20: first_tap_pct 79.1, rms_delay_taps 2.2, top3_spatial_pct 54.0
+  SEARCH_TAPS=100: first_tap_pct 79.1, rms_delay_taps 2.2, top3_spatial_pct 54.0
+  aligned: energy kept in window 99.9%; mean PDP dB at taps -10,-5,0,5,10,20,40,60,80,99,150,300: -46.2 -40.8 -4.8 -19.5 -22.7 -19.7 -36.3 -50.4 -58.5 -61.6 -61.7 -63.3
+
+== street B coh 0.606, n 338
+  peak tap (20 ns) pct5/50/95 [-5. -3. -2.]; earliest>-10dB (global) [-6. -5. -3.]
+  energy share by signed tap: <-20 0.1%  [-20,0) 85.1%  [0,20) 13.9%  [20,100) 0.9%  >=100 0.0%
+  SEARCH_TAPS=20: first_tap_pct 75.8, rms_delay_taps 2.5, top3_spatial_pct 44.3
+  SEARCH_TAPS=100: first_tap_pct 75.8, rms_delay_taps 2.5, top3_spatial_pct 44.3
+  aligned: energy kept in window 99.9%; mean PDP dB at taps -10,-5,0,5,10,20,40,60,80,99,150,300: -46.1 -41.3 -8.2 -18.0 -20.4 -26.0 -40.9 -52.9 -58.2 -59.7 -61.0 -61.9
+
+== street C coh 0.701, n 116
+  peak tap (20 ns) pct5/50/95 [-7. -3. -3.]; earliest>-10dB (global) [-7. -4. -4.]
+  energy share by signed tap: <-20 0.1%  [-20,0) 85.6%  [0,20) 13.4%  [20,100) 0.9%  >=100 0.0%
+  SEARCH_TAPS=20: first_tap_pct 79.7, rms_delay_taps 2.3, top3_spatial_pct 58.9
+  SEARCH_TAPS=100: first_tap_pct 79.7, rms_delay_taps 2.3, top3_spatial_pct 58.9
+  aligned: energy kept in window 99.9%; mean PDP dB at taps -10,-5,0,5,10,20,40,60,80,99,150,300: -46.3 -41.4 -7.3 -17.7 -25.1 -20.9 -35.2 -50.8 -58.1 -59.6 -60.2 -61.8
+
+== lab Antenna array near wall coh 0.722, n 3000
+  peak tap (20 ns) pct5/50/95 [-1. -1.  0.]; earliest>-10dB (global) [-2. -1. -1.]
+  energy share by signed tap: <-20 0.0%  [-20,0) 49.4%  [0,20) 50.6%  [20,100) 0.0%  >=100 0.0%
+  SEARCH_TAPS=20: first_tap_pct 95.1, rms_delay_taps 1.4, top3_spatial_pct 43.2
+  SEARCH_TAPS=100: first_tap_pct 95.1, rms_delay_taps 1.4, top3_spatial_pct 43.2
+  aligned: energy kept in window 99.9%; mean PDP dB at taps -10,-5,0,5,10,20,40,60,80,99,150,300: -45.0 -40.0 -3.5 -24.1 -40.9 -48.8 -55.0 -58.9 -60.9 -63.3 -64.5 -67.8
+
+== lab Antenna array near window coh 0.789, n 3000
+  peak tap (20 ns) pct5/50/95 [2. 2. 2.]; earliest>-10dB (global) [1. 2. 2.]
+  energy share by signed tap: <-20 0.0%  [-20,0) 0.1%  [0,20) 99.9%  [20,100) 0.0%  >=100 0.0%
+  SEARCH_TAPS=20: first_tap_pct 95.8, rms_delay_taps 1.3, top3_spatial_pct 41.1
+  SEARCH_TAPS=100: first_tap_pct 95.8, rms_delay_taps 1.3, top3_spatial_pct 41.1
+  aligned: energy kept in window 100.0%; mean PDP dB at taps -10,-5,0,5,10,20,40,60,80,99,150,300: -45.9 -40.7 -3.0 -24.7 -41.4 -49.5 -55.7 -59.6 -61.7 -63.7 -65.3 -68.1
+EXIT 0

@@ -1,0 +1,92 @@
+Thu 29 Oct 2026 15:47:07 EDT
+### cdl_gap factory
+  factory Antenna Array A: coherence 0.851; fit 10339, site 3715, test 5715; first_tap_pct 81.8, rms_delay_taps 1.9, top3_spatial_pct 88.5
+  factory Antenna Array B: coherence 0.860; fit 13993, site 686, test 13614; first_tap_pct 94.0, rms_delay_taps 1.2, top3_spatial_pct 81.5
+  factory Antenna Array C: coherence 0.912; fit 8167, site 3644, test 2738; first_tap_pct 80.7, rms_delay_taps 2.0, top3_spatial_pct 89.0
+  factory Antenna Array D: coherence 0.857; fit 14450, site 1568, test 13610; first_tap_pct 93.4, rms_delay_taps 1.4, top3_spatial_pct 81.9
+
+[spatial] 10 dB, dB above the site-trained ceiling (lower = closer)
+  Antenna Array A              cdl  2.84 | cdl+50  2.04 | best profile cdl-C-300  4.52 | picked  6.80 (cdl-A-100, cdl-A-100, cdl-A-100, cdl-A-100)
+  Antenna Array B              cdl  2.08 | cdl+50  1.05 | best profile cdl-B-100  3.32 | picked  3.50 (cdl-C-100, cdl-C-100, cdl-C-100, cdl-C-100)
+  Antenna Array C              cdl  2.68 | cdl+50  2.53 | best profile cdl-C-300  4.34 | picked  6.26 (cdl-B-100, cdl-A-100, cdl-B-100, cdl-A-100)
+  Antenna Array D              cdl  2.15 | cdl+50  1.30 | best profile cdl-B-100  3.42 | picked  3.63 (cdl-C-100, cdl-B-100, cdl-C-100, cdl-B-100)
+
+[freq_only] 10 dB, dB above the site-trained ceiling (lower = closer)
+  Antenna Array A              cdl  0.84 | cdl+50  0.69 | best profile cdl-C-100  0.32 | picked  1.30 (cdl-E-100, cdl-E-100, cdl-E-100, cdl-E-100)
+  Antenna Array B              cdl  1.41 | cdl+50  0.18 | best profile cdl-B-100  0.51 | picked  0.56 (cdl-C-100, cdl-C-100, cdl-C-100, cdl-C-100)
+  Antenna Array C              cdl  0.71 | cdl+50  1.10 | best profile cdl-C-100  0.40 | picked  1.90 (cdl-E-100, cdl-E-100, cdl-E-100, cdl-D-30)
+  Antenna Array D              cdl  1.39 | cdl+50  0.16 | best profile cdl-B-100  0.42 | picked  0.50 (cdl-C-100, cdl-C-100, cdl-C-100, cdl-C-100)
+ALL DONE
+### cdl_gap street
+  street A: coherence 0.804; fit 10531, site 194, test 620; first_tap_pct 84.3, rms_delay_taps 1.9, top3_spatial_pct 50.5
+  street B: coherence 0.577; fit 9382, site 275, test 754; first_tap_pct 79.1, rms_delay_taps 2.4, top3_spatial_pct 39.6
+  street C: coherence 0.623; fit 7656, site 165, test 391; first_tap_pct 83.7, rms_delay_taps 2.1, top3_spatial_pct 43.5
+
+[spatial] 10 dB, dB above the site-trained ceiling (lower = closer)
+  A                            cdl  2.58 | cdl+50  1.73 | best profile cdl-B-100  5.61 | picked  5.61 (cdl-B-100, cdl-B-100, cdl-B-100, cdl-B-100)
+  B                            cdl  2.73 | cdl+50  1.57 | best profile cdl-B-100  5.14 | picked  5.14 (cdl-B-100, cdl-B-100, cdl-B-100, cdl-B-100)
+  C                            cdl  2.55 | cdl+50  1.41 | best profile cdl-B-100  4.82 | picked  4.82 (cdl-B-100, cdl-B-100, cdl-B-100, cdl-B-100)
+
+[freq_only] 10 dB, dB above the site-trained ceiling (lower = closer)
+  A                            cdl  0.78 | cdl+50  0.11 | best profile cdl-C-100  0.58 | picked  0.58 (cdl-C-100, cdl-C-100, cdl-C-100, cdl-C-100)
+  B                            cdl  0.84 | cdl+50  0.15 | best profile cdl-C-100  0.27 | picked  0.27 (cdl-C-100, cdl-C-100, cdl-C-100, cdl-C-100)
+  C                            cdl  0.86 | cdl+50  0.03 | best profile cdl-C-100  0.47 | picked  0.47 (cdl-C-100, cdl-C-100, cdl-C-100, cdl-C-100)
+ALL DONE
+### cdl_gap lab
+  lab Antenna array near wall: coherence 0.706; fit 17037, site 4309, test 21619; first_tap_pct 95.2, rms_delay_taps 1.4, top3_spatial_pct 43.0
+  lab Antenna array near window: coherence 0.806; fit 17032, site 4282, test 21590; first_tap_pct 95.9, rms_delay_taps 1.3, top3_spatial_pct 40.9
+
+[spatial] 10 dB, dB above the site-trained ceiling (lower = closer)
+  Antenna array near wall      cdl  4.75 | cdl+50  2.51 | best profile cdl-A-30  2.50 | picked  2.50 (cdl-A-30, cdl-A-30, cdl-A-30, cdl-A-30)
+  Antenna array near window    cdl  4.73 | cdl+50  1.54 | best profile cdl-A-30  2.35 | picked  2.35 (cdl-A-30, cdl-A-30, cdl-A-30, cdl-A-30)
+
+[freq_only] 10 dB, dB above the site-trained ceiling (lower = closer)
+  Antenna array near wall      cdl  4.25 | cdl+50  0.04 | best profile cdl-B-30  0.38 | picked  0.42 (cdl-A-30, cdl-B-30, cdl-B-30, cdl-A-30)
+  Antenna array near window    cdl  4.29 | cdl+50  0.02 | best profile cdl-B-30  0.43 | picked  0.43 (cdl-B-30, cdl-B-30, cdl-B-30, cdl-B-30)
+ALL DONE
+### changed datapoints
+street A d006: 2983 usable, changed 0, max diff 7.21e-07
+street A d007: 2470 usable, changed 0, max diff 5.09e-07
+street A d008: 1395 usable, changed 0, max diff 5.33e-07
+street A d009: 3238 usable, changed 0, max diff 5.33e-07
+street A d010: 251 usable, changed 0, max diff 4.80e-07
+street A d014: 194 usable, changed 0, max diff 4.85e-07
+street A d012: 194 usable, changed 0, max diff 4.79e-07
+street A d011: 261 usable, changed 0, max diff 4.92e-07
+street A d013: 359 usable, changed 0, max diff 4.81e-07
+street B d006: 3064 usable, changed 0, max diff 7.31e-07
+street B d007: 2258 usable, changed 0, max diff 5.33e-07
+street B d008: 1456 usable, changed 0, max diff 4.92e-07
+street B d009: 2229 usable, changed 0, max diff 5.96e-07
+street B d010: 311 usable, changed 0, max diff 4.30e-07
+street B d014: 64 usable, changed 0, max diff 4.77e-07
+street B d012: 275 usable, changed 0, max diff 4.30e-07
+street B d011: 338 usable, changed 0, max diff 5.33e-07
+street B d013: 416 usable, changed 0, max diff 7.37e-07
+street C d006: 2683 usable, changed 0, max diff 6.08e-07
+street C d007: 1906 usable, changed 0, max diff 5.09e-07
+street C d008: 848 usable, changed 0, max diff 7.16e-07
+street C d009: 1956 usable, changed 0, max diff 4.92e-07
+street C d010: 60 usable, changed 0, max diff 4.77e-07
+street C d014: 203 usable, changed 0, max diff 3.77e-07
+street C d012: 165 usable, changed 0, max diff 4.77e-07
+street C d011: 116 usable, changed 0, max diff 4.00e-07
+street C d013: 275 usable, changed 0, max diff 4.78e-07
+lab Antenna array near wall 0d54: 21346 usable, changed 0, max diff 7.25e-07
+lab Antenna array near wall 0d56: 21619 usable, changed 0, max diff 7.54e-07
+lab Antenna array near window 0d54: 21314 usable, changed 0, max diff 7.54e-07
+lab Antenna array near window 0d56: 21590 usable, changed 0, max diff 7.54e-07
+### early arrivals
+factory Antenna Array A cf02: 14054 usable, early arrival beyond the search in 0.00%
+factory Antenna Array A cf06: 5715 usable, early arrival beyond the search in 0.00%
+factory Antenna Array B cf02: 14679 usable, early arrival beyond the search in 0.00%
+factory Antenna Array B cf06: 13614 usable, early arrival beyond the search in 0.00%
+factory Antenna Array C cf02: 11811 usable, early arrival beyond the search in 0.00%
+factory Antenna Array C cf06: 2738 usable, early arrival beyond the search in 0.00%
+factory Antenna Array D cf02: 16018 usable, early arrival beyond the search in 0.00%
+factory Antenna Array D cf06: 13610 usable, early arrival beyond the search in 0.00%
+### lab tx height
+Antenna array near wall: best z -0.7 m (coherence 0.758); -1.5:0.722 -1.4:0.728 -1.3:0.734 -1.2:0.740 -1.1:0.745 -1.0:0.750 -0.9:0.754 -0.8:0.757 -0.7:0.758 -0.6:0.758 -0.5:0.756 -0.4:0.753 -0.3:0.748 -0.2:0.743 -0.1:0.736 +0.0:0.729 +0.1:0.723 +0.2:0.717 +0.3:0.712 +0.4:0.708 +0.5:0.702 +0.6:0.694 +0.7:0.682 +0.8:0.668 +0.9:0.656 +1.0:0.647
+Antenna array near window: best z -0.4 m (coherence 0.831); -1.5:0.667 -1.4:0.687 -1.3:0.708 -1.2:0.729 -1.1:0.749 -1.0:0.769 -0.9:0.787 -0.8:0.801 -0.7:0.813 -0.6:0.822 -0.5:0.828 -0.4:0.831 -0.3:0.830 -0.2:0.826 -0.1:0.817 +0.0:0.803 +0.1:0.779 +0.2:0.733 +0.3:0.664 +0.4:0.603 +0.5:0.542 +0.6:0.510 +0.7:0.503 +0.8:0.494 +0.9:0.484 +1.0:0.485
+Thu 29 Oct 2026 16:54:39 EDT
+EXIT
