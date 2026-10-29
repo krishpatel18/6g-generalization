@@ -92,8 +92,8 @@ the map-built scenes lack. One site, one band, one scattering value.
 pre-registered follow-on reran the measured-channel pipeline on two more
 DICHASUS sites recorded with the same sounder. With no site data, the generic
 CDL prior sat 2.5–2.7 dB from a site-trained estimator on the street, 2.1–2.8
-dB in a factory hall and 4.7 dB in a small lab room, whose delay spread lies
-below the prior's 30–300 ns range (a 30 ns profile fixes it per antenna). The
+dB in a factory hall and 4.7 dB in a small lab room, whose delay spread sits
+at the low end of the prior's 30–300 ns range (a 30 ns profile fixes it per antenna). The
 expectation that CDL falls further short in a dense factory was not supported.
 Blending 50 site measurements into the prior closed most of the per-antenna
 gap on most arrays, but not on two of the four factory arrays (cause not

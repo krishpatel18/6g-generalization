@@ -81,7 +81,7 @@ measured channels with one processing chain for every source, which reverses
 it; (4) a diagnosis consistent with the data: the gap comes from
 multipath the map-built scenes lack, which neither more cities, scattering, nor a tuned scattering level
 recovers; and (5) a measurement of how far the generic 3GPP prior falls short
-in three environments, which found it no larger in a factory hall than on an
+in three environments, which found it no larger on the full grid in a factory hall than on an
 open street.
 
 \section{Setup}
@@ -371,7 +371,7 @@ on factory arrays A and C that stretch sat about 4\,m from the array against
 11--12\,m for the test recording, and there, per antenna, the 50 mostly picked
 a line-of-sight profile (CDL-E) and blending helped little or hurt (0.84 to
 0.69\,dB; 0.71 to 1.10). On arrays B and D the mismatch ran the other way
-(about 11 vs 5\,m) and blending worked, so distance alone does not explain the
+(11--13 vs 5\,m) and blending worked, so distance alone does not explain the
 difference. At 0\,dB SNR blending hurt per antenna in the factory on average
 (0.43 to 0.59\,dB). The pre-registration also listed RMS delay spread and
 spatial eigenvalue shares, to be reported without a bar; we dropped them,
@@ -404,8 +404,8 @@ profiles built on it was withdrawn. Measured channels are now first shifted so
 that each datapoint's strongest tap sits at delay zero
 (Section~\ref{sec:measured}). A synthetic check fails without this shift and
 passes with it; no street or lab datapoint changed by more than $10^{-6}$; and
-in no factory datapoint does a tap within 10\,dB of the strongest arrive more
-than 400\,ns before it, where the chain's search would miss it. The numbers
+in no factory datapoint does a tap within 10\,dB of the strongest arrive 400\,ns to 2\,$\mu$s
+before it, where the chain's search would miss it. The numbers
 above are the rerun.
 
 
