@@ -1460,7 +1460,7 @@ blending hurt per antenna in the factory on average (0.43 → 0.59 dB; C
   `runs/dichasus_diagnostics.log`), not 79%.
 - The generic prior draws delay spreads of 30–300 ns (`CDL_DELAY_SPREAD_S`);
   TR 38.901 (§7.7.3) scales CDL to a scenario's delay spread, with examples
-  from 10 to 1000 ns. Much of the lab gap is that mismatch: a 30 ns profile
+  from 10 to 1000 ns. Part of the lab gap is that mismatch (per antenna; about half on the full grid): a 30 ns profile
   closes it per antenna (4.3 → 0.4 dB).
 - The "near wall −0.6 to −0.8 / near window −0.4" transmitter-height sweep
   quoted in the lab amendment had no log; re-run and logged
@@ -1475,15 +1475,15 @@ blending hurt per antenna in the factory on average (0.43 → 0.59 dB; C
 sits 2.1–4.7 dB from a site-trained LMMSE on the full array × frequency grid
 and 0.7–4.3 dB per antenna. The factory hall (2.1–2.8 / 0.7–1.4) is no worse
 than the open street (2.5–2.7 / 0.8–0.9); the outlier is the small lab room
-(4.7 / 4.3), whose delay spread lies below the generic mixture's 30–300 ns,
+(4.7 / 4.3), whose delay spread sits at the low end of the generic mixture's 30–300 ns,
 and a short-delay profile fixes it per antenna. So the pre-registered
 expectation that CDL fails in dense indoor spaces is not supported here, and
 nothing in these three recordings marks out a kind of site where a
 site-specific prior would clearly pay off. Blending 50 site measurements into
-the generic prior helped most at 10 dB SNR, though not on every array or at
-0 dB SNR per antenna in the factory: within 0.2 dB of the ceiling per antenna
+the generic prior was the step that helped most, though not on every factory
+array, nor per antenna in the factory at 0 dB SNR (at 10 dB SNR: within 0.2 dB of the ceiling per antenna
 on the street and in the lab, ≤1.1 dB in the factory, where the indoor site
-block was unrepresentative for two arrays; on the full grid it leaves
-1.0–2.5 dB. A single CDL profile picked from those measurements is worse than
+block may have been unrepresentative for two arrays; on the full grid it
+leaves 1.0–2.5 dB). A single CDL profile picked from those measurements is worse than
 the generic mixture on the full grid everywhere except the lab. This does not
 test a ray-traced prior indoors.

@@ -88,7 +88,7 @@ distances and the gap reopened (2.9 dB behind CDL): closer simulated users are
 even more line-of-sight dominated, while the real street has extra multipath
 the map-built scenes lack. One site, one band, one scattering value.
 
-**5. Where does CDL fall short? Not more in a factory than on a street.** A
+**5. Where does CDL fall short? Not more in a factory than on a street (full grid).** A
 pre-registered follow-on reran the measured-channel pipeline on two more
 DICHASUS sites recorded with the same sounder. With no site data, the generic
 CDL prior sat 2.5–2.7 dB from a site-trained estimator on the street, 2.1–2.8

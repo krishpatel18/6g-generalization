@@ -140,8 +140,8 @@ frequencies; smaller is better):
   mixing them in helped little or made it slightly worse. On those two, the
   50 measurements came from close to the panel while the test users were
   farther away, but on the other two the mismatch ran the other way and it
-  still worked, so we don't know the cause. It also helped less when the
-  signal was very noisy.
+  still worked, so we don't know the cause. In the factory, when the signal was
+  very noisy, it made the per-antenna result slightly worse on average.
 
 **So:** in these three places, nothing marks out a kind of site where a
 custom starting point would clearly pay off. Finding one would take more
