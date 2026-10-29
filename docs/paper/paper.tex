@@ -37,9 +37,10 @@ closed the gap (to 0.3--0.5\,dB) only while simulated users stood farther away
 than the real ones; with users at the real distances, even a scattering level
 tuned from 50 site measurements left the prior about 2\,dB behind CDL. The map-built scenes miss
 multipath the real street has. A pre-registered follow-on on two more measured
-environments found the generic CDL prior 2.1--4.7\,dB from a site-trained one:
+environments found the generic CDL prior 2.1--4.7\,dB from a site-trained one
+on the full grid:
 no further in a factory hall than on the street, furthest in a small lab room
-whose delay spread lies below the prior's range. All measured results come
+whose delay spread sits at the low end of the prior's range. All measured results come
 from one sounder and one band.
 \end{abstract}
 
@@ -63,10 +64,10 @@ machine learning~\cite{morais2025}. We ask a narrower question: for a site
 \emph{other} ray-traced cities better than the 3GPP models? And is a learned
 estimator what makes the difference?
 
-We answer in three steps: (i) leave-one-city-out experiments in simulation,
+We answer in three steps, plus a follow-on: (i) leave-one-city-out experiments in simulation,
 (ii) the same question for short-term channel prediction, where learning has
 more room, and (iii) a test of the main simulation finding on measured
-channels; a follow-on (iv) asks how far the 3GPP prior falls short in three
+channels; the follow-on (iv) asks how far the 3GPP prior falls short in three
 measured environments. Each main experiment's expected outcome and pass/fail bar was
 committed to the lab notebook before it ran; follow-up checks are labelled as
 post-hoc or exploratory. The code, notebook, logs and result tables are
@@ -77,10 +78,11 @@ ray-traced and 3GPP priors across 14 cities, showing pooling as insurance in
 simulation; (2) evidence that, on this simulator, classical estimators and
 predictors match or beat learned ones; (3) a test of the simulation finding on
 measured channels with one processing chain for every source, which reverses
-it; and (4) a diagnosis consistent with the data: the gap comes from
+it; (4) a diagnosis consistent with the data: the gap comes from
 multipath the map-built scenes lack, which neither more cities, scattering, nor a tuned scattering level
 recovers; and (5) a measurement of how far the generic 3GPP prior falls short
-in three environments, which found no environment where it clearly fails.
+in three environments, which found it no larger in a factory hall than on an
+open street.
 
 \section{Setup}
 
@@ -208,7 +210,8 @@ the fit also identified the array layout (8-element axis horizontal: coherence
 Every source---measured, CDL and ray-traced---is generated on the full
 50\,MHz band and passes through one chain: align the first arrival to delay
 zero (measured datapoints are first shifted so their strongest tap sits at
-zero, removing the recording's timing offset), keep a delay window of $-$200\,ns to 2\,$\mu$s, take the 128 subcarriers
+zero, removing the recording's timing offset; added during the follow-on, it
+leaves the street results unchanged), keep a delay window of $-$200\,ns to 2\,$\mu$s, take the 128 subcarriers
 around the carrier (6.25\,MHz), normalise. The grid is 16 antennas $\times$ 128
 subcarriers in one snapshot, pilots on every other subcarrier. All 14 cities
 were re-simulated at 1.272\,GHz with the 2$\times$8 array, a directional
@@ -257,7 +260,7 @@ taller bars are better.}
 
 \paragraph{Why.} The simulated channels were cleaner in delay than the
 measured street: 89--100\% of energy in the first 160\,ns tap across the 14
-cities, against 79--84\% measured (CDL 79\%). Spatial concentration was not
+cities, against 79--84\% measured (CDL 78\%). Spatial concentration was not
 clearly different. The ray tracer ran with the original study's settings:
 specular reflection and refraction only, no diffuse scattering, no diffraction,
 every material's scattering coefficient zero. In an exploratory rerun, added
@@ -300,8 +303,8 @@ the ray-traced paths~\cite{tr38901}.
 \label{sec:cdlgap}
 
 A site-specific prior, ray-traced or otherwise, only earns its cost where the
-3GPP models are a poor prior. As a follow-on, pre-registered before its
-results, we measured that gap in three environments recorded with the same
+3GPP models are a poor prior. As a follow-on, pre-registered before the
+lab and factory results (the street gap was already known), we measured that gap in three environments recorded with the same
 sounder at 1.272\,GHz: the street above, an indoor lab room with two 2$\times$8
 arrays (\texttt{0d5x}~\cite{dichasuslab}) and a factory hall with four
 2$\times$4 arrays placed around it, with line-of-sight and blocked positions
@@ -326,14 +329,15 @@ wherever it is at least 1\,dB.
 
 \begin{table}[t]
 \centering
-\small
+\footnotesize
+\setlength{\tabcolsep}{4pt}
 \begin{tabular}{lccccc}
 \toprule
  & & \multicolumn{4}{c}{dB above the site-trained ceiling: full grid / per antenna} \\
 \cmidrule(l){3-6}
-environment & first tap & generic CDL & CDL\,+\,50 & picked profile & best profile (oracle) \\
+environment & first tap & generic CDL & CDL\,+\,50 & picked & oracle \\
 \midrule
-street (3 arrays, 2$\times$8) & 79--84\% & 2.5--2.7 / 0.8--0.9 & 1.4--1.7 / 0.0--0.2 & 4.8--5.6 / 0.3--0.6 & 4.8--5.6 / 0.3--0.6 \\
+street (3 arrays, 2$\times$8) & 79--84\% & 2.5--2.7 / 0.8--0.9 & 1.4--1.7 / 0.0--0.1 & 4.8--5.6 / 0.3--0.6 & 4.8--5.6 / 0.3--0.6 \\
 lab room (2, 2$\times$8) & 95--96\% & 4.7 / 4.3 & 1.5--2.5 / 0.0 & 2.3--2.5 / 0.4 & 2.3--2.5 / 0.4 \\
 factory (4, 2$\times$4) & 81--94\% & 2.1--2.8 / 0.7--1.4 & 1.0--2.5 / 0.2--1.1 & 3.5--6.8 / 0.5--1.9 & 3.3--4.5 / 0.3--0.5 \\
 \bottomrule
@@ -346,47 +350,63 @@ measurements pick; oracle: the best one on the test recording.}
 \label{tab:cdlgap}
 \end{table}
 
-\paragraph{Results.} G1 is falsified: the factory gap (2.1--2.8\,dB, mean
-2.4) is no larger than the street's (2.5--2.7, mean 2.6), also at 0\,dB SNR
-(Table~\ref{tab:cdlgap}). The stop rule G2 was not triggered: the full-grid
-gap is at least 2\,dB everywhere. The largest gap is in the lab room (4.7\,dB
-full grid, 4.3 per antenna). G3 is not met in any environment on the full
-grid, the basis of the other two claims: a single picked profile was
+\paragraph{Results.} These are the results after a processing fix made
+during review (described at the end of this section); the first, faulty
+analysis had supported G1. G1 is falsified: the factory gap (2.1--2.8\,dB,
+mean 2.4) is no larger than the street's (2.5--2.7, mean 2.6), also at 0\,dB
+SNR (Table~\ref{tab:cdlgap}); per antenna, a secondary reading, it is
+slightly larger (1.1 vs 0.8\,dB). The stop rule G2 was not triggered: the
+full-grid gap is at least 2\,dB everywhere. The largest gap is in the lab room
+(4.7\,dB full grid, 4.3 per antenna). G3 named no basis. On the full grid, the
+basis of G1 and G2, it is met nowhere: a single picked profile was
 \emph{worse} than the generic mixture on the street and in the factory, and
-closed 49\% of the gap in the lab (53\% at 0\,dB SNR, just over the bar). Per antenna, a secondary reading, it closed
-the lab gap (4.3 to 0.4\,dB) and left the factory unchanged. Blending the 50
-site measurements into the generic prior was the robust step: within 0.2\,dB
-of the ceiling per antenna on the street and in the lab, at most 1.1\,dB in the
-factory, and 1.0--2.5\,dB on the full grid. Indoors the 50 measurements come
-from one stretch of the recording; on two factory arrays that stretch sat
-about 4\,m from the array against 11--12\,m for the test recording, and there
-the 50 picked a line-of-sight profile (CDL-E) and blending them in helped
-little or hurt per antenna (0.84 to 0.69\,dB; 0.71 to 1.10).
+closed 49\% of the gap in the lab (53\% at 0\,dB SNR, just over the bar). Per
+antenna it is met in the lab (4.3 to 0.4\,dB) but not in the factory, where
+picking helped on arrays B and D and hurt on A and C (mean 1.09 to 1.06\,dB).
+Blending the 50 site measurements into the generic prior helped most: at
+10\,dB SNR, within 0.2\,dB of the ceiling per antenna on the street and in the
+lab, at most 1.1\,dB in the factory, and 1.0--2.5\,dB on the full grid. It was
+not uniformly helpful. Indoors the 50 come from one stretch of the recording;
+on factory arrays A and C that stretch sat about 4\,m from the array against
+11--12\,m for the test recording, and there, per antenna, the 50 mostly picked
+a line-of-sight profile (CDL-E) and blending helped little or hurt (0.84 to
+0.69\,dB; 0.71 to 1.10). On arrays B and D the mismatch ran the other way
+(about 11 vs 5\,m) and blending worked, so distance alone does not explain the
+difference. At 0\,dB SNR blending hurt per antenna in the factory on average
+(0.43 to 0.59\,dB). The pre-registration also listed RMS delay spread and
+spatial eigenvalue shares, to be reported without a bar; we dropped them,
+because on this grid the RMS statistic is dominated by leakage and noise and
+does not track the true delay spread, and the spatial share is not comparable
+between 8- and 16-antenna arrays. The factory test recording was not split
+into line-of-sight and blocked positions.
 
 \paragraph{Reading.} The pre-registered expectation, that CDL falls further
 short in a dense indoor space than on an open street, is not supported by
 these recordings: the factory hall is about as close as the street. The
 outlier is the small lab room, whose energy nearly all arrives within one
-160\,ns tap, below the generic mixture's delay-spread range. That is largely a
-choice of the mixture rather than a failure of the 3GPP models: TR~38.901
-scales CDL to a scenario's delay spread, with examples from 10 to
-1000\,ns~\cite{tr38901}, and a 30\,ns profile fixes the lab per antenna. So
-none of the three environments stands out as one where a site-specific prior
-would clearly pay off. In all three, the step that helped was blending site
-measurements into the generic prior rather than choosing a profile, except
-on the two factory arrays where the 50 came from much closer to the array than
-the test users. Three recordings with
-different arrays cannot rule out such sites elsewhere, and this study did not
-test a ray-traced prior indoors.
+160\,ns tap, at the low end of the generic mixture's 30--300\,ns delay-spread
+range. That is partly a choice of the mixture rather than a failure of the
+3GPP models: TR~38.901 scales CDL to a scenario's delay spread, with examples
+from 10 to 1000\,ns~\cite{tr38901}, and a 30\,ns profile fixes the lab per
+antenna (on the full grid it closes about half the gap). It is not the whole
+story: factory arrays B and D also put 93--94\% of their energy in the first
+tap but show much smaller gaps, for reasons we have not established. None of
+the three environments stands out as one where a site-specific prior would
+clearly pay off. Three recordings with different arrays cannot rule out such
+sites elsewhere, and this study did not test a ray-traced prior indoors.
 
 \paragraph{A correction.} A review of this follow-on found that the factory
 recordings carry a timing offset that drifts across the whole delay range
 between datapoints, far beyond the chain's first-arrival search. A first
 analysis therefore kept mostly noise for the factory and reported a
-10--12\,dB gap, which supported G1. Measured channels are now first shifted so
-that each datapoint's strongest tap sits at delay zero (Section~\ref{sec:measured});
-the street and lab results are unchanged by this, and the numbers above are the
-rerun.
+10--12\,dB gap, which supported G1; a post-hoc check with longer-delay CDL
+profiles built on it was withdrawn. Measured channels are now first shifted so
+that each datapoint's strongest tap sits at delay zero
+(Section~\ref{sec:measured}). A synthetic check fails without this shift and
+passes with it; no street or lab datapoint changed by more than $10^{-6}$; and
+in no factory datapoint does a tap within 10\,dB of the strongest arrive more
+than 400\,ns before it, where the chain's search would miss it. The numbers
+above are the rerun.
 
 
 \section{Discussion and limitations}
@@ -400,9 +420,9 @@ it. Even closing the gap would not, on its own, be useful: CDL is free and
 needs no maps, simulation or tuning, so a ray-traced prior earns its cost only
 where it clearly beats CDL. Our simulation study suggested such sites exist
 (Florence and San Francisco gained 1--1.5\,dB over CDL in simulation), but the
-measured street is not one, and neither the lab room nor the factory hall of
-the follow-on showed a gap much larger than the street's once the lab's short
-delay spread is accounted for (Section~\ref{sec:cdlgap}).
+measured street is not one, and in the follow-on the factory hall's gap was no
+larger than the street's; the lab room's larger gap shrinks per antenna once a
+short-delay profile is used (Section~\ref{sec:cdlgap}).
 Several limits apply.
 \begin{itemize}
 \item The ray-traced priors were tested on one measured site: one street, one building, three arrays on its
@@ -421,7 +441,9 @@ Several limits apply.
   and were dropped, so simulated users skew toward simpler links.
 \item The follow-on compares three recordings made with different arrays
   (2$\times$8 on the street and in the lab, 2$\times$4 in the factory), one
-  test recording each, ceilings at different absolute levels, and indoor site
+  test recording each, ceilings trained differently (separate recordings on
+the street, 80\% of one recording indoors) and at different absolute levels,
+and indoor site
   measurements from one contiguous stretch of a recording; the lab's
   transmitter height is assumed (positions are two-dimensional).
 \item The scattering, distance and tuning probes are exploratory: 7
@@ -446,9 +468,11 @@ Learned models never beat the classical methods; at best they refined them.
 The practical reading is that, without scene content the maps lack, a
 ray-traced prior from other cities is not yet a better default than the free
 3GPP models. A follow-on on two more measured environments points the same
-way: the generic CDL prior was 2--5\,dB from a site-trained one at all three
-sites, with no environment where it clearly failed, and blending a few site
-measurements into it closed most of the per-antenna gap.
+way: the generic CDL prior was 2.1--4.7\,dB from a site-trained one on the full
+grid at all three sites, no larger in a factory hall than on the street and
+largest in a small room whose delay spread sits at the low end of the prior's
+range; blending 50 site measurements into it closed most of the per-antenna
+gap, though not on every array.
 
 \paragraph{Open questions.} (i) \emph{Where does CDL fail?} Three recordings
 found no clear case; more environments, recorded with one array type and with
@@ -469,7 +493,7 @@ paper. Channel sets are regenerated by the scripts; the measured data is
 public under CC BY 4.0~\cite{dichasusdata}.
 
 \begin{thebibliography}{99}\small
-\bibitem{tr38901} 3GPP, ``Study on channel model for frequencies from 0.5 to 100 GHz,'' TR 38.901.
+\bibitem{tr38901} 3GPP, ``Study on channel model for frequencies from 0.5 to 100 GHz,'' TR 38.901 (v17.0.0, 2022); delay scaling in \S7.7.3.
 \bibitem{sionna} J.~Hoydis, S.~Cammerer, F.~Ait~Aoudia, A.~Vem, N.~Binder, G.~Marcus, A.~Keller, ``Sionna: An open-source library for next-generation physical layer research,'' arXiv:2203.11854, 2022.
 \bibitem{sionnart} J.~Hoydis, F.~A\"it~Aoudia, S.~Cammerer, M.~Nimier-David, N.~Binder, G.~Marcus, A.~Keller, ``Sionna RT: Differentiable ray tracing for radio propagation modeling,'' arXiv:2303.11103, 2023.
 \bibitem{geo2sigmap} Functions Lab, ``geo2sigmap,'' \url{https://github.com/functions-lab/geo2sigmap} (commit 08ca016).

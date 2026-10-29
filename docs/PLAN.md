@@ -1377,14 +1377,15 @@ weakest (no machinery, shelving or clutter in the maps).
 a separate check, `scratch/timing_offset_check.py`, `runs/timing_offset_check.log`)
 found that the factory recordings (`cf0x`) carry a timing offset, common to all
 antennas of a datapoint, that drifts across the whole 1024-tap delay range
-between datapoints (about 200 taps per second; the strongest tap sits within
-±20 taps of zero for only ~4% of datapoints). `wideband.to_grid` searches the
+between datapoints (about 200 taps per second, a reviewer's estimate from
+consecutive datapoints; only ~4% of the energy lies within ±20 taps of zero,
+consistent with a near-uniform peak position). `wideband.to_grid` searches the
 first arrival only within ±20 taps (±400 ns) of zero and keeps −200 ns to
 2 µs around it, so for most factory datapoints the kept window held ~10% of
 the energy, mostly leakage and noise, which the unit-power normalisation then
 scaled up. The calibration coherence could not show it: it compares antennas
-with each other, which cancels a delay they share. Street (strongest tap −8 to
-+1 taps) and lab (−1 to +2) sit inside the search.
+with each other, which cancels a delay they share. Street (strongest tap −7 to
++1 taps, 5th–95th percentile) and lab (−1 to +2) sit inside the search.
 
 **Fix.** `dichasus.measured` first shifts each datapoint, circularly by whole
 taps, so its strongest tap sits at delay zero, then runs the unchanged chain;
@@ -1404,7 +1405,7 @@ lab are unchanged from the first run:
 
 | environment (arrays) | first-tap share | generic CDL | CDL + 50 | picked profile | best profile on test (oracle) |
 |---|---|---|---|---|---|
-| street (A, B, C; 2×8) | 79–84% | 2.5–2.7 / 0.8–0.9 | 1.4–1.7 / 0.0–0.2 | 4.8–5.6 / 0.3–0.6 | 4.8–5.6 / 0.3–0.6 |
+| street (A, B, C; 2×8) | 79–84% | 2.5–2.7 / 0.8–0.9 | 1.4–1.7 / 0.0–0.1 | 4.8–5.6 / 0.3–0.6 | 4.8–5.6 / 0.3–0.6 |
 | lab room (2; 2×8) | 95–96% | 4.7 / 4.3 | 1.5–2.5 / 0.0 | 2.3–2.5 / 0.4 | 2.3–2.5 / 0.4 |
 | factory (A–D; 2×4) | 81–94% | 2.1–2.8 / 0.7–1.4 | 1.0–2.5 / 0.2–1.1 | 3.5–6.8 / 0.5–1.9 | 3.3–4.5 / 0.3–0.5 |
 
@@ -1422,19 +1423,26 @@ Claims, re-evaluated on the registered basis (full grid, means over arrays):
   and factory still fail. Per antenna, a secondary reading, it was met only in the lab (90%);
   the factory per-antenna gap (1.09) went to 1.06. On the street the mixture
   beat every single profile on the full grid, so a single picked profile
-  could not win there by construction.
+  could not win there by construction; the same holds in the factory (best
+  profile 3.3–4.5 dB vs generic 2.1–2.8). The 50 picked the test-best profile
+  in 24/24 draws on the street, 14/16 in the lab and 2/32 in the factory
+  (10 dB, both variants).
 - The post-hoc longer-delay check (CDL at 600 / 1000 / 2000 ns) is withdrawn:
   it fitted the corrupted factory channels. Its files are removed
   (`cdl_gap_factory_long.*`, in git history).
 
-**Site-block caveat (found on the rerun).** Indoors the 50 site measurements
+**Site-block caveat (found on the rerun; cause not established).** Indoors the 50 site measurements
 come from one contiguous block of the fit recording, not from across the
 environment. On factory arrays A and C that block sits at a median 4.1–4.4 m
 from the array, the test recording at 10.7–12.2 m
 (`scratch/factory_site_positions.py`, `runs/factory_site_positions.log`). There
 the 50 picked a line-of-sight profile (CDL-E) and blending them in helped
 little per antenna (A: 0.84 → 0.69 dB) or hurt (C: 0.71 → 1.10). On arrays B
-and D (block 10.5–12.8 m, test ~5 m) blending worked (1.4 → 0.2).
+and D (block 10.5–12.8 m, test ~5 m), a mismatch the other way, blending
+worked (1.4 → 0.2), so distance alone does not explain it; the per-antenna
+picks on A and C were mostly CDL-E (one draw on C picked D-30). At 0 dB SNR
+blending hurt per antenna in the factory on average (0.43 → 0.59 dB; C
+0.12 → 1.27) and slightly on street array B (0.13 → 0.19).
 
 **Other corrections from the review.**
 - The lab recording `0d54` is stored in reverse time order: "first 80% in
@@ -1472,7 +1480,8 @@ and a short-delay profile fixes it per antenna. So the pre-registered
 expectation that CDL fails in dense indoor spaces is not supported here, and
 nothing in these three recordings marks out a kind of site where a
 site-specific prior would clearly pay off. Blending 50 site measurements into
-the generic prior is the robust step: within 0.2 dB of the ceiling per antenna
+the generic prior helped most at 10 dB SNR, though not on every array or at
+0 dB SNR per antenna in the factory: within 0.2 dB of the ceiling per antenna
 on the street and in the lab, ≤1.1 dB in the factory, where the indoor site
 block was unrepresentative for two arrays; on the full grid it leaves
 1.0–2.5 dB. A single CDL profile picked from those measurements is worse than

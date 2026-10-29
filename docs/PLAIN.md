@@ -136,9 +136,12 @@ frequencies; smaller is better):
   and picking a short one fixes most of the lab gap for each antenna on
   its own (about half of it across the whole panel).
 - **What helps most is mixing a few real measurements into the starting
-  point.** The exception: in the factory, on two of the four antenna panels, the 50 early
-  measurements came from close to the panel while the test users were
-  farther away, and mixing them in helped little or made it slightly worse.
+  point.** The exception: in the factory, on two of the four antenna panels,
+  mixing them in helped little or made it slightly worse. On those two, the
+  50 measurements came from close to the panel while the test users were
+  farther away, but on the other two the mismatch ran the other way and it
+  still worked, so we don't know the cause. It also helped less when the
+  signal was very noisy.
 
 **So:** in these three places, nothing marks out a kind of site where a
 custom starting point would clearly pay off. Finding one would take more

@@ -3,7 +3,9 @@
 Measured channels (DICHASUS) carry an unknown timing offset and measurement noise;
 simulated ones don't. To compare them fairly, every source goes through the same
 steps: align the first arrival to delay 0, keep a delay window around it, then take
-the grid's subcarriers around the carrier. Input frequencies ascend (fftshifted).
+the grid's subcarriers around the carrier. Measured channels are first shifted to
+their strongest tap (`dichasus.measured`), which removes a recording's bulk timing
+offset; simulated channels start at their first arrival and need no such step. Input frequencies ascend (fftshifted).
 """
 
 import numpy as np
