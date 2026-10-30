@@ -62,8 +62,9 @@ def use_tracks() -> None:
 STREET_DOWNTILT_RAD = float(np.arcsin(0.349))
 
 
-def use_dichasus(rows: int = 2, cols: int = 8, downtilt_rad: float = STREET_DOWNTILT_RAD) -> None:
-    """A DICHASUS setup: 1.272 GHz, a rows x cols array (default: the outdoor street's 2 x 8 on
+def use_dichasus(rows: int = 2, cols: int = 8, downtilt_rad: float = STREET_DOWNTILT_RAD,
+                 carrier_hz: float = 1.272e9) -> None:
+    """A DICHASUS setup: 1.272 GHz (the hallway set: 3.438 GHz), a rows x cols array (default: the outdoor street's 2 x 8 on
     a facade tilted ~20 deg down), 50 MHz / 1024 subcarriers reduced to one snapshot of 128
     subcarriers (6.25 MHz)."""
     global CARRIER_HZ, SUBCARRIER_SPACING_HZ, NUM_ANTENNAS, NUM_SYMBOLS, NUM_SUBCARRIERS, \
@@ -71,7 +72,7 @@ def use_dichasus(rows: int = 2, cols: int = 8, downtilt_rad: float = STREET_DOWN
         WIDEBAND_SUBCARRIERS
     if WIDEBAND_SUBCARRIERS:
         return
-    CARRIER_HZ = 1.272e9
+    CARRIER_HZ = float(carrier_hz)
     WIDEBAND_SUBCARRIERS = 1024
     SUBCARRIER_SPACING_HZ = 50e6 / WIDEBAND_SUBCARRIERS
     NUM_ANTENNAS, ARRAY_ROWS = rows * cols, rows
@@ -90,7 +91,8 @@ def config_tag() -> str:
     return (f"a{NUM_ANTENNAS}_sc{NUM_SUBCARRIERS}" + ("_track" if TRACK_TIMES else "")
             + ("_dichasus" if WIDEBAND_SUBCARRIERS else "")
             + (f"_r{ARRAY_ROWS}_t{round(np.degrees(DOWNTILT_RAD))}"
-               if WIDEBAND_SUBCARRIERS and (ARRAY_ROWS, DOWNTILT_RAD) != (2, STREET_DOWNTILT_RAD) else ""))
+               if WIDEBAND_SUBCARRIERS and (ARRAY_ROWS, DOWNTILT_RAD) != (2, STREET_DOWNTILT_RAD) else "")
+            + (f"_f{CARRIER_HZ / 1e6:.0f}" if WIDEBAND_SUBCARRIERS and CARRIER_HZ != 1.272e9 else ""))
 
 
 def subcarrier_offsets_hz() -> np.ndarray:

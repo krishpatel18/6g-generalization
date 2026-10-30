@@ -1611,3 +1611,56 @@ Sionna 2.2 gradients on Metal were checked (`scratch/rt_grad_check.py`).
   measured part (2).
 - If T1 fails, the result is negative: write it up and stop. Scaling up is
   Krish's call either way.
+
+### Trial — stage 1 result and gate (2026-10-30)
+
+`runs/hallway_calibrate.json` / `.log`: 256 fit positions, 1,000 test positions,
+Nelder-Mead with 250 evaluations (45 min). Held-out (test) values, with the
+paper's Table II in brackets:
+
+| | power ALE mean / median (dB) | delay-spread RAE mean |
+|---|---|---|
+| ITU materials | 6.13 / 4.10 (paper 4.93) | 0.42 (0.54) |
+| calibrated | 6.30 / 3.18 (paper 2.16) | 0.28 (0.24) |
+
+The fitted materials:
+- Ceiling: conductivity 8.8 S/m, which is metal-like. The paper notes a
+  metallic grid in the ceiling.
+- Walls: conductivity at the bottom of the range.
+- Floor: relative permittivity 2.6.
+
+**Breakdown** (post hoc; `scratch/hallway_ale_breakdown.py`,
+`runs/hallway_ale_breakdown.log`):
+- **Corridor** (713 test positions): calibration improves ALE from 4.18 to
+  2.41 dB mean (median 3.10 → 2.09).
+- **Lobby** (x < 0.5 m, 287 positions): ALE gets worse, 10.95 → 15.96 dB
+  mean. The model under-predicts power there by 30–40 dB at the far side of
+  the entrance hall. The paper also reports large entrance-hall errors that
+  calibration does not fix; here they grow instead.
+
+**Gate.**
+- As written, it is **not met**: mean ALE did not improve.
+- RAE reproduces.
+- On the corridor subset (post hoc), ALE reproduces too.
+- **Proceeding** because stage 2's regions were fixed before any stage 1
+  number existed and are both corridor-only (A: y < 0; B: y > 10).
+
+**Pre-results clarifications to stage 2** (before any stage 2 number):
+- **Twin calibration data.** Fitted on A datapoints usable for both arrays
+  under the study's SNR rule. In A the North array, ≥28 m away, has only
+  ~12% usable datapoints, and the loss would otherwise fit near-noise power
+  and delay spread. Stage 1 used no SNR rule (as the paper).
+- **Twin prior size.** The twin prior uses 12,000 simulated positions, not
+  2,000, to match CDL's 12,000 samples. With 2,000 the twin's covariance would
+  be rank-deficient, which would handicap it for reasons unrelated to the
+  question.
+- **Parameter range.** Log-parameters are clipped to the paper's range
+  (εr − 1 ∈ [1e-3, 200], σ ∈ [1e-3, 1e6] S/m). Stage 1's wall conductivity
+  had left that range.
+- **Test sets.** Each array's test set is drawn from datapoints in B's last
+  30% that are usable for that array (up to 1,500).
+- **Descriptive statistics.** First-tap share and top-3 spatial share are
+  reported for each prior and for the measured test set.
+- **Antenna layout.** The calibration coherence on A is 0.91 (North) and 0.55
+  (South); the layout as specified fits best of the four mirror options
+  (scratch check).

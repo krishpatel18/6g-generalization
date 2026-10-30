@@ -1,9 +1,11 @@
 """Convert DICHASUS .tfrecords to .npz (run with a Python that has TensorFlow).
 
-usage: <tf-python> -I scripts/dichasus_convert.py <file.tfrecords> [...]
-Writes <file>.npz next to each input: csi [n, 48, 1024] complex64, pos [n, 3],
+usage: <tf-python> -I scripts/dichasus_convert.py [--stream] <file.tfrecords> [...]
+Writes <file>.npz next to each input: csi [n, A, 1024] complex64, pos [n, 3],
 snr [n, A], time [n], interp_age [n] (positions from the tachymeter or the lidar,
-whichever the dataset has). Antenna order is DICHASUS's index order;
+whichever the dataset has). With --stream (for recordings too large to hold in
+memory), csi goes to <file>.csi.npy, written in place and readable with
+np.load(mmap_mode="r"), and the rest to <file>.npz. Antenna order is DICHASUS's index order;
 spec.json maps each array's 2 x 8 elements to these indices.
 """
 import sys
@@ -30,18 +32,30 @@ def tensor(raw, *dtypes):
     raise ValueError("unexpected tensor type")
 
 
-for path in sys.argv[1:]:
+stream = "--stream" in sys.argv
+for path in [a for a in sys.argv[1:] if a != "--stream"]:
     spec, source = features(path)
     csi, pos, snr, time, age = [], [], [], [], []
-    for rec in tf.data.TFRecordDataset(path):
+    if stream:
+        n = sum(1 for _ in tf.data.TFRecordDataset(path))
+        first = tf.io.parse_tensor(tf.io.parse_single_example(next(iter(tf.data.TFRecordDataset(path))), spec)["csi"], tf.float32)
+        csi = np.lib.format.open_memmap(path.rsplit(".", 1)[0] + ".csi.npy", mode="w+", dtype=np.complex64,
+                                        shape=(n, *first.shape[:-1]))
+    for i, rec in enumerate(tf.data.TFRecordDataset(path)):
         ex = tf.io.parse_single_example(rec, spec)
         c = tf.io.parse_tensor(ex["csi"], tf.float32).numpy()
-        csi.append((c[..., 0] + 1j * c[..., 1]).astype(np.complex64))
+        c = (c[..., 0] + 1j * c[..., 1]).astype(np.complex64)
+        if stream:
+            csi[i] = c
+        else:
+            csi.append(c)
         pos.append(tensor(ex[f"pos-{source}"], tf.float64, tf.float32).astype(np.float64))
         snr.append(tf.io.parse_tensor(ex["snr"], tf.float32).numpy())
         time.append(ex["time"].numpy())
         age.append(ex[f"gt-interp-age-{source}"].numpy())
     out = path.rsplit(".", 1)[0] + ".npz"
-    np.savez(out, csi=np.stack(csi), pos=np.stack(pos), snr=np.stack(snr), time=np.array(time),
+    if stream:
+        csi.flush()
+    np.savez(out, **({} if stream else {"csi": np.stack(csi)}), pos=np.stack(pos), snr=np.stack(snr), time=np.array(time),
              interp_age=np.array(age))
     print(f"{out}: {len(csi)} datapoints", flush=True)
