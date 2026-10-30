@@ -34,13 +34,20 @@ A_MAX_Y, B_MIN_Y = 0.0, 10.0  # model frame; both regions are corridor (the lobb
 B_FOOTPRINT = ((0.5, 1.8), (10.0, 25.0))
 CEILING_FRACTION, MAX_TEST = 0.7, 1500
 N_TWIN, N_FIT_TWIN, MAX_A = 12000, 256, 4000
+MATERIALS = RUNS / "hallway_twin_materials.json"
+
+
+def to_grid(h: np.ndarray) -> np.ndarray:
+    """Simulated [n, 2, 32, 1024] -> grid channels [n, 2, 32, 1, 128], not normalised (a batch
+    reducer for `Twin.simulate`)."""
+    return np.stack([wideband.to_grid(h[:, a, :, None, :]) for a in range(h.shape[1])], axis=1)
 
 
 def on_grid(h: np.ndarray, array: int) -> np.ndarray:
-    """Simulated [n, 2, 32, 1024] -> one array's grid channels [n, 32, 1, 128], unit power
-    (positions the ray tracer finds no path to are dropped)."""
-    h = h[:, array, :, None, :]
-    return grid.normalize_power(wideband.to_grid(h[np.sum(np.abs(h) ** 2, axis=(1, 2, 3)) > 0]))
+    """One array's grid channels [n, 32, 1, 128] at unit power, dropping positions the ray
+    tracer finds no path to."""
+    h = h[:, array]
+    return grid.normalize_power(h[np.sum(np.abs(h) ** 2, axis=(1, 2, 3)) > 0])
 
 
 def main(max_evals: int = 250) -> None:
@@ -60,19 +67,27 @@ def main(max_evals: int = 250) -> None:
     both = np.logical_and.reduce([hallway.usable(data, arr, a_idx) for arr in hallway.arrays()])
     fit_idx = np.sort(rng.choice(a_idx[both], min(N_FIT_TWIN, both.sum()), replace=False))
     print(f"twin fit: {len(fit_idx)} of {both.sum()} A datapoints usable for both arrays", flush=True)
-    u0, u, *_, itu_loss, cal_loss, evals = calibrate(twin, data["pos"][fit_idx],
-                                                     stats(hallway.calibrated(data, fit_idx)), max_evals)
-    fitted = {k: [float(v) for v in p] for k, p in materials(u).items()}
+    if MATERIALS.exists():  # calibration is the slow step (~45 min); reuse a finished one
+        saved = json.loads(MATERIALS.read_text())
+        assert saved["fit_idx"] == fit_idx.tolist(), "saved calibration used other fit positions"
+        fitted, itu_loss, cal_loss, evals = saved["materials"], saved["itu_loss"], saved["cal_loss"], saved["evaluations"]
+        print(f"reusing {MATERIALS}", flush=True)
+    else:
+        _, u, *_, itu_loss, cal_loss, evals = calibrate(twin, data["pos"][fit_idx],
+                                                        stats(hallway.calibrated(data, fit_idx)), max_evals)
+        fitted = {k: [float(v) for v in p] for k, p in materials(u).items()}
+        MATERIALS.write_text(json.dumps(dict(materials=fitted, itu_loss=itu_loss, cal_loss=cal_loss,
+                                             evaluations=evals, fit_idx=fit_idx.tolist())))
     print(f"twin calibrated on A: loss {itu_loss:.4f} -> {cal_loss:.4f} ({evals} evaluations); {json.dumps(fitted)}",
           flush=True)
     (lo_x, hi_x), (lo_y, hi_y) = B_FOOTPRINT
     z = float(np.median(data["pos"][keep, 2]))
     nb = np.c_[rng.uniform(lo_x, hi_x, N_TWIN), rng.uniform(lo_y, hi_y, N_TWIN), np.full(N_TWIN, z)]
     sims = {}
-    for label, params in (("twin_itu", u0), ("twin_cal", u)):
-        twin.set_materials(materials(params))
-        sims[label] = twin.simulate(nb)
-    sims["twin_exact"] = twin.simulate(data["pos"][b_test])  # still the calibrated materials
+    for label, params in (("twin_itu", twin.itu), ("twin_cal", fitted)):
+        twin.set_materials({k: tuple(v) for k, v in params.items()})
+        sims[label] = twin.simulate(nb, reduce=to_grid)
+    sims["twin_exact"] = twin.simulate(data["pos"][b_test], reduce=to_grid)  # still the calibrated materials
     print("twin channels simulated", flush=True)
 
     cdl = channels.generate("cdl", 12000, 1, mmap=True)

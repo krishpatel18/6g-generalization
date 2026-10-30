@@ -158,11 +158,13 @@ class Twin:
         return paths.cfr(frequencies=self.mi.Float(self.freqs.astype(np.float32)), normalize_delays=False,
                          out_type="drjit")
 
-    def simulate(self, pos: np.ndarray, batch: int = 32) -> np.ndarray:
-        """[n, 2, 32, 1024] complex64 at the current materials."""
+    def simulate(self, pos: np.ndarray, batch: int = 32, reduce=None) -> np.ndarray:
+        """[n, 2, 32, 1024] complex64 at the current materials, or `reduce` applied to each
+        batch of that (so large sets never hold the full 1024-subcarrier responses)."""
         out = []
         for i in range(0, len(pos), batch):
             h = self.cfr(self.paths(pos[i:i + batch]))
             h = np.array(h[0]) + 1j * np.array(h[1]) if isinstance(h, tuple) else np.array(h)
-            out.append(h.reshape(len(pos[i:i + batch]), 2, ROWS * COLS, SUBCARRIERS).astype(np.complex64))
+            h = h.reshape(len(pos[i:i + batch]), 2, ROWS * COLS, SUBCARRIERS).astype(np.complex64)
+            out.append(reduce(h) if reduce else h)
         return np.concatenate(out)

@@ -1,0 +1,30 @@
+A 4000 datapoints; B ceiling 7885, test pool 3380
+twin fit: 256 of 465 A datapoints usable for both arrays
+ITU materials: fit loss 0.7720
+  eval 1: loss 0.7716 (best 0.7716)
+  eval 11: loss 0.7469 (best 0.7317)
+  eval 21: loss 0.7081 (best 0.7081)
+  eval 31: loss 0.7059 (best 0.6939)
+  eval 41: loss 0.6889 (best 0.6825)
+  eval 51: loss 0.6825 (best 0.6808)
+  eval 61: loss 0.6693 (best 0.6693)
+  eval 71: loss 0.6802 (best 0.6684)
+  eval 81: loss 0.6634 (best 0.6634)
+  eval 91: loss 0.6746 (best 0.6580)
+  eval 101: loss 0.6580 (best 0.6580)
+  eval 111: loss 0.6506 (best 0.6506)
+  eval 121: loss 0.6439 (best 0.6439)
+  eval 131: loss 0.6329 (best 0.6287)
+  eval 141: loss 0.6068 (best 0.5946)
+  eval 151: loss 0.5918 (best 0.5888)
+  eval 161: loss 0.5955 (best 0.5881)
+  eval 171: loss 0.5896 (best 0.5881)
+  eval 181: loss 0.5874 (best 0.5874)
+  eval 191: loss 0.5876 (best 0.5873)
+  eval 201: loss 0.5874 (best 0.5871)
+  eval 211: loss 0.5870 (best 0.5870)
+  eval 221: loss 0.5875 (best 0.5870)
+  eval 231: loss 0.5874 (best 0.5870)
+  eval 241: loss 0.5874 (best 0.5870)
+twin calibrated on A: loss 0.7720 -> 0.5872 (250 evaluations); {"floor": [2.46109498695718, 10.546907155938012], "walls": [2.6871350828065523, 0.0010000000000000002], "ceiling": [1.2049660193451919, 0.0010000000000000002]}
+AGX: exceeded compiled variants footprint limit
