@@ -1,0 +1,34 @@
+dichasus-0d54.npz n 21894 span s 1280.7 dt ms p5/50/95 [ 47.85  47.85 143.55] speed m/s median 0.29 frac dt<5ms 0.00
+dichasus-0d56.npz n 22206 span s 1273.5 dt ms p5/50/95 [ 47.85  47.85 143.55] speed m/s median 0.29 frac dt<5ms 0.00
+dichasus-cf02.npz n 18602 span s 941.1 dt ms p5/50/95 [46.88 48.83 48.83] speed m/s median 0.26 frac dt<5ms 0.00
+dichasus-cf06.npz n 13646 span s 673.8 dt ms p5/50/95 [46.88 48.83 48.83] speed m/s median 0.26 frac dt<5ms 0.00
+dichasus-d006-complete.npz n 8929 span s 801.1 dt ms p5/50/95 [47.85 47.85 96.68] speed m/s median 1.10 frac dt<5ms 0.00
+dichasus-d007-complete.npz n 6707 span s 644.0 dt ms p5/50/95 [47.85 47.85 96.68] speed m/s median 1.02 frac dt<5ms 0.00
+dichasus-d008-complete.npz n 3568 span s 342.1 dt ms p5/50/95 [ 47.85  47.85 177.34] speed m/s median 0.98 frac dt<5ms 0.00
+dichasus-d009-complete.npz n 7163 span s 637.8 dt ms p5/50/95 [ 47.85  47.85 143.55] speed m/s median 1.02 frac dt<5ms 0.00
+dichasus-d010-complete.npz n 537 span s 49.6 dt ms p5/50/95 [ 47.85  47.85 228.27] speed m/s median 1.26 frac dt<5ms 0.00
+dichasus-d011-complete.npz n 683 span s 89.2 dt ms p5/50/95 [ 47.85  47.85 479.49] speed m/s median 1.29 frac dt<5ms 0.00
+dichasus-d012-complete.npz n 780 span s 80.1 dt ms p5/50/95 [ 47.85  47.85 436.43] speed m/s median 1.31 frac dt<5ms 0.00
+dichasus-d013-complete.npz n 983 span s 89.2 dt ms p5/50/95 [ 47.85  47.85 189.06] speed m/s median 1.20 frac dt<5ms 0.00
+dichasus-d014-complete.npz n 577 span s 64.8 dt ms p5/50/95 [ 47.85  47.85 540.04] speed m/s median 1.19 frac dt<5ms 0.00
+== data/dichasus/raw/dichasus-d006-complete.npz
+csi shape (8929, 48, 1024)
+step ms 47.85; contiguous runs: n 251, median len 3, share of samples in runs >=40: 0.45
+lag 1 (48 ms): |corr| median 0.786; phase of corr: std 1.79 rad, |mean resultant| 0.03; copy-last NMSE raw 2.9 dB, common-phase-fixed -3.0 dB
+lag 2 (96 ms): |corr| median 0.541; phase of corr: std 1.81 rad, |mean resultant| 0.02; copy-last NMSE raw 3.0 dB, common-phase-fixed -0.1 dB
+lag 4 (191 ms): |corr| median 0.403; phase of corr: std 1.82 rad, |mean resultant| 0.02; copy-last NMSE raw 3.0 dB, common-phase-fixed 0.9 dB
+lag 8 (383 ms): |corr| median 0.376; phase of corr: std 1.81 rad, |mean resultant| 0.01; copy-last NMSE raw 3.0 dB, common-phase-fixed 1.0 dB
+== data/dichasus/cf0x/dichasus-cf02.npz
+csi shape (18602, 32, 1024)
+step ms 48.83; contiguous runs: n 40, median len 61, share of samples in runs >=40: 0.93
+lag 1 (49 ms): |corr| median 0.015; phase of corr: std 1.73 rad, |mean resultant| 0.07; copy-last NMSE raw 3.0 dB, common-phase-fixed 2.9 dB
+lag 2 (98 ms): |corr| median 0.005; phase of corr: std 1.82 rad, |mean resultant| 0.01; copy-last NMSE raw 3.0 dB, common-phase-fixed 3.0 dB
+lag 4 (195 ms): |corr| median 0.002; phase of corr: std 1.77 rad, |mean resultant| 0.04; copy-last NMSE raw 3.0 dB, common-phase-fixed 3.0 dB
+lag 8 (391 ms): |corr| median 0.000; phase of corr: std 1.95 rad, |mean resultant| 0.12; copy-last NMSE raw 3.0 dB, common-phase-fixed 3.0 dB
+== data/dichasus/0d5x/dichasus-0d56.npz
+csi shape (22206, 32, 1024)
+step ms 47.85; contiguous runs: n 256, median len 13, share of samples in runs >=40: 0.00
+lag 1 (48 ms): |corr| median 0.952; phase of corr: std 1.78 rad, |mean resultant| 0.09; copy-last NMSE raw 2.9 dB, common-phase-fixed -9.7 dB
+lag 2 (96 ms): |corr| median 0.880; phase of corr: std 1.84 rad, |mean resultant| 0.01; copy-last NMSE raw 3.0 dB, common-phase-fixed -5.9 dB
+lag 4 (191 ms): |corr| median 0.656; phase of corr: std 1.69 rad, |mean resultant| 0.16; copy-last NMSE raw 2.8 dB, common-phase-fixed -1.7 dB
+lag 8 (383 ms): |corr| median 0.528; phase of corr: std 1.81 rad, |mean resultant| 0.01; copy-last NMSE raw 3.0 dB, common-phase-fixed -0.1 dB

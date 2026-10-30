@@ -1487,3 +1487,31 @@ block may have been unrepresentative for two arrays; on the full grid it
 leaves 1.0–2.5 dB). A single CDL profile picked from those measurements is worse than
 the generic mixture on the full grid everywhere except the lab. This does not
 test a ray-traced prior indoors.
+
+## Check: can the measured data test channel prediction? (2026-10-30)
+
+Question: is the prediction result (finding 3, simulation only) testable on
+the DICHASUS recordings? Scripts `scratch/prediction_time_check.py`,
+`scratch/prediction_coherence_check.py`; log `runs/prediction_data_check.log`.
+
+- **Sampling is fine in wavelength terms.** Snapshots come every ~48 ms. The
+  transmitter moves at ~1.1 m/s on the street and ~0.3 m/s indoors, which is
+  0.22 λ (street) and ~0.06 λ (indoor) per snapshot at 1.272 GHz. The
+  simulation's 0.5–10 ms horizons at up to 30 m/s and 3.5 GHz span up to
+  ~3.5 λ, so a few snapshots ahead covers a comparable distance.
+- **The recordings are not phase-coherent from one snapshot to the next.**
+  The phase of the correlation between consecutive snapshots is uniform
+  (std 1.8 rad, mean resultant ≤ 0.09, street d006 and lab 0d56). In the
+  factory (cf02) the drifting timing offset decorrelates consecutive raw
+  snapshots completely (|corr| 0.015). Copying the last snapshot gives
+  +3 dB NMSE as-is; after removing the best common phase, −3.0 dB at one step
+  on the street and −9.7 dB in the lab.
+- **Contiguous runs are short.** A gap above 1.5 steps ends a run. On the
+  street, 45% of d006's samples sit in runs of ≥40 snapshots (~1.9 s); in the
+  lab, none do (median run 13). In the factory, 93% do.
+
+**Conclusion.** The full prediction claim needs absolute phase over time,
+which these recordings don't carry, so it cannot be tested here. Only
+prediction up to a common phase and delay per snapshot is possible. That is
+a different and weaker question, and the tone method's line-of-sight Doppler
+is exactly what the common phase removes. Not pursued.
