@@ -1545,3 +1545,69 @@ measured. Scripts `scratch/rt_grad_check.py`,
   calibration techniques against uncalibrated ITU materials. Neither a
   channel-estimation evaluation nor a CDL + site-data baseline was found in
   it (keyword search of the PDF text, not a full read).
+
+## Trial: does a calibrated ray-traced twin beat CDL? — pre-registered (2026-10-30, before stage 2 results)
+
+**Question.** Measure one part of a building, calibrate a ray-traced model of it
+(Sionna RT) to those measurements, then estimate channels in a part that was not
+measured. Does an LMMSE prior simulated from the calibrated model beat the
+generic 3GPP CDL prior, and CDL blended with 50 measurements from the measured
+part?
+
+**Data and model.** DICHASUS `dcxx`, recording dc01: an institute hallway at
+3.438 GHz, two 4×8 arrays at opposite ends (South at y ≈ −20 m facing +y,
+North at y ≈ +28 m facing −y), a robot-carried dipole, 32,133 datapoints. The
+model is the simplified hallway (floor, walls, ceiling; one material each)
+from Hoydis et al. 2024 (arXiv 2311.18558). It is read from that repository's
+clone and not copied (NVIDIA non-commercial license). Code:
+`src/sixg_gen/hallway.py`.
+
+**Stage 1 (reproduction gate).** `scripts/hallway_calibrate.py` reproduces the
+paper's "Learned Materials": relative permittivity and conductivity of the three
+objects, no scattering, fitted to per-antenna power and RMS delay spread on the
+first 5,000 usable datapoints, tested on the last 4,900. It passes if calibrated
+materials beat ITU materials on held-out power ALE and delay-spread RAE, in the
+same direction and roughly the size of the paper's Table II (ITU 4.93 dB /
+0.54 → learned 2.16 dB / 0.24). Optimizer: Nelder-Mead on log-parameters,
+because the paper's gradient descent is not needed for six parameters.
+Sionna 2.2 gradients on Metal were checked (`scratch/rt_grad_check.py`).
+
+**Stage 2 design** (fixed before any stage 2 numbers):
+- **Regions.** The corridor runs along y; the lobby is at y ∈ [0, 7.5].
+  - Measured region A: y < 0.
+  - Unmeasured region B: y > 10.
+  - The 0–10 m band, including the lobby, is a buffer and is not used.
+  - Each array then sees one near region and one far region.
+- **Calibration of the twin:** stage 1's method, refitted on A only.
+- **Antenna phase calibration:** `dichasus.fit_calibration` on A, as in the rest
+  of the study, with its coherence reported. Coherence under the published
+  offset files is reported too. The two published versions differ: the NVIDIA
+  repo copy vs the DICHASUS site copy.
+- **Grid:** `grid.use_dichasus(4, 8, 0.0, 3.438e9)`, the same reduction chain
+  as §5–6.
+- **Test:** the last 30% of B's datapoints in recorded order, up to 1,500.
+  The ceiling is a site-trained LMMSE on the first 70% of B.
+- **Priors**, per array:
+  1. generic CDL;
+  2. CDL + 50 datapoints from A (4 draws);
+  3. calibrated twin, "neighbourhood": simulated at 2,000 positions uniform
+     over B's footprint (x ∈ [0.5, 1.8] m, y ∈ [10, 25] m, robot height);
+  4. ITU twin, neighbourhood;
+  5. calibrated twin at the exact test positions: an upper reference that
+     assumes known user positions;
+  6. calibrated twin (neighbourhood) + the same 50 from A;
+  7. CDL + 50 from B: a reference for when the unmeasured part is measured
+     after all.
+  - Twin settings as in stage 1: max depth 5, specular and wedge diffraction,
+    no diffuse scattering.
+- **Metric:** dB above the ceiling at 10 dB SNR, full grid and per antenna,
+  per array and the mean over the two arrays. 0 dB is secondary.
+
+**Claims** (full grid, mean over arrays, 10 dB):
+- **T1 (main):** the calibrated twin (3) is closer to the ceiling than generic
+  CDL (1) by at least 0.5 dB.
+- **T2:** calibration matters: (3) beats the ITU twin (4) by at least 0.3 dB.
+- **T3:** the twin used where nothing was measured (3) beats CDL + 50 from the
+  measured part (2).
+- If T1 fails, the result is negative: write it up and stop. Scaling up is
+  Krish's call either way.
