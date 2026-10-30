@@ -1515,3 +1515,33 @@ which these recordings don't carry, so it cannot be tested here. Only
 prediction up to a common phase and delay per snapshot is possible. That is
 a different and weaker question, and the tone method's line-of-sight Doppler
 is exactly what the common phase removes. Not pursued.
+
+## Check: calibrating the ray tracer to measurements, feasibility (2026-10-30)
+
+Idea: use what sets Sionna RT apart, gradients with respect to scene
+parameters, to calibrate a site's scene to measurements, then test whether
+the calibrated scene beats "CDL + site data" at positions that weren't
+measured. Scripts `scratch/rt_grad_check.py`,
+`scratch/rt_grad_scattering_check.py`; log `runs/rt_grad_check.log`.
+
+- **Gradients on the Mac (Metal) work**, but only with
+  `PathSolver.loop_mode = "evaluated"`. The default symbolic mode does not
+  support autodiff and fails in `dr.backward`.
+  - Conductivity: the gradient matches a finite difference to 4 digits
+    (simple_street_canyon).
+  - Scattering coefficient: the sign agrees, but the magnitude is off by about
+    2× and moves with the sample count (stochastic diffuse sampling). With
+    only a few material parameters, a grid search avoids relying on it.
+  - The LLVM (CPU) backend is not available here (`jitc_llvm_init` fails; no
+    libLLVM installed).
+- **Data:** none of the three DICHASUS sets used so far ships a 3D model.
+  DICHASUS `dcxx` (an institute hallway, 3.438 GHz, two distributed 32-antenna
+  panels, 224 GB in total, split into per-run files) ships a Blender model in
+  the dataset's coordinate frame.
+- **Prior work:** Hoydis et al., "Learning Radio Environments by
+  Differentiable Ray Tracing" (IEEE TMLCN 2024, arXiv 2311.18558, code at
+  NVlabs/diff-rt-calibration), calibrates on dc01 and evaluates held-out
+  positions by channel gain and RMS delay spread. From the text, it compares
+  calibration techniques against uncalibrated ITU materials. Neither a
+  channel-estimation evaluation nor a CDL + site-data baseline was found in
+  it (keyword search of the PDF text, not a full read).
