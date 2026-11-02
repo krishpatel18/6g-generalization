@@ -1,0 +1,33 @@
+A 4000 datapoints; B ceiling 7885, test pool 3380
+twin fit: 256 of 465 A datapoints usable for both arrays
+reusing /Users/krishpatel/projects/6g-generalization/runs/hallway_twin_materials.json
+twin calibrated on A: loss 0.7720 -> 0.5872 (250 evaluations); {"floor": [2.46109498695718, 10.546907155938012], "walls": [2.6871350828065523, 0.0010000000000000002], "ceiling": [1.2049660193451919, 0.0010000000000000002]}
+twin channels loaded
+    cdl: first_tap_pct 78.6, rms_delay_taps 2.1, top3_spatial_pct 39.9; twin_itu: first_tap_pct 97.8, rms_delay_taps 0.9, top3_spatial_pct 72.6; twin_cal: first_tap_pct 96.0, rms_delay_taps 1.0, top3_spatial_pct 65.6; twin_exact: first_tap_pct 96.7, rms_delay_taps 0.9, top3_spatial_pct 69.5; measured_test: first_tap_pct 95.2, rms_delay_taps 1.2, top3_spatial_pct 64.3
+  North wing antenna array: coherence 0.914; A 488, B ceiling 7451, test 1500
+    cdl: first_tap_pct 78.6, rms_delay_taps 2.1, top3_spatial_pct 39.9; twin_itu: first_tap_pct 94.9, rms_delay_taps 1.0, top3_spatial_pct 88.7; twin_cal: first_tap_pct 86.4, rms_delay_taps 1.6, top3_spatial_pct 99.1; twin_exact: first_tap_pct 80.3, rms_delay_taps 1.7, top3_spatial_pct 99.2; measured_test: first_tap_pct 58.3, rms_delay_taps 2.8, top3_spatial_pct 91.1
+  South wing antenna array: coherence 0.546; A 3729, B ceiling 1271, test 495
+Traceback (most recent call last):
+  File "/Users/krishpatel/projects/6g-generalization/scripts/hallway_twin.py", line 185, in <module>
+    main(*map(int, sys.argv[1:]))
+  File "/Users/krishpatel/projects/6g-generalization/scripts/hallway_twin.py", line 150, in main
+    json.dump(notes, f, indent=1)
+  File "/Users/krishpatel/.local/share/uv/python/cpython-3.12.14-macos-aarch64-none/lib/python3.12/json/__init__.py", line 179, in dump
+    for chunk in iterable:
+                 ^^^^^^^^
+  File "/Users/krishpatel/.local/share/uv/python/cpython-3.12.14-macos-aarch64-none/lib/python3.12/json/encoder.py", line 432, in _iterencode
+    yield from _iterencode_dict(o, _current_indent_level)
+  File "/Users/krishpatel/.local/share/uv/python/cpython-3.12.14-macos-aarch64-none/lib/python3.12/json/encoder.py", line 406, in _iterencode_dict
+    yield from chunks
+  File "/Users/krishpatel/.local/share/uv/python/cpython-3.12.14-macos-aarch64-none/lib/python3.12/json/encoder.py", line 406, in _iterencode_dict
+    yield from chunks
+  File "/Users/krishpatel/.local/share/uv/python/cpython-3.12.14-macos-aarch64-none/lib/python3.12/json/encoder.py", line 406, in _iterencode_dict
+    yield from chunks
+  [Previous line repeated 1 more time]
+  File "/Users/krishpatel/.local/share/uv/python/cpython-3.12.14-macos-aarch64-none/lib/python3.12/json/encoder.py", line 439, in _iterencode
+    o = _default(o)
+        ^^^^^^^^^^^
+  File "/Users/krishpatel/.local/share/uv/python/cpython-3.12.14-macos-aarch64-none/lib/python3.12/json/encoder.py", line 180, in default
+    raise TypeError(f'Object of type {o.__class__.__name__} '
+TypeError: Object of type float32 is not JSON serializable
+EXIT 0

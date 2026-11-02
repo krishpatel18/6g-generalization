@@ -1,0 +1,7 @@
+A 4000 datapoints; B ceiling 7885, test pool 3380
+twin fit: 256 of 465 A datapoints usable for both arrays
+reusing /Users/krishpatel/projects/6g-generalization/runs/hallway_twin_materials.json
+twin calibrated on A: loss 0.7720 -> 0.5872 (250 evaluations); {"floor": [2.46109498695718, 10.546907155938012], "walls": [2.6871350828065523, 0.0010000000000000002], "ceiling": [1.2049660193451919, 0.0010000000000000002]}
+AGX: exceeded compiled variants footprint limit
+twin channels simulated and saved; rerun to score
+EXIT 0

@@ -1,0 +1,24 @@
+
+[spatial] 10 dB, dB above the ceiling (lower = closer)
+  North wing antenna array cdl  6.79 | cdl+50a  6.62 | twin_itu 10.85 | twin_cal  8.83 | twin_exact  9.39 | twin_cal+50a  6.68 | cdl+50b  2.33
+  South wing antenna array cdl  7.44 | cdl+50a  5.61 | twin_itu 13.27 | twin_cal 14.43 | twin_exact 14.70 | twin_cal+50a  9.20 | cdl+50b  2.49
+  mean                     cdl  7.12 | cdl+50a  6.11 | twin_itu 12.06 | twin_cal 11.63 | twin_exact 12.05 | twin_cal+50a  7.94 | cdl+50b  2.41
+
+[freq_only] 10 dB, dB above the ceiling (lower = closer)
+  North wing antenna array cdl  1.98 | cdl+50a  1.36 | twin_itu  1.76 | twin_cal  1.10 | twin_exact  1.27 | twin_cal+50a  1.36 | cdl+50b  0.04
+  South wing antenna array cdl  1.64 | cdl+50a  1.97 | twin_itu  2.34 | twin_cal  1.97 | twin_exact  2.09 | twin_cal+50a  1.97 | cdl+50b  0.08
+  mean                     cdl  1.81 | cdl+50a  1.66 | twin_itu  2.05 | twin_cal  1.54 | twin_exact  1.68 | twin_cal+50a  1.66 | cdl+50b  0.06
+
+[spatial] 0 dB, dB above the ceiling (lower = closer)
+  North wing antenna array cdl  5.30 | cdl+50a  5.00 | twin_itu  6.17 | twin_cal  5.12 | twin_exact  5.48 | twin_cal+50a  4.44 | cdl+50b  1.42
+  South wing antenna array cdl  6.17 | cdl+50a  5.15 | twin_itu  7.55 | twin_cal  8.75 | twin_exact  8.89 | twin_cal+50a  5.43 | cdl+50b  1.41
+  mean                     cdl  5.74 | cdl+50a  5.08 | twin_itu  6.86 | twin_cal  6.94 | twin_exact  7.19 | twin_cal+50a  4.93 | cdl+50b  1.42
+
+[freq_only] 0 dB, dB above the ceiling (lower = closer)
+  North wing antenna array cdl  0.86 | cdl+50a  1.14 | twin_itu  1.00 | twin_cal  0.72 | twin_exact  0.73 | twin_cal+50a  1.14 | cdl+50b  0.04
+  South wing antenna array cdl  0.71 | cdl+50a  2.70 | twin_itu  1.56 | twin_cal  0.69 | twin_exact  0.71 | twin_cal+50a  2.70 | cdl+50b  0.05
+  mean                     cdl  0.78 | cdl+50a  1.92 | twin_itu  1.28 | twin_cal  0.71 | twin_exact  0.72 | twin_cal+50a  1.92 | cdl+50b  0.04
+
+T1 calibrated twin beats generic CDL by >= 0.5 dB: -4.51 dB -> not met
+T2 calibrated beats ITU twin by >= 0.3 dB: 0.43 dB -> met
+T3 calibrated twin beats CDL + 50 from A: -5.52 dB -> not met

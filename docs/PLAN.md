@@ -1664,3 +1664,58 @@ The fitted materials:
 - **Antenna layout.** The calibration coherence on A is 0.91 (North) and 0.55
   (South); the layout as specified fits best of the four mirror options
   (scratch check).
+
+### Trial — stage 2 result (2026-11-02)
+
+`runs/hallway_twin.csv`, summary `runs/hallway_twin_summary.log`.
+
+**Run history.**
+- The run was stopped twice:
+  - once by the harness for low memory (fixed by reducing simulated batches to the grid as they are made);
+  - once at a session end.
+- The final run simulated in one process and scored in another.
+- The calibration from the first attempt was reused (`runs/hallway_twin_materials.json`).
+- `hallway_twin_notes.json` was cut short by a JSON float32 error after the CSV was written (fixed). Coherence, counts and descriptive statistics are in `runs/hallway_twin.log`.
+
+**Counts.**
+- North: coherence 0.914; 488 A datapoints, ceiling 7,451, test 1,500.
+- South: coherence 0.546; 3,729, 1,271, 495.
+
+dB above the site-trained ceiling, mean over the two arrays, 10 dB SNR:
+
+| prior | full grid | per antenna |
+|---|---|---|
+| generic CDL | 7.12 | 1.81 |
+| CDL + 50 from A (measured part) | 6.11 | 1.66 |
+| ITU twin (neighbourhood) | 12.06 | 2.05 |
+| calibrated twin (neighbourhood) | 11.63 | 1.54 |
+| calibrated twin at exact test positions | 12.05 | 1.68 |
+| calibrated twin + 50 from A | 7.94 | 1.66 |
+| CDL + 50 from B (reference) | 2.41 | 0.06 |
+
+**Claims.**
+- **T1 not met:** the calibrated twin is 4.51 dB *worse* than generic CDL on the full grid.
+- **T2 met:** calibrated vs ITU twin, 0.43 dB better.
+- **T3 not met:** 5.52 dB worse than CDL + 50 from A.
+- Pre-registered consequence: a negative result. Written up and stopped here.
+
+**Secondary readings.**
+- Per antenna, the calibrated twin is the best prior without B data (1.54 vs CDL 1.81 dB at 10 dB; 0.71 vs 0.78 at 0 dB).
+  So its delay and power structure helps a little. Its spatial structure does not.
+- At 0 dB, calibrated twin + 50 from A is the best full-grid prior (4.93 vs CDL + 50 5.08). The margin is small.
+- 50 measurements from the unmeasured part itself (CDL + 50 from B) close almost the whole gap. Where you measure matters more than the prior.
+
+**Why (post hoc, `scratch/hallway_twin_match.py`, `runs/hallway_twin_match.log`).** At the same test positions, the twin's spatial signature matches the measured one barely better than an unrelated measured position does:
+- North: 0.45 vs 0.39.
+- South: 0.74 vs 0.76.
+- Mirroring the twin's antenna order makes the match worse, so the orientation is right.
+
+So the simplified model (three surfaces, one material each) does not reproduce position-specific spatial structure, even where its power and delay spread were calibrated. The twin's position knowledge never had a chance to help: `twin_exact` is no better than the neighbourhood twin.
+
+The model, the tachymeter positions and the measured phase calibration can't be separated here. South's coherence is 0.55.
+
+**Conclusion.** In this hallway, a ray-traced model calibrated to measurements from one part does not beat the generic 3GPP prior for channel estimation in another part. It is 4.5 dB worse on the full array.
+
+The paper-style calibration (materials, matched on power and delay spread) fixes what it is fitted to. It does not fix the spatial structure that LMMSE relies on.
+
+This matches the main study: site-specific simulation loses to CDL on real channels unless the measurements come from where you estimate.
