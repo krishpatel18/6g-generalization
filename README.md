@@ -178,6 +178,8 @@ tables are in `runs/`.
 | 14-city library | `scripts/library.py 8`, `scripts/library_followup.py 8`, `scripts/pool_draws.py 8` |
 | prediction | `scripts/make_tracks.py 8`, `scripts/predict.py 8 0`, `scripts/predict_fair.py 8 0` |
 | measured channels (DICHASUS) | download `dxxx-complete` from [DaRUS](https://doi.org/10.18419/DARUS-3153) into `data/dichasus/raw/`, convert with `scripts/dichasus_convert.py` (needs TensorFlow), then `scripts/dichasus_test.py`; exploratory `scripts/dichasus_rich.py`, `scripts/dichasus_diagnostics.py` |
+| where CDL falls short | download `0d5x` (lab, [DaRUS](https://doi.org/10.18419/DARUS-2218)) and `cf0x` (factory, [DaRUS](https://doi.org/10.18419/DARUS-2854)) into `data/dichasus/<name>/`, convert, then `scripts/cdl_gap.py street`, `lab`, `factory` |
+| calibrated hallway | download `dcxx` ([DaRUS](https://doi.org/10.18419/DARUS-3831)) into `data/dichasus/dcxx/`, convert with `--stream`; clone [NVlabs/diff-rt-calibration](https://github.com/NVlabs/diff-rt-calibration) for the hallway scene (NVIDIA license, not included here) and set `HALLWAY_SCENE` to its `inue_simple.xml`; then `scripts/hallway_calibrate.py`, and `scripts/hallway_twin.py` twice (simulate, then score) |
 | figures | `scripts/figures.py` |
 
 A results summary with every number is in [docs/RESULT.md](docs/RESULT.md).

@@ -680,7 +680,7 @@ leave-one-city-out, fixed-path Doppler evolution (re-trace check above).
 
 ## Next step (2026-10-22)
 
-Goal: portfolio project. First, a related-work check on both findings (is
+Goal: a written-up study. First, a related-work check on both findings (is
 "pooled ray-traced priors as insurance" known? is "classical per-user Doppler
 fitting beats learned prediction on fixed-path simulators" known?). Then choose
 between:
@@ -710,7 +710,7 @@ not a finding; the decision to use fixed-path evolution up to 10 ms stands.
 Cached channel sets were generated without the flag: each sample is still a
 valid trace, but regeneration is not bit-reproducible.
 
-### Related work (2026-10-22; search by subagent, key sources spot-checked)
+### Related work (2026-10-22; AI-assisted search, key sources spot-checked)
 
 Finding A (pooled RT covariance prior):
 - Single-site RT/digital-twin covariance or subspace priors exist
@@ -732,14 +732,14 @@ Finding B (classical vs learned prediction):
 - On QuaDRiGa/CDL, published comparisons have deep models beating Prony
   angle-delay prediction (WiFo, 2412.08908; LLM4CP); one study finds a Kalman
   filter better than neural networks up to ~4 ms on 3GPP TDL without noise
-  (2308.14020; full-text claim from the subagent, abstract checked only).
+  (2308.14020; full-text claim from the AI-assisted search, abstract checked only).
 - Morais et al. re-trace per position and use only sample-and-hold as baseline.
 - **Not found:** a classical per-user predictor beating learned models on
   ray-traced channels. Novelty: medium-high, with the obvious objection that
   Sionna's fixed-path evolution is the classical model's own assumption; the
   deterministic re-trace check is the answer up to ~10 ms at 3.5 GHz.
 
-### Measured-channel datasets (2026-10-22; subagent survey, not downloaded)
+### Measured-channel datasets (2026-10-22; AI-assisted survey, not downloaded)
 
 No dataset fits both questions. Best candidates:
 - **DICHASUS outdoor** (Univ. Stuttgart, CC BY 4.0): 1.27 GHz, 50 MHz,
@@ -1115,7 +1115,7 @@ data:
    measurements: Argos (2 ms) is offline; DICHASUS (~48 ms) and CAEZ (20 ms)
    are too coarse for fast users.
 4. **Publish the write-up** (README + docs/paper/paper.pdf) — the repo
-   visibility is Krish's call.
+   visibility is the author's call.
 
 ### Direction 1: tune the simulator from site measurements — written before running (2026-10-28, exploratory)
 
@@ -1140,17 +1140,17 @@ pooled prior scores best on those 50 (LMMSE NMSE on their own noisy pilots,
   CDL zero-shot uses none, so the fair comparison for the recipe is also
   reported against CDL + 50. B, C and per antenna alongside.
 
-### Direction 1: related work (2026-10-28; subagent search, abstracts spot-checked)
+### Direction 1: related work (2026-10-28; AI-assisted search, abstracts spot-checked)
 
 - **Per-site calibration is the norm, and calibrated values absorb geometry
   errors.** Hoydis et al. (arXiv:2311.18558) learn permittivity, scattering
   coefficient and cross-polarisation by gradient descent against DICHASUS
   *indoor* data (dc01, 3.438 GHz); no transfer to other scenes; per-location
-  "neural materials" generalise poorly (full-text claims via the subagent).
+  "neural materials" generalise poorly (full-text claims via the AI-assisted search).
   mmDiff (arXiv:2605.26406) calibrates from sparse mmWave measurements and
   generalises to unseen poses in the same scene. Bakirtzis et al.
   (arXiv:2509.19337; abstract checked: differentiable ray tracers "struggle to
-  generalize from real-world data at a large scale"); per the subagent's
+  generalize from real-world data at a large scale"); per the AI-assisted search's
   full-text reading, per-scene material values did not transfer across 13
   UK areas.
 - **Plain ray tracing underpredicts street multipath; clutter is the usual
@@ -1220,7 +1220,7 @@ sites the 3GPP models describe badly. How large is the CDL-prior gap (CDL
 LMMSE vs a site-trained LMMSE) across environments, and which measurable
 channel properties predict it?
 
-**Related work (subagent search; abstracts spot-checked where noted).**
+**Related work (AI-assisted search; abstracts spot-checked where noted).**
 - 3GPP parameters miss in specific places: InF (factory) K-factors 5–10 dB
   higher than measured at 10–12 GHz (Runtti et al., arXiv:2503.10046); TDL
   "fails to capture the spatial propagation characteristics" of a commercial
@@ -1230,7 +1230,7 @@ channel properties predict it?
   estimator trained on synthetic data performs "comparable" to others on
   measured data (Baur et al., WSA 2024, arXiv:2312.03450; abstract checked;
   full-text details — Nokia Stuttgart, QuaDRiGa UMi, +6.3% from fine-tuning —
-  via the subagent); fine-tuning a TDL-trained receiver on measured macro-cell
+  via the AI-assisted search); fine-tuning a TDL-trained receiver on measured macro-cell
   data gains 1.85 dB (arXiv:2410.19565); randomised 38.901 training
   generalises over the air (arXiv:2408.04182). Transfer between stochastic
   and ray-traced data fails both ways for prediction and compression (Morais
@@ -1610,7 +1610,7 @@ Sionna 2.2 gradients on Metal were checked (`scratch/rt_grad_check.py`).
 - **T3:** the twin used where nothing was measured (3) beats CDL + 50 from the
   measured part (2).
 - If T1 fails, the result is negative: write it up and stop. Scaling up is
-  Krish's call either way.
+  the author's call either way.
 
 ### Trial — stage 1 result and gate (2026-10-30)
 
@@ -1671,8 +1671,8 @@ The fitted materials:
 
 **Run history.**
 - The run was stopped twice:
-  - once by the harness for low memory (fixed by reducing simulated batches to the grid as they are made);
-  - once at a session end.
+  - once for low memory (fixed by reducing simulated batches to the grid as they are made);
+  - once by an interrupted working session.
 - The final run simulated in one process and scored in another.
 - The calibration from the first attempt was reused (`runs/hallway_twin_materials.json`).
 - `hallway_twin_notes.json` was cut short by a JSON float32 error after the CSV was written (fixed in the script; the truncated file is not kept). Coherence, counts and descriptive statistics are in `runs/hallway_twin.log`.

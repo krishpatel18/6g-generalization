@@ -1,9 +1,10 @@
 """After shifting each datapoint to its strongest tap, how often does a tap within 10 dB of that peak
 sit 21-100 taps (420 ns - 2 us) earlier, i.e. outside wideband.to_grid's first-arrival search?"""
 import sys
+from pathlib import Path
 import numpy as np
 from sixg_gen import dichasus, grid
-sys.path.insert(0, "/Users/krishpatel/projects/6g-generalization/scripts")
+sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "scripts"))
 from cdl_gap import ENVS
 
 env = sys.argv[1]

@@ -1,9 +1,10 @@
 """(2026-10-29, before the timing fix; log runs/timing_offset_check.log) Where is the first arrival before alignment, and does the alignment window cut it? factory vs street vs lab."""
 import sys
+from pathlib import Path
 import numpy as np
 from sixg_gen import dichasus, grid, wideband
 
-sys.path.insert(0, "/Users/krishpatel/projects/6g-generalization/scripts")
+sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "scripts"))
 from cdl_gap import ENVS, stats
 
 env = sys.argv[1]

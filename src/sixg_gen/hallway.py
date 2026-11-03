@@ -17,6 +17,7 @@ ascending frequency, the arrays treated as transmitters (reciprocity).
 
 import csv
 import json
+import os
 from pathlib import Path
 
 import numpy as np
@@ -25,7 +26,9 @@ from . import dichasus
 from .channels import DATA_DIR
 
 DIR = DATA_DIR / "dichasus" / "dcxx"
-SCENE = Path.home() / "projects/ext/diff-rt-calibration/scenes/inue_simple/inue_simple.xml"
+# Clone https://github.com/NVlabs/diff-rt-calibration and point HALLWAY_SCENE at its scene, or
+# clone it to ~/projects/ext/diff-rt-calibration.
+SCENE = Path(os.environ.get("HALLWAY_SCENE", Path.home() / "projects/ext/diff-rt-calibration/scenes/inue_simple/inue_simple.xml"))
 CARRIER_HZ = 3.438e9
 BANDWIDTH_HZ = 50e6
 SUBCARRIERS = 1024

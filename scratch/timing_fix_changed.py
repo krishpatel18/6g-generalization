@@ -1,8 +1,9 @@
 """Which street / lab datapoints does the timing fix change? (old chain vs new measured())"""
 import sys
+from pathlib import Path
 import numpy as np
 from sixg_gen import dichasus, grid, wideband
-sys.path.insert(0, "/Users/krishpatel/projects/6g-generalization/scripts")
+sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "scripts"))
 from cdl_gap import ENVS
 
 env = sys.argv[1]
