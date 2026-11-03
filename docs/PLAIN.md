@@ -154,3 +154,25 @@ our processing looked for it in a fixed spot and mostly kept noise. Reviewers
 caught it; we fixed the processing, checked that the street and lab results
 did not change, and reran the factory. The numbers above are the corrected
 ones.
+
+## Last trial: tuning the simulator to real measurements (done, negative)
+
+NVIDIA's ray tracer can run backwards: given real measurements, it adjusts the
+building materials in a 3D model until the simulation matches them. We did
+that on one end of a measured hallway in Stuttgart and tested the tuned model
+at the other end, where nothing was measured.
+
+- **The tuning mostly worked on what it was tuned for:** echo timing matched
+  as well as in NVIDIA's own paper, and signal strength did in the corridor
+  (not in the lobby, where the 3D model is too simple).
+- **Judged one antenna at a time, the tuned model was the best starting point**
+  we had without local measurements, by a small margin.
+- **Across all 32 antennas together it lost** to the textbook models by
+  4.5 dB. The simple 3D model doesn't reproduce how the signal differs from
+  antenna to antenna, and that pattern is what matters most.
+- **Fifty measurements from the tested end itself** got almost all the way
+  to the best possible.
+
+**So the project ends here.** In every test on real data, simulating the site
+didn't beat the free textbook models. Measuring the site did.
+

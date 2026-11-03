@@ -1675,7 +1675,7 @@ The fitted materials:
   - once at a session end.
 - The final run simulated in one process and scored in another.
 - The calibration from the first attempt was reused (`runs/hallway_twin_materials.json`).
-- `hallway_twin_notes.json` was cut short by a JSON float32 error after the CSV was written (fixed). Coherence, counts and descriptive statistics are in `runs/hallway_twin.log`.
+- `hallway_twin_notes.json` was cut short by a JSON float32 error after the CSV was written (fixed in the script; the truncated file is not kept). Coherence, counts and descriptive statistics are in `runs/hallway_twin.log`.
 
 **Counts.**
 - North: coherence 0.914; 488 A datapoints, ceiling 7,451, test 1,500.
@@ -1719,3 +1719,16 @@ The model, the tachymeter positions and the measured phase calibration can't be 
 The paper-style calibration (materials, matched on power and delay spread) fixes what it is fitted to. It does not fix the spatial structure that LMMSE relies on.
 
 This matches the main study: site-specific simulation loses to CDL on real channels unless the measurements come from where you estimate.
+
+Scope of the negative: the twin loses on the full array only. Per antenna it is the best prior without data from the unmeasured part (1.54 vs CDL 1.81 dB at 10 dB). So "4.5 dB worse" is a statement about the cross-antenna structure, not about power or delay.
+
+Untested assumption that could cause the spatial mismatch without changing per-antenna power or delay spread: the array model in the twin (`synthetic_array=True`, 3GPP 38.901 element pattern, ideal half-wavelength spacing, no mutual coupling). The mirroring check rules out orientation, not this. A next step, if anyone takes this up, is to simulate each antenna separately with a measured element pattern.
+
+## Project closed (2026-11-03)
+
+All three routes gave the same answer on measured channels: site-specific simulation (OpenStreetMap scenes, learned corrections on top, a calibrated ray-traced twin) does not beat the free 3GPP CDL prior where nothing was measured. A few measurements from where you estimate do. Further work of the same kind would not change that conclusion, so the project stops here.
+
+Not done, recorded for anyone continuing:
+- how few site measurements it takes (a 5–200 sweep on the street, lab and factory data; about an hour of laptop time);
+- the array-model check above;
+- the open questions in the paper's conclusion.

@@ -481,9 +481,14 @@ site-specific prior pays off, and only there would simulation be worth its
 cost.
 (ii) \emph{Missing scene content:} random street clutter (vehicles, poles,
 trees) or 3GPP-style random clusters on top of the ray-traced
-paths~\cite{tr38901} are the natural next levers; per-site calibration of a
-fully modelled scene is established~\cite{hoydis2023learning}, transfer of
-global settings across sites is not. (iii) \emph{More measured sites and
+paths~\cite{tr38901} are the natural next levers. Per-site calibration of a
+fully modelled scene is established~\cite{hoydis2023learning}; in a short
+follow-up trial (lab notebook) we calibrated that paper's hallway model on one
+part of the dc01 recording and used it as a prior in another. It reproduced
+delay spread, and power in the corridor where it was tested, and was the best per-antenna prior without local data,
+but on the full array it was 4.5\,dB worse than generic CDL: the simplified
+scene does not reproduce the cross-antenna structure. Transfer of global
+settings across sites remains untested. (iii) \emph{More measured sites and
 prediction on measured channels}, which need multi-site outdoor arrays and
 millisecond-spaced measurements of moving users respectively.
 
