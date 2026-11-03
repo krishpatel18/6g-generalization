@@ -66,14 +66,15 @@ machine learning~\cite{morais2025}. We ask a narrower question: for a site
 \emph{other} ray-traced cities better than the 3GPP models? And is a learned
 estimator what makes the difference?
 
-We answer in three steps, plus a follow-on: (i) leave-one-city-out experiments in simulation,
+We answer in three steps, plus two follow-ons: (i) leave-one-city-out experiments in simulation,
 (ii) the same question for short-term channel prediction, where learning has
 more room, and (iii) a test of the main simulation finding on measured
 channels; the follow-on (iv) asks how far the 3GPP prior falls short in three
-measured environments. Each main experiment's expected outcome and pass/fail bar was
+measured environments, and a final trial (v) whether a ray-traced model
+calibrated to measurements does better. Each main experiment's expected outcome and pass/fail bar was
 committed to the lab notebook before it ran; follow-up checks are labelled as
 post-hoc or exploratory. The code, notebook, logs and result tables are
-available with the paper.
+available from the author on request.
 
 Our contributions are: (1) a pre-registered leave-one-city-out comparison of
 ray-traced and 3GPP priors across 14 cities, showing pooling as insurance in
@@ -411,6 +412,64 @@ before it, where the chain's search would miss it. The numbers
 above are the rerun.
 
 
+\section{A calibrated ray-traced hallway}\label{sec:hallway}
+
+The street scenes were built from maps and never fitted to the site. A
+pre-registered final trial asked whether a scene fitted to measurements does
+better. DICHASUS \texttt{dcxx}~\cite{dichasushallway} (recording
+\texttt{dc01}, 3.438\,GHz, 50\,MHz) observes a robot-carried dipole in an
+institute hallway from two 4$\times$8 arrays at opposite ends; its simplified
+3D model (floor, walls, ceiling, one material each) is the one calibrated by
+differentiable ray tracing in~\cite{hoydis2023learning}. We first reproduced
+that calibration (permittivity and conductivity of the three objects, fitted to
+per-antenna power and RMS delay spread): held-out delay-spread error fell from
+0.42 to 0.28 (paper: 0.54 to 0.24), and power error fell in the corridor
+(4.2 to 2.4\,dB) but rose in the lobby (11.0 to 16.0\,dB), where the model is
+too simple. The calibration was then refitted on one part of the corridor
+($y<0$) and the model used as a prior in another ($y>10$\,m; the band between,
+which holds the lobby, was left out): channels simulated at 12{,}000 positions over that
+part, with the chain of Section~\ref{sec:measured}. Test: the last 30\% of the
+unmeasured part in recorded order (1{,}500 and 495 datapoints for the two
+arrays); ceiling: an LMMSE trained on its first 70\%.
+
+\begin{table}[!htb]
+\centering
+\footnotesize
+\begin{tabular}{lcc}
+\toprule
+prior & full grid & per antenna \\
+\midrule
+generic CDL & 7.12 & 1.81 \\
+CDL\,+\,50 from the measured part & 6.11 & 1.66 \\
+ray-traced, ITU materials & 12.06 & 2.05 \\
+ray-traced, calibrated & 11.63 & 1.54 \\
+ray-traced, calibrated, at the exact test positions & 12.05 & 1.68 \\
+ray-traced, calibrated\,+\,50 from the measured part & 7.94 & 1.66 \\
+CDL\,+\,50 from the unmeasured part (reference) & 2.41 & 0.06 \\
+\bottomrule
+\end{tabular}
+\caption{Calibrated hallway model as a prior where nothing was measured: dB
+above the site-trained ceiling at 10\,dB SNR, mean over the two arrays and
+over four draws of 50 measurements.}
+\label{tab:hallway}
+\end{table}
+
+Table~\ref{tab:hallway} gives the result. The main claim, that the calibrated
+model beats generic CDL by at least 0.5\,dB on the full grid, failed: it was
+4.5\,dB worse. Calibration beat the ITU materials by 0.4\,dB (that claim was
+met), and the model lost to CDL with 50 measurements from the measured part by
+5.5\,dB. Per antenna, the calibrated model was the best prior without
+measurements from the tested part (1.54 against 1.81\,dB), so its power and
+delay structure helps a little; its spatial structure does not. At the same
+test positions, its normalised spatial signatures matched the measured ones
+barely better than an unrelated measured position did (0.45 against 0.39 and
+0.74 against 0.76 for the two arrays, post hoc), and knowing the exact test
+positions did not help. The model, the surveyed positions and the antenna
+phase calibration cannot be separated here (one array's calibration coherence
+was 0.55), and the idealised array model is untested. Fifty measurements from
+the tested part itself closed almost the whole gap.
+
+
 \section{Discussion and limitations}
 
 The reversal is consistent with a home-ground effect, which the caveat written
@@ -429,7 +488,7 @@ Several limits apply.
 \begin{itemize}
 \item The map-built ray-traced priors were tested on one measured site: one street, one building, three arrays on its
   facade, 1.272\,GHz, mostly line-of-sight; LMMSE estimation only. The
-  calibrated hallway model (Section~\ref{sec:conclusion}) is one trial on one
+  calibrated hallway model (Section~\ref{sec:hallway}) is one trial on one
   simplified scene (three surfaces, one material each, an idealised array
   model).
 \item The measured-channel test was pre-registered but not blind: a pilot had
@@ -461,7 +520,7 @@ everything rerun, and reported numbers moved by at most 0.02\,dB. A review of
 the follow-on found the factory timing offset described in
 Section~\ref{sec:cdlgap}; the factory was rerun after the fix.
 
-\section{Conclusion}\label{sec:conclusion}
+\section{Conclusion}
 
 In simulation, a covariance prior pooled over many ray-traced cities looked
 like a good starting point for an unseen site and a safer one than any single
@@ -488,12 +547,11 @@ cost.
 trees) or 3GPP-style random clusters on top of the ray-traced
 paths~\cite{tr38901} are the natural next levers. Per-site calibration of a
 fully modelled scene is established~\cite{hoydis2023learning}; in a short
-follow-up trial (lab notebook) we calibrated that paper's hallway model on one
-part of its recording (\texttt{dc01}, 3.438\,GHz, two 4$\times$8
-arrays~\cite{dichasushallway}) and used it as a prior in another. It reproduced
-delay spread, and power in the corridor where it was tested, and was the best per-antenna prior without local data,
-but on the full array it was 4.5\,dB worse than generic CDL: the simplified
-scene does not reproduce the cross-antenna structure. Transfer of global
+final trial (Section~\ref{sec:hallway}) we calibrated that paper's hallway
+model on one part of its recording and used it as a prior in another. It was
+the best per-antenna prior without local data, but on the full array it was
+4.5\,dB worse than generic CDL: the simplified scene does not reproduce the
+cross-antenna structure. Transfer of global
 settings across sites remains untested. (iii) \emph{More measured sites and
 prediction on measured channels}, which need multi-site outdoor arrays and
 millisecond-spaced measurements of moving users respectively.
@@ -511,7 +569,7 @@ public under CC BY 4.0~\cite{dichasusdata}.
 \bibitem{dichasus} F.~Euchner, M.~Gauger, S.~D\"orner, S.~ten~Brink, ``A distributed massive MIMO channel sounder for `big CSI data'-driven machine learning,'' WSA 2021; arXiv:2206.15302.
 \bibitem{dichasusdata} University of Stuttgart, ``CSI dataset dichasus-dxxx-complete: Outdoor---three arrays distributed along the facade,'' DaRUS, doi:10.18419/DARUS-3153, CC BY 4.0.
 \bibitem{dichasuslab} F.~Euchner, M.~Gauger, ``CSI dataset dichasus-0d5x: Distributed arrays: Indoor LoS, lab room,'' DaRUS, doi:10.18419/DARUS-2218, 2022, CC BY 4.0.
-\bibitem{dichasusfactory} F.~Euchner, M.~Gauger, ``CSI dataset dichasus-cf0x: Distributed antenna setup in industrial environment, day 1,'' DaRUS, doi:10.18419/DARUS-2854, 2022, CC BY 4.0.
+\bibitem{dichasusfactory} F.~Euchner, M.~Gauger, ``CSI dataset dichasus-cf0x: Distributed antenna setup in industrial environment, day 1,'' DaRUS, doi:10.18419/DARUS-2854, 2024, CC BY 4.0.
 \bibitem{dichasushallway} F.~Euchner, P.~Stephan, M.~Gauger, ``CSI dataset dichasus-dcxx: Institute hallway with known 3D model, distributed antennas,'' DaRUS, doi:10.18419/DARUS-3831, 2023.
 \bibitem{delmoro2026} L.~Del~Moro \emph{et al.}, ``Site geometry and calibration uncertainties in digital twin-enabled channel estimation,'' arXiv:2607.09334, 2026.
 \bibitem{alikhani2025} S.~Alikhani \emph{et al.}, ``Digital twin aided channel estimation: Zone-specific subspace prediction and calibration,'' arXiv:2501.02758, 2025.
