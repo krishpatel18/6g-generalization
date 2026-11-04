@@ -1,6 +1,7 @@
 # The project in plain words
 
-*A readable companion to the paper (`docs/paper/paper.pdf`). No background
+*A readable companion to the paper ([arXiv 2611.05128](https://arxiv.org/abs/2611.05128),
+also `docs/paper/paper.pdf`). No background
 needed.*
 
 ## The problem

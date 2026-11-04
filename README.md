@@ -111,7 +111,8 @@ measurements from the tested end itself closed almost the whole gap.
 
 The project is closed (see the end of [docs/PLAN.md](docs/PLAN.md)).
 
-A paper-style write-up is in [docs/paper/paper.pdf](docs/paper/paper.pdf), a plain-language
+The paper is on arXiv as [2611.05128](https://arxiv.org/abs/2611.05128) (also in
+[docs/paper/paper.pdf](docs/paper/paper.pdf)), with a plain-language
 version in [docs/PLAIN.md](docs/PLAIN.md), and a 90-second video summary in
 [docs/video/6g-study.mp4](docs/video/6g-study.mp4).
 
