@@ -158,9 +158,9 @@ ones.
 
 ## Last trial: tuning the simulator to real measurements (done, negative)
 
-NVIDIA's ray tracer can run backwards: given real measurements, it adjusts the
-building materials in a 3D model until the simulation matches them. We did
-that on one end of a measured hallway in Stuttgart and tested the tuned model
+A ray tracer can be tuned to real measurements: adjust the building materials
+in a 3D model until the simulation matches them (NVIDIA's own paper did this
+with gradients; we used a simpler trial-and-error search). We did that on one end of a measured hallway in Stuttgart and tested the tuned model
 at the other end, where nothing was measured.
 
 - **The tuning mostly worked on what it was tuned for:** echo timing matched

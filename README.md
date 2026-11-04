@@ -101,8 +101,9 @@ established). A first analysis reported a 10–12 dB factory gap; a review
 found the factory recording's timing offset had defeated the processing chain,
 which was fixed and the factory rerun (street and lab unchanged).
 
-A last trial calibrated a ray-traced model of a measured hallway, using
-NVIDIA's differentiable ray tracing (the method of Hoydis et al.), on one end
+A last trial calibrated a ray-traced model of a measured hallway, following the
+set-up of Hoydis et al. (NVIDIA) with a derivative-free search in place of their
+gradient descent, on one end
 of the hallway and tested it at the other end. Calibration reproduced delay spread as
 in that paper, and power in the corridor (not the lobby), and per antenna the model was the best prior
 without local data. On the full array it was 4.5 dB worse than generic CDL:

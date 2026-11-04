@@ -43,7 +43,7 @@ environments found the generic CDL prior 2.1--4.7\,dB from a site-trained one
 on the full grid:
 no further in a factory hall than on the street, furthest in a small lab room
 whose delay spread sits at the low end of the prior's range. Finally, a hallway
-model calibrated to measurements by differentiable ray tracing reproduced delay
+model calibrated to measurements reproduced delay
 spread, but as a prior in an unmeasured part of the hallway it was 4.5\,dB
 worse than CDL on the full array. All measured results come from one sounder.
 \end{abstract}
@@ -424,7 +424,9 @@ institute hallway from two 4$\times$8 arrays at opposite ends; its simplified
 3D model (floor, walls, ceiling, one material each) is the one calibrated by
 differentiable ray tracing in~\cite{hoydis2023learning}. We first reproduced
 that calibration (permittivity and conductivity of the three objects, fitted to
-per-antenna power and RMS delay spread): held-out delay-spread error fell from
+per-antenna power and RMS delay spread; with six parameters we used a
+derivative-free search, Nelder--Mead on log-parameters, in place of the paper's
+gradient descent): held-out delay-spread error fell from
 0.42 to 0.28 (paper: 0.54 to 0.24), and power error fell in the corridor
 (4.2 to 2.4\,dB) but rose in the lobby (11.0 to 16.0\,dB), where the model is
 too simple. The calibration was then refitted on one part of the corridor
